@@ -25,6 +25,7 @@ from radshock.geocoding import (
 )
 from radshock.intervention import simulate_candidates
 from radshock.schemas import validate_facilities
+from radshock.sensitivity import run_sensitivity_analysis
 from radshock.snapshots import store_snapshot
 from radshock.sources import archive_local_source, fetch_url_source
 from radshock.utilization import summarize_utilization_change
@@ -269,6 +270,28 @@ def compare_travel_time_access_command(
         typer.echo(shocks.to_csv(index=False))
 
 
+@app.command("sensitivity-analysis")
+def sensitivity_analysis_command(
+    county_shocks_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    output_csv: Annotated[Path | None, typer.Option()] = None,
+    force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
+) -> None:
+    """Re-score county shocks under alternative transparent weighting assumptions."""
+    if output_csv is not None and output_csv.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    sensitivity = run_sensitivity_analysis(
+        pd.read_csv(county_shocks_csv, dtype={"county_fips": str})
+    )
+    if output_csv is not None:
+        output_csv.parent.mkdir(parents=True, exist_ok=True)
+        sensitivity.to_csv(output_csv, index=False)
+        scenario_count = int(sensitivity["scenario_id"].nunique())
+        typer.echo(f"Sensitivity analysis written: {output_csv.resolve()}")
+        typer.echo(f"Rows: {len(sensitivity)}; scenarios: {scenario_count}")
+    else:
+        typer.echo(sensitivity.to_csv(index=False))
+
+
 def _build_geocode_provider(
     provider_name: str,
     static_csv: Path | None,
@@ -317,9 +340,11 @@ def analyze(
         )
         shocks = shocks.merge(utilization_change, on="county_fips", how="left")
         utilization_change.to_csv(output_dir / "utilization_change.csv", index=False)
+    sensitivity = run_sensitivity_analysis(shocks)
     events.to_csv(output_dir / "facility_events.csv", index=False)
     shocks.to_csv(output_dir / "county_shocks.csv", index=False)
     interventions.to_csv(output_dir / "intervention_rankings.csv", index=False)
+    sensitivity.to_csv(output_dir / "sensitivity_analysis.csv", index=False)
     brief = generate_policy_brief(
         events,
         shocks,

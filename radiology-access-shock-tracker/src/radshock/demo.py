@@ -11,6 +11,7 @@ from radshock.access import compare_county_access
 from radshock.briefs import generate_policy_brief, generate_policy_brief_html
 from radshock.changes import detect_changes
 from radshock.intervention import simulate_candidates
+from radshock.sensitivity import run_sensitivity_analysis
 from radshock.snapshots import file_sha256
 from radshock.utilization import summarize_utilization_change
 
@@ -44,11 +45,13 @@ def build_demo(output_dir: Path) -> dict[str, Path]:
     utilization_change = summarize_utilization_change(utilization, "2025Q4", "2026Q2")
     shocks = shocks.merge(utilization_change, on="county_fips", how="left")
     interventions = simulate_candidates(population, after, candidates)
+    sensitivity = run_sensitivity_analysis(shocks)
 
     events.to_csv(analysis / "facility_events.csv", index=False)
     shocks.to_csv(analysis / "county_shocks.csv", index=False)
     interventions.to_csv(analysis / "intervention_rankings.csv", index=False)
     utilization_change.to_csv(analysis / "utilization_change.csv", index=False)
+    sensitivity.to_csv(analysis / "sensitivity_analysis.csv", index=False)
 
     brief = generate_policy_brief(
         events,
@@ -70,6 +73,7 @@ def build_demo(output_dir: Path) -> dict[str, Path]:
             "county_shocks": "analysis/county_shocks.csv",
             "interventions": "analysis/intervention_rankings.csv",
             "utilization": "analysis/utilization_change.csv",
+            "sensitivity": "analysis/sensitivity_analysis.csv",
             "brief": "briefs/policy_brief.md",
             "brief_html": "briefs/policy_brief.html",
         },
@@ -79,6 +83,7 @@ def build_demo(output_dir: Path) -> dict[str, Path]:
         "events": analysis / "facility_events.csv",
         "shocks": analysis / "county_shocks.csv",
         "interventions": analysis / "intervention_rankings.csv",
+        "sensitivity": analysis / "sensitivity_analysis.csv",
         "brief": briefs / "policy_brief.md",
         "brief_html": briefs / "policy_brief.html",
     }

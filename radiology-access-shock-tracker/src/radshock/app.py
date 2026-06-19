@@ -27,6 +27,7 @@ required = {
     "interventions": analysis_dir / "intervention_rankings.csv",
     "utilization": analysis_dir / "utilization_change.csv",
 }
+sensitivity_path = analysis_dir / "sensitivity_analysis.csv"
 missing = [str(path) for path in required.values() if not path.exists()]
 if missing:
     st.warning("Run `radshock demo` first. Missing: " + ", ".join(missing))
@@ -36,6 +37,11 @@ events = pd.read_csv(required["events"])
 shocks = pd.read_csv(required["shocks"], dtype={"county_fips": str})
 interventions = pd.read_csv(required["interventions"], dtype={"county_fips": str})
 utilization = pd.read_csv(required["utilization"], dtype={"county_fips": str})
+sensitivity = (
+    pd.read_csv(sensitivity_path, dtype={"county_fips": str})
+    if sensitivity_path.exists()
+    else pd.DataFrame()
+)
 manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
 
 if bool(manifest.get("synthetic_data")):
@@ -51,8 +57,24 @@ col2.metric("Counties flagged", critical)
 col3.metric("Highest shock score", f"{shocks['shock_score'].max():.1f}")
 col4.metric("Best intervention score", f"{interventions['intervention_score'].max():.1f}")
 
-overview, event_tab, county_tab, intervention_tab, utilization_tab, methods_tab = st.tabs(
-    ["Overview", "Facility events", "County shocks", "Interventions", "Utilization", "Methods"]
+(
+    overview,
+    event_tab,
+    county_tab,
+    intervention_tab,
+    utilization_tab,
+    sensitivity_tab,
+    methods_tab,
+) = st.tabs(
+    [
+        "Overview",
+        "Facility events",
+        "County shocks",
+        "Interventions",
+        "Utilization",
+        "Sensitivity",
+        "Methods",
+    ]
 )
 
 with overview:
@@ -161,6 +183,34 @@ with utilization_tab:
         file_name="utilization_change.csv",
         mime="text/csv",
     )
+
+with sensitivity_tab:
+    if sensitivity.empty:
+        st.info("No sensitivity analysis output found.")
+    else:
+        scenario_options = sensitivity["scenario_id"].dropna().unique().tolist()
+        selected_scenario = st.selectbox("Scenario", scenario_options)
+        scenario_rows = sensitivity[sensitivity["scenario_id"] == selected_scenario].copy()
+        display_columns = [
+            "scenario_name",
+            "county_name",
+            "baseline_shock_score",
+            "sensitivity_shock_score",
+            "score_delta_from_baseline",
+            "baseline_alert_level",
+            "sensitivity_alert_level",
+            "baseline_rank",
+            "sensitivity_rank",
+            "rank_delta_from_baseline",
+        ]
+        display_columns = [column for column in display_columns if column in scenario_rows.columns]
+        st.dataframe(scenario_rows[display_columns], use_container_width=True, hide_index=True)
+        st.download_button(
+            "Download sensitivity analysis",
+            sensitivity.to_csv(index=False),
+            file_name="sensitivity_analysis.csv",
+            mime="text/csv",
+        )
 
 with methods_tab:
     st.markdown(

@@ -11,6 +11,7 @@ An open-source surveillance toolkit for detecting changes in mammography access,
 - Calculates population-weighted distance, or reviewed travel time, to the nearest active facility
   before and after a change.
 - Produces a vulnerability-adjusted county shock score and alert level.
+- Re-scores county shocks under alternative weighting assumptions for sensitivity review.
 - Summarizes before/after screening utilization signals.
 - Ranks hypothetical mobile mammography or fixed-site locations by geographic access recovery.
 - Generates CSV outputs, a Streamlit dashboard, and a downloadable Markdown policy brief.
@@ -152,6 +153,17 @@ radshock compare-travel-time-access \
 
 Travel-time matrices must contain `point_id`, `facility_id`, and `travel_time_minutes`.
 Duplicate point/facility pairs and negative travel times are rejected.
+
+Run shock-score sensitivity analysis:
+
+```bash
+radshock sensitivity-analysis \
+  outputs/2026-Q3/county_shocks.csv \
+  --output-csv outputs/2026-Q3/sensitivity_analysis.csv
+```
+
+The sensitivity output keeps the baseline score and rank next to each alternative scenario. It is a
+review aid, not a validated clinical or policy threshold.
 
 Run the full analysis:
 

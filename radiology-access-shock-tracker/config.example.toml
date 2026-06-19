@@ -24,3 +24,13 @@ cache_path = "data/cache/geocoding/census.json"
 [reports]
 output_dir = "outputs/analysis"
 include_html = true
+
+[sensitivity]
+enabled = true
+scenarios = [
+  "baseline",
+  "mean_access_heavy",
+  "tail_access_heavy",
+  "threshold_heavy",
+  "vulnerability_heavy",
+]

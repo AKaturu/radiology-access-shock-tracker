@@ -17,6 +17,8 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 - `radshock.changes`: facility-level event signal detection.
 - `radshock.access`: nearest-facility distance and reviewed travel-time access calculations with
   transparent shock-score components.
+- `radshock.sensitivity`: post-processing sensitivity analysis for alternate shock-score weights
+  and rank movement.
 - `radshock.utilization`: descriptive CMS-style utilization change summaries.
 - `radshock.intervention`: geographic planning simulation for candidate mobile or fixed sites.
 - `radshock.briefs`: Markdown and HTML report generation.
@@ -34,8 +36,9 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 8. Population points are evaluated against before and after facilities using distance or a reviewed
    point-to-facility travel-time matrix.
 9. County access deltas, vulnerability context, and utilization summaries are merged.
-10. Candidate response sites are ranked by geographic access recovery.
-11. CSV outputs, briefs, and dashboard views expose the results with limitations.
+10. Sensitivity analysis re-scores county shocks under alternate transparent weighting assumptions.
+11. Candidate response sites are ranked by geographic access recovery.
+12. CSV outputs, briefs, and dashboard views expose the results with limitations.
 
 ## Failure Modes
 
@@ -52,3 +55,4 @@ alerts, evaluates candidate response sites, and generates cautious reports.
   review-status gate.
 - Review CSVs with blank production fields or unapproved review statuses are blocked before
   snapshot ingestion.
+- Sensitivity scenarios reveal score/rank instability but do not validate the exploratory score.

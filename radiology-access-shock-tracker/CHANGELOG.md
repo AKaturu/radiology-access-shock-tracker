@@ -11,6 +11,7 @@
 - Added an MQSA review finalization gate before real snapshot ingestion.
 - Added cached MQSA geocoding support with Census and static providers for candidate coordinates.
 - Added reviewed travel-time matrix access comparisons and a CLI export workflow.
+- Added shock-score sensitivity analysis scenarios, CLI export, demo output, and dashboard view.
 
 ## 0.1.0 - 2026-06-19
 

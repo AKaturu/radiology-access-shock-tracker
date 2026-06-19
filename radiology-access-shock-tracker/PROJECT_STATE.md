@@ -16,6 +16,7 @@ uses synthetic data safely for demos and supports reviewed public-data ingestion
 The downloaded MVP has been committed as a baseline. The project now has safer event semantics,
 score transparency, adapter validation, reports, CLI behavior, source archiving, FDA/MQSA review
 gates, cached geocoding assistance, reviewed travel-time matrix comparisons, docs, and tests.
+It now also produces shock-score sensitivity-analysis outputs for reviewer robustness checks.
 
 ## Completed Features
 
@@ -96,6 +97,20 @@ minute-based county shock scores, and blocks duplicate or negative matrix values
 Tests cover fastest active facility selection, threshold-population changes, duplicate matrix
 rejection, and the CLI export workflow.
 
+### Shock-Score Sensitivity Analysis
+
+#### Validation
+
+`sensitivity-analysis` re-scores county shock outputs across baseline, mean-access-heavy,
+tail-access-heavy, threshold-heavy, and vulnerability-heavy weighting scenarios. The output keeps
+baseline score/rank beside alternate score/rank so reviewers can see which county priorities are
+stable and which depend on exploratory weights.
+
+#### Tests Added
+
+Tests cover baseline score/rank preservation, threshold-heavy emphasis changes, travel-time shock
+component support, missing-component rejection, CLI export, and demo output generation.
+
 ## Current Work
 
 ### Active Feature
@@ -106,25 +121,26 @@ Production readiness hardening.
 
 Latest validation gate completed:
 
-- `python -m pytest` passed with 31 tests.
+- `python -m pytest` passed with 36 tests.
 - `python -m ruff check .` passed.
 - `python -m mypy src/radshock` passed.
 - `python -m pip wheel . -w work/dist` built the package wheel.
 - `radshock demo --output-dir work/demo-smoke` regenerated demo outputs.
-- Streamlit startup smoke test returned HTTP 200 on `127.0.0.1:8766`.
+- `radshock sensitivity-analysis work/demo-smoke/analysis/county_shocks.csv` wrote 40 scenario
+  rows.
+- Streamlit startup smoke test returned HTTP 200 on `127.0.0.1:8768`.
 
 ### Remaining Work
 
 - Use a real FDA MQSA ZIP to generate the first fully reviewed NC facility CSV.
 - Add a documented routing-engine adapter or recipe for generating travel-time matrices.
-- Add sensitivity-analysis reports for alternative shock-score weights.
 - Add scheduled workflow templates only after repository secrets and source review are configured.
 
 ## Next Actions
 
 1. Review and approve the first real MQSA-derived NC facility CSV.
 2. Add a reproducible recipe for generating the reviewed travel-time matrix inputs.
-3. Add sensitivity-analysis reporting for alternative shock-score weights.
+3. Add scheduled workflow templates after repository secrets and source review are configured.
 
 ## Risks
 
@@ -145,6 +161,7 @@ Latest validation gate completed:
 - CMS and public-data schemas can change by release, so fixture tests must be maintained.
 - Geocoder matches can be ambiguous and must remain subject to manual review.
 - Travel-time matrix validity depends on upstream routing assumptions and network vintage.
+- Sensitivity scenarios test score robustness but do not clinically validate the score.
 
 ## Resume Instructions
 

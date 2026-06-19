@@ -220,3 +220,38 @@ def test_compare_travel_time_access_command_writes_county_shocks(tmp_path: Path)
     shocks = pd.read_csv(output)
     assert shocks.loc[0, "access_metric"] == "travel_time_minutes"
     assert shocks.loc[0, "population_newly_over_45_minutes"] == 100
+
+
+def test_sensitivity_analysis_command_writes_scenario_rows(tmp_path: Path) -> None:
+    county_shocks = tmp_path / "county_shocks.csv"
+    output = tmp_path / "sensitivity.csv"
+    pd.DataFrame(
+        [
+            {
+                "county_fips": "37001",
+                "county_name": "Demo",
+                "shock_score": 24.4,
+                "alert_level": "WARNING",
+                "shock_mean_distance_component": 0.5,
+                "shock_p90_distance_component": 0.2,
+                "shock_threshold_component": 0.1,
+                "vulnerability_poverty_component": 0.2,
+                "vulnerability_rurality_component": 0.4,
+                "vulnerability_risk_component": 0.3,
+            }
+        ]
+    ).to_csv(county_shocks, index=False)
+    result = CliRunner().invoke(
+        app,
+        [
+            "sensitivity-analysis",
+            str(county_shocks),
+            "--output-csv",
+            str(output),
+        ],
+    )
+    assert result.exit_code == 0
+    sensitivity = pd.read_csv(output)
+    assert "baseline" in set(sensitivity["scenario_id"])
+    assert "threshold_heavy" in set(sensitivity["scenario_id"])
+    assert sensitivity.loc[0, "county_fips"] == 37001

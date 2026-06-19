@@ -99,6 +99,22 @@ Sensitivity analysis is required before real-world deployment. The output table 
 deterioration, vulnerability, and individual component values next to the composite score to
 support review and sensitivity analysis.
 
+### Sensitivity Analysis
+
+`radshock sensitivity-analysis` re-scores county shock outputs under alternate weighting
+assumptions. The default scenarios keep the same component inputs and vary only transparent model
+weights:
+
+- baseline published exploratory weighting;
+- mean-access-heavy weighting;
+- 90th-percentile tail-access-heavy weighting;
+- access-threshold-heavy weighting;
+- vulnerability-heavy adjustment.
+
+Each output row keeps the baseline score, alternative score, score delta, baseline rank,
+alternative rank, rank delta, baseline alert level, and alternative alert level. Scenario movement
+is a robustness check for prioritization, not a validation study.
+
 ## 4. Utilization Signal
 
 The MVP calculates services per 1,000 eligible beneficiaries for two specified periods. A negative
