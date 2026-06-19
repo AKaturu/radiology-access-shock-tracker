@@ -80,3 +80,9 @@ still be checked and marked `reviewed`, `verified`, or `approved` before
 CI tests should not depend on live FDA, CDC, Census, CMS, geocoding, or routing endpoints. Adapter
 tests should use fixture files or mocked responses and reserve live endpoint checks for manually
 triggered workflows with explicit credentials and source review.
+
+The guarded `quarterly MQSA source refresh` workflow is a review-artifact workflow, not a
+publication workflow. Manual dispatch fetches the FDA MQSA ZIP and uploads a state-filtered review
+CSV plus source metadata. Scheduled runs require `ENABLE_QUARTERLY_SNAPSHOT=true`. Reviewers must
+still fill required fields, approve rows, finalize snapshots, generate route matrices, and pass the
+readiness audit before sharing findings.

@@ -24,6 +24,8 @@ Synthetic demo runs now emit blocked readiness-audit reports by default, and the
 a readiness view for audit findings.
 Direct `radshock analyze` runs now emit manifests and readiness reports as part of the output
 package, so non-demo analyses carry their own initial publication-gate evidence.
+The guarded quarterly MQSA source-refresh workflow now produces review artifacts instead of a
+placeholder failure, while still requiring human review before any snapshot or findings.
 
 ## Completed Features
 
@@ -174,6 +176,19 @@ dashboard no longer requires utilization output when the analysis was run withou
 Tests cover direct analysis-folder manifest discovery and CLI `analyze` generation of manifest and
 readiness reports.
 
+### Guarded MQSA Source-Refresh Workflow
+
+#### Validation
+
+The quarterly GitHub Actions workflow now supports manual dispatch and guarded scheduled execution.
+It downloads the FDA MQSA public ZIP, writes source metadata, prepares a state-filtered MQSA review
+CSV, and uploads those files as artifacts. It does not finalize snapshots or publish findings.
+
+#### Tests Added
+
+No runtime tests were added for the GitHub-hosted workflow. The local CLI commands used by the
+workflow are covered by existing tests.
+
 ## Current Work
 
 ### Active Feature
@@ -193,12 +208,14 @@ Latest validation gate completed:
   and `readiness_audit.md` in `work/analyze-smoke-packaging`.
 - The generated synthetic analysis readiness audit was `BLOCKED`, with 4 blockers and 2 warnings.
 - Streamlit startup smoke test returned HTTP 200 on `127.0.0.1:8772`.
+- `radshock fetch-fda-mqsa --output-dir work/source-refresh-smoke/raw --force` downloaded and
+  archived the live FDA MQSA ZIP for 2026-06-19 with metadata.
+- `radshock prepare-mqsa-review` created an NC review artifact with 289 rows from that archive.
 
 ### Remaining Work
 
 - Use a real FDA MQSA ZIP to generate and human-review the first NC facility CSV.
-- Configure and enable the guarded scheduled workflow after repository secrets and source review
-  owners are configured.
+- Enable the guarded scheduled workflow after source review owners are configured.
 - Run `readiness-audit` on the first real analysis package and resolve all blockers before sharing.
 
 ## Next Actions
@@ -206,8 +223,7 @@ Latest validation gate completed:
 1. Review and approve the first real MQSA-derived NC facility CSV.
 2. Generate reviewed travel-time matrices with the chosen routing process and finalize them.
 3. Run readiness auditing on real analysis outputs and resolve blockers.
-4. Configure and enable scheduled workflow execution after repository secrets and source review
-   owners are configured.
+4. Configure source review owners and enable scheduled workflow execution.
 
 ## Risks
 

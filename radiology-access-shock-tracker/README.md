@@ -227,6 +227,15 @@ The analysis command writes CSV outputs, `manifest.json`, `readiness_audit.json`
 `readiness_audit.md`, and policy briefs. If the before/after CSVs are stored snapshot
 `facilities.csv` files, snapshot directories are inferred for the readiness audit.
 
+## Automation
+
+The `quarterly MQSA source refresh` GitHub Actions workflow can be run manually to fetch the FDA
+MQSA public ZIP, archive source metadata, and upload a state-filtered review CSV artifact. Scheduled
+runs are skipped unless the repository variable `ENABLE_QUARTERLY_SNAPSHOT` is set to `true`.
+
+The workflow stops at the review artifact. It does not approve rows, finalize a snapshot, run a
+public analysis, or publish findings.
+
 ## Public-data integration approach
 
 The MVP deliberately separates source ingestion from the surveillance engine:
