@@ -90,6 +90,14 @@ def run_readiness_audit(
     return _audit(analysis_dir, checks)
 
 
+def find_manifest_path(analysis_dir: Path) -> Path | None:
+    """Find the manifest for either a package root or direct analysis output directory."""
+    for path in [analysis_dir / "manifest.json", analysis_dir.parent / "manifest.json"]:
+        if path.exists():
+            return path
+    return None
+
+
 def render_readiness_markdown(audit: ReadinessAudit) -> str:
     """Render a concise human-readable readiness report."""
     lines = [
@@ -136,14 +144,15 @@ def _audit(analysis_dir: Path, checks: list[AuditCheck]) -> ReadinessAudit:
 
 
 def _audit_manifest(analysis_dir: Path, checks: list[AuditCheck]) -> None:
-    manifest_path = analysis_dir.parent / "manifest.json"
-    if not manifest_path.exists():
+    manifest_path = find_manifest_path(analysis_dir)
+    if manifest_path is None:
+        checked_paths = [analysis_dir / "manifest.json", analysis_dir.parent / "manifest.json"]
         checks.append(
             AuditCheck(
                 "manifest",
                 "Manifest provenance",
                 "WARN",
-                f"No manifest found at {manifest_path}.",
+                "No manifest found at: " + ", ".join(str(path) for path in checked_paths),
                 "Store a manifest with synthetic_data and source provenance before publication.",
             )
         )
@@ -177,7 +186,8 @@ def _audit_manifest(analysis_dir: Path, checks: list[AuditCheck]) -> None:
                 "manifest",
                 "Manifest provenance",
                 "PASS",
-                "Manifest is present and does not mark the analysis as synthetic.",
+                f"Manifest is present at {manifest_path} and does not mark the analysis "
+                "as synthetic.",
                 "No action required.",
             )
         )

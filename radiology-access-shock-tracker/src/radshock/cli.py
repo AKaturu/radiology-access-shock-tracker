@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from datetime import date
+import json
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Annotated
 
@@ -419,10 +420,25 @@ def analyze(
     candidates_csv: Annotated[Path, typer.Option(exists=True)],
     output_dir: Annotated[Path, typer.Option()] = Path("outputs/analysis"),
     utilization_csv: Annotated[Path | None, typer.Option()] = None,
+    before_snapshot_dir: Annotated[
+        Path | None,
+        typer.Option(exists=True, file_okay=False, help="Snapshot directory for provenance audit."),
+    ] = None,
+    after_snapshot_dir: Annotated[
+        Path | None,
+        typer.Option(exists=True, file_okay=False, help="Snapshot directory for provenance audit."),
+    ] = None,
+    raw_source_metadata: Annotated[
+        Path | None,
+        typer.Option(exists=True, readable=True, help="Archived raw-source metadata JSON."),
+    ] = None,
     before_period: Annotated[str, typer.Option()] = "2025Q4",
     after_period: Annotated[str, typer.Option()] = "2026Q2",
     synthetic_data: Annotated[
         bool, typer.Option(help="Mark generated reports as synthetic demonstration outputs.")
+    ] = False,
+    require_travel_time: Annotated[
+        bool, typer.Option(help="Block readiness if outputs are distance-only.")
     ] = False,
 ) -> None:
     """Compare two snapshots and generate analysis outputs."""
@@ -456,7 +472,91 @@ def analyze(
     )
     (output_dir / "policy_brief.md").write_text(brief)
     (output_dir / "policy_brief.html").write_text(generate_policy_brief_html(brief))
+    _write_analysis_manifest(
+        output_dir,
+        before_csv=before_csv,
+        after_csv=after_csv,
+        population_csv=population_csv,
+        counties_csv=counties_csv,
+        candidates_csv=candidates_csv,
+        utilization_csv=utilization_csv,
+        before_period=before_period,
+        after_period=after_period,
+        synthetic_data=synthetic_data,
+    )
+    audit = run_readiness_audit(
+        output_dir,
+        before_snapshot_dir=before_snapshot_dir or _infer_snapshot_dir(before_csv),
+        after_snapshot_dir=after_snapshot_dir or _infer_snapshot_dir(after_csv),
+        raw_source_metadata=raw_source_metadata,
+        require_travel_time=require_travel_time,
+    )
+    (output_dir / "readiness_audit.json").write_text(audit_to_json(audit), encoding="utf-8")
+    (output_dir / "readiness_audit.md").write_text(
+        render_readiness_markdown(audit),
+        encoding="utf-8",
+    )
+    blocker_count = sum(check.status == "BLOCKER" for check in audit.checks)
+    warning_count = sum(check.status == "WARN" for check in audit.checks)
     typer.echo(f"Analysis complete: {output_dir.resolve()}")
+    typer.echo(
+        f"Readiness status: {audit.overall_status}; "
+        f"blockers: {blocker_count}; warnings: {warning_count}"
+    )
+
+
+def _write_analysis_manifest(
+    output_dir: Path,
+    before_csv: Path,
+    after_csv: Path,
+    population_csv: Path,
+    counties_csv: Path,
+    candidates_csv: Path,
+    utilization_csv: Path | None,
+    before_period: str,
+    after_period: str,
+    synthetic_data: bool,
+) -> None:
+    outputs = {
+        "events": "facility_events.csv",
+        "county_shocks": "county_shocks.csv",
+        "interventions": "intervention_rankings.csv",
+        "sensitivity": "sensitivity_analysis.csv",
+        "readiness_json": "readiness_audit.json",
+        "readiness_md": "readiness_audit.md",
+        "brief": "policy_brief.md",
+        "brief_html": "policy_brief.html",
+    }
+    if utilization_csv is not None:
+        outputs["utilization"] = "utilization_change.csv"
+    manifest = {
+        "synthetic_data": synthetic_data,
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "command": "analyze",
+        "inputs": {
+            "before_csv": str(before_csv),
+            "after_csv": str(after_csv),
+            "population_csv": str(population_csv),
+            "counties_csv": str(counties_csv),
+            "candidates_csv": str(candidates_csv),
+            "utilization_csv": str(utilization_csv) if utilization_csv is not None else None,
+        },
+        "periods": {
+            "before_period": before_period,
+            "after_period": after_period,
+        },
+        "outputs": outputs,
+    }
+    (output_dir / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _infer_snapshot_dir(snapshot_csv: Path) -> Path | None:
+    if snapshot_csv.name == "facilities.csv" and (snapshot_csv.parent / "metadata.json").exists():
+        return snapshot_csv.parent
+    return None
 
 
 if __name__ == "__main__":

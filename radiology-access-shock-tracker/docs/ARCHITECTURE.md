@@ -45,8 +45,10 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 10. County access deltas, vulnerability context, and utilization summaries are merged.
 11. Sensitivity analysis re-scores county shocks under alternate transparent weighting assumptions.
 12. Candidate response sites are ranked by geographic access recovery.
-13. Readiness auditing checks blockers, warnings, provenance, and publication limits.
-14. CSV outputs, briefs, readiness reports, and dashboard views expose the results with
+13. `analyze` writes CSV outputs, a direct-output manifest, briefs, and an initial readiness audit.
+14. Standalone readiness auditing can rerun those checks with explicit snapshot and source
+    provenance.
+15. CSV outputs, briefs, readiness reports, and dashboard views expose the results with
     limitations.
 
 ## Failure Modes

@@ -157,6 +157,11 @@ core outputs, invalid snapshot checksums, and missing required artifacts. It war
 provenance, missing sensitivity analysis, missing policy briefs, and distance-only outputs when
 road-time analysis is not explicitly required.
 
+`radshock analyze` writes `manifest.json`, `readiness_audit.json`, and `readiness_audit.md` into
+the output directory. The audit also accepts the demo/package layout where `manifest.json` lives in
+the parent directory of `analysis/`. Before sharing real-world findings, rerun the audit with
+snapshot directories and archived raw-source metadata if they were not supplied during analysis.
+
 The synthetic demo writes a blocked audit report by default so reviewers can see the publication
 gate and confirm that synthetic outputs are not publishable real-world findings.
 

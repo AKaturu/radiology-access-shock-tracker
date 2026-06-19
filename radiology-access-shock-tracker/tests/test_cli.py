@@ -301,6 +301,67 @@ def test_sensitivity_analysis_command_writes_scenario_rows(tmp_path: Path) -> No
     assert sensitivity.loc[0, "county_fips"] == 37001
 
 
+def test_analyze_command_writes_manifest_and_readiness_reports(tmp_path: Path) -> None:
+    before = tmp_path / "before.csv"
+    after = tmp_path / "after.csv"
+    population = tmp_path / "population.csv"
+    counties = tmp_path / "counties.csv"
+    candidates = tmp_path / "candidates.csv"
+    output_dir = tmp_path / "analysis"
+    _snapshot(before, [["F1", "Facility", 35.0, -78.0, 1000, True]])
+    _snapshot(after, [["F1", "Facility", 35.0, -78.0, 1000, True]])
+    pd.DataFrame(
+        [["P1", "37001", 35.0, -78.0, 100]],
+        columns=["point_id", "county_fips", "latitude", "longitude", "weight"],
+    ).to_csv(population, index=False)
+    pd.DataFrame(
+        [["37001", "Demo", "NC", 35.0, -78.0, 100, 20, 0.8, 0.7]],
+        columns=[
+            "county_fips",
+            "county_name",
+            "state",
+            "centroid_lat",
+            "centroid_lon",
+            "eligible_population",
+            "poverty_pct",
+            "rurality_index",
+            "high_risk_index",
+        ],
+    ).to_csv(counties, index=False)
+    pd.DataFrame(
+        [["C1", "Candidate", "37001", 35.1, -78.1]],
+        columns=["candidate_id", "candidate_name", "county_fips", "latitude", "longitude"],
+    ).to_csv(candidates, index=False)
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "analyze",
+            "--before-csv",
+            str(before),
+            "--after-csv",
+            str(after),
+            "--population-csv",
+            str(population),
+            "--counties-csv",
+            str(counties),
+            "--candidates-csv",
+            str(candidates),
+            "--output-dir",
+            str(output_dir),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Readiness status: WARN" in result.output
+    manifest = json.loads((output_dir / "manifest.json").read_text())
+    audit = json.loads((output_dir / "readiness_audit.json").read_text())
+    assert manifest["synthetic_data"] is False
+    assert manifest["outputs"]["readiness_json"] == "readiness_audit.json"
+    assert audit["overall_status"] == "WARN"
+    assert (output_dir / "readiness_audit.md").exists()
+
+
 def test_readiness_audit_command_writes_reports(tmp_path: Path) -> None:
     analysis = tmp_path / "analysis"
     analysis.mkdir()

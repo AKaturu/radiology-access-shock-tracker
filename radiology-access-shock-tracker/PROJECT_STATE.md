@@ -22,6 +22,8 @@ Travel-time route-review templates and finalization gates now provide a reproduc
 external routing outputs to the access engine.
 Synthetic demo runs now emit blocked readiness-audit reports by default, and the dashboard includes
 a readiness view for audit findings.
+Direct `radshock analyze` runs now emit manifests and readiness reports as part of the output
+package, so non-demo analyses carry their own initial publication-gate evidence.
 
 ## Completed Features
 
@@ -158,6 +160,20 @@ status, blocker/warning/pass counts, findings, and report downloads.
 
 Demo coverage now asserts that synthetic outputs produce a blocked readiness audit.
 
+### Analysis Manifest and Readiness Packaging
+
+#### Validation
+
+`radshock analyze` now writes `manifest.json`, `readiness_audit.json`, and
+`readiness_audit.md` into its output directory. The readiness audit and dashboard can find manifests
+in either a direct analysis output directory or the parent package layout used by the demo. The
+dashboard no longer requires utilization output when the analysis was run without utilization data.
+
+#### Tests Added
+
+Tests cover direct analysis-folder manifest discovery and CLI `analyze` generation of manifest and
+readiness reports.
+
 ## Current Work
 
 ### Active Feature
@@ -168,15 +184,15 @@ Production readiness hardening.
 
 Latest validation gate completed:
 
-- `python -m pytest` passed with 45 tests.
+- `python -m pytest` passed with 47 tests.
 - `python -m ruff check .` passed.
 - `python -m mypy src/radshock` passed.
 - `python -m pip wheel . -w work/dist` built the package wheel.
-- `radshock demo --output-dir work/demo-smoke-readiness` regenerated demo outputs, including
-  `readiness_audit.json` and `readiness_audit.md`.
-- The generated synthetic demo readiness audit was `BLOCKED`, with 4 blockers and 2 warnings.
-- `radshock demo --output-dir outputs/demo` refreshed the default dashboard demo package.
-- Streamlit startup smoke test returned HTTP 200 on `127.0.0.1:8771`.
+- `radshock demo --output-dir work/demo-smoke-analyze-packaging` regenerated demo outputs.
+- `radshock analyze` against those synthetic inputs wrote `manifest.json`, `readiness_audit.json`,
+  and `readiness_audit.md` in `work/analyze-smoke-packaging`.
+- The generated synthetic analysis readiness audit was `BLOCKED`, with 4 blockers and 2 warnings.
+- Streamlit startup smoke test returned HTTP 200 on `127.0.0.1:8772`.
 
 ### Remaining Work
 

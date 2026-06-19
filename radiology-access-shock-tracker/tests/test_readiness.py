@@ -61,6 +61,23 @@ def test_readiness_audit_passes_verified_real_package(tmp_path: Path) -> None:
     assert not any(check.status == "BLOCKER" for check in audit.checks)
 
 
+def test_readiness_audit_accepts_manifest_inside_analysis_dir(tmp_path: Path) -> None:
+    analysis = tmp_path / "analysis"
+    analysis.mkdir()
+    (analysis / "manifest.json").write_text('{"synthetic_data": false}\n')
+    _events(analysis / "facility_events.csv", requires_verification=False)
+    _county_shocks(analysis / "county_shocks.csv")
+    _interventions(analysis / "intervention_rankings.csv")
+    _sensitivity(analysis / "sensitivity_analysis.csv")
+    (analysis / "policy_brief.md").write_text("# Brief\n")
+
+    audit = run_readiness_audit(analysis)
+
+    check_statuses = {check.check_id: check.status for check in audit.checks}
+    assert check_statuses["manifest"] == "PASS"
+    assert audit.overall_status == "WARN"
+
+
 def _events(path: Path, requires_verification: bool) -> None:
     pd.DataFrame(
         [

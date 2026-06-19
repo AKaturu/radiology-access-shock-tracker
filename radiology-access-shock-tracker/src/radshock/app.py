@@ -7,12 +7,14 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+from radshock.readiness import find_manifest_path
+
 st.set_page_config(page_title="Radiology Access Shock Tracker", layout="wide")
 st.title("Radiology Access Shock Tracker")
 st.caption("Surveillance for changes in mammography access and potential community impact")
 
 analysis_dir = Path(st.sidebar.text_input("Analysis directory", value="outputs/demo/analysis"))
-manifest_path = analysis_dir.parent / "manifest.json"
+manifest_path = find_manifest_path(analysis_dir)
 brief_candidates = [
     analysis_dir.parent / "briefs" / "policy_brief.md",
     analysis_dir / "policy_brief.md",
@@ -25,8 +27,8 @@ required = {
     "events": analysis_dir / "facility_events.csv",
     "shocks": analysis_dir / "county_shocks.csv",
     "interventions": analysis_dir / "intervention_rankings.csv",
-    "utilization": analysis_dir / "utilization_change.csv",
 }
+utilization_path = analysis_dir / "utilization_change.csv"
 sensitivity_path = analysis_dir / "sensitivity_analysis.csv"
 readiness_json_path = analysis_dir / "readiness_audit.json"
 readiness_md_path = analysis_dir / "readiness_audit.md"
@@ -38,7 +40,11 @@ if missing:
 events = pd.read_csv(required["events"])
 shocks = pd.read_csv(required["shocks"], dtype={"county_fips": str})
 interventions = pd.read_csv(required["interventions"], dtype={"county_fips": str})
-utilization = pd.read_csv(required["utilization"], dtype={"county_fips": str})
+utilization = (
+    pd.read_csv(utilization_path, dtype={"county_fips": str})
+    if utilization_path.exists()
+    else pd.DataFrame()
+)
 sensitivity = (
     pd.read_csv(sensitivity_path, dtype={"county_fips": str})
     if sensitivity_path.exists()
@@ -51,7 +57,9 @@ if readiness_json_path.exists():
         readiness_audit = json.loads(readiness_json_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         readiness_error = f"Readiness audit JSON could not be parsed: {exc}"
-manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+manifest = (
+    json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path is not None else {}
+)
 
 if bool(manifest.get("synthetic_data")):
     st.warning(
@@ -187,13 +195,16 @@ with intervention_tab:
     )
 
 with utilization_tab:
-    st.dataframe(utilization, use_container_width=True, hide_index=True)
-    st.download_button(
-        "Download utilization signals",
-        utilization.to_csv(index=False),
-        file_name="utilization_change.csv",
-        mime="text/csv",
-    )
+    if utilization.empty:
+        st.info("No utilization signal output found.")
+    else:
+        st.dataframe(utilization, use_container_width=True, hide_index=True)
+        st.download_button(
+            "Download utilization signals",
+            utilization.to_csv(index=False),
+            file_name="utilization_change.csv",
+            mime="text/csv",
+        )
 
 with sensitivity_tab:
     if sensitivity.empty:

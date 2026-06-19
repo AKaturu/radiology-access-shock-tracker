@@ -15,6 +15,7 @@
 - Added production readiness auditing with JSON and Markdown reports.
 - Added travel-time review template and finalization gates for external routing workflows.
 - Added demo readiness-audit outputs and a dashboard readiness view.
+- Added analysis-run manifests and automatic readiness reports for `radshock analyze`.
 
 ## 0.1.0 - 2026-06-19
 

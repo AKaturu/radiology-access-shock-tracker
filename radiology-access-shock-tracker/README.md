@@ -192,7 +192,9 @@ radshock sensitivity-analysis \
 The sensitivity output keeps the baseline score and rank next to each alternative scenario. It is a
 review aid, not a validated clinical or policy threshold.
 
-Audit production readiness before sharing real-world findings:
+Audit production readiness before sharing real-world findings. `radshock analyze` writes an initial
+manifest and readiness audit into its output directory; rerun the audit with explicit snapshot and
+raw-source metadata before publication review:
 
 ```bash
 radshock readiness-audit \
@@ -217,8 +219,13 @@ radshock analyze \
   --counties-csv data/counties.csv \
   --candidates-csv data/candidate_sites.csv \
   --utilization-csv data/utilization.csv \
+  --raw-source-metadata data/raw/fda-mqsa-public/2026-07-01/public.zip.metadata.json \
   --output-dir outputs/2026-Q3
 ```
+
+The analysis command writes CSV outputs, `manifest.json`, `readiness_audit.json`,
+`readiness_audit.md`, and policy briefs. If the before/after CSVs are stored snapshot
+`facilities.csv` files, snapshot directories are inferred for the readiness audit.
 
 ## Public-data integration approach
 
