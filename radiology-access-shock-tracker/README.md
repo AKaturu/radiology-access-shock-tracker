@@ -74,8 +74,19 @@ radshock prepare-mqsa-review \
   --state NC
 ```
 
-Complete the blank reviewed fields, then ingest the reviewed snapshot. Your reviewed facility CSV
-must contain:
+Complete the blank reviewed fields, set `review_status` to `reviewed`, `verified`, or `approved`,
+then finalize it into a snapshot-ready CSV:
+
+```bash
+radshock finalize-mqsa-review \
+  work/fda_mqsa_nc_review.csv \
+  --output-csv work/facilities_2026_07_reviewed.csv
+```
+
+This command fails if any row is still `needs_review` or if `facility_id`, `latitude`,
+`longitude`, `annual_capacity`, or `active` is blank.
+
+Your finalized facility CSV must contain:
 
 ```text
 facility_id,facility_name,latitude,longitude,annual_capacity,active
@@ -84,7 +95,7 @@ facility_id,facility_name,latitude,longitude,annual_capacity,active
 Store a dated snapshot:
 
 ```bash
-radshock ingest-snapshot facilities_2026_07.csv \
+radshock ingest-snapshot work/facilities_2026_07_reviewed.csv \
   --as-of 2026-07-01 \
   --source-name reviewed-mqsa-export \
   --source-url https://www.accessdata.fda.gov/premarket/ftparea/public.zip \

@@ -56,11 +56,23 @@ parser now auto-detects fixed-width versus pipe-delimited source formats.
 Tests cover local source archiving, overwrite protection, FDA MQSA fixed-width ZIP parsing, and the
 observed pipe-delimited FDA layout, plus the CLI review-template workflow.
 
+### MQSA Review Finalization
+
+#### Validation
+
+`finalize-mqsa-review` blocks unapproved review statuses and blank production fields before a
+snapshot-ready CSV can be created.
+
+#### Tests Added
+
+Tests cover incomplete review rejection, blank coordinate rejection, successful snapshot-ready
+output, and the CLI finalization command.
+
 ## Current Work
 
 ### Active Feature
 
-Production source ingestion groundwork.
+Production review-to-snapshot gating.
 
 ### Progress
 
@@ -69,7 +81,8 @@ Implementation is in progress. Full validation must be rerun before release or p
 ### Remaining Work
 
 - Complete road-network travel-time backend design and implementation.
-- Use a real FDA MQSA ZIP to generate the first reviewed NC facility CSV.
+- Add geocoding/provider hooks for filling reviewed coordinates with cached provenance.
+- Use a real FDA MQSA ZIP to generate the first fully reviewed NC facility CSV.
 - Add sensitivity-analysis reports for alternative shock-score weights.
 - Add scheduled workflow templates only after repository secrets and source review are configured.
 

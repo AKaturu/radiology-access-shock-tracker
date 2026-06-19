@@ -11,6 +11,7 @@ from radshock.access import compare_county_access
 from radshock.adapters.facilities import (
     FDA_MQSA_PUBLIC_ZIP_URL,
     build_mqsa_review_template,
+    finalize_mqsa_review,
     read_fda_mqsa_fixed_width,
 )
 from radshock.briefs import generate_policy_brief, generate_policy_brief_html
@@ -144,6 +145,27 @@ def prepare_mqsa_review(
         "Review required: facility_id, latitude, longitude, annual_capacity, and active "
         "must be completed before snapshot ingestion."
     )
+
+
+@app.command("finalize-mqsa-review")
+def finalize_mqsa_review_command(
+    input_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    output_csv: Annotated[Path, typer.Option()],
+    force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
+    dry_run: Annotated[bool, typer.Option(help="Validate without writing output.")] = False,
+) -> None:
+    """Validate a completed MQSA review CSV and write snapshot-ready facilities."""
+    if output_csv.exists() and not force and not dry_run:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    reviewed = finalize_mqsa_review(pd.read_csv(input_csv, dtype=str, keep_default_na=False))
+    active_count = int(reviewed["active"].sum())
+    if dry_run:
+        typer.echo(f"MQSA review complete: {len(reviewed)} records, {active_count} active")
+        return
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    reviewed.to_csv(output_csv, index=False)
+    typer.echo(f"Snapshot-ready facilities written: {output_csv.resolve()}")
+    typer.echo(f"Records: {len(reviewed)}; active: {active_count}")
 
 
 @app.command("validate-snapshot")

@@ -7,6 +7,7 @@ import pytest
 from radshock.adapters.cms import summarize_mammography_claims
 from radshock.adapters.facilities import (
     build_mqsa_review_template,
+    finalize_mqsa_review,
     normalize_manual_facility_export,
     read_fda_mqsa_fixed_width,
 )
@@ -91,6 +92,47 @@ def test_fda_mqsa_pipe_delimited_source_is_supported(tmp_path: Path) -> None:
     assert raw.loc[0, "source_facility_name"] == "Demo Facility"
     assert raw.loc[0, "source_state"] == "NC"
     assert raw.loc[0, "source_schema_version"] == "fda_mqsa_pipe_delimited"
+
+
+def test_finalize_mqsa_review_rejects_needs_review_rows() -> None:
+    review = _review_frame(review_status="needs_review")
+    with pytest.raises(ValueError, match="not approved"):
+        finalize_mqsa_review(review)
+
+
+def test_finalize_mqsa_review_rejects_blank_coordinates() -> None:
+    review = _review_frame(latitude="")
+    with pytest.raises(ValueError, match="latitude blank"):
+        finalize_mqsa_review(review)
+
+
+def test_finalize_mqsa_review_outputs_valid_snapshot_rows() -> None:
+    result = finalize_mqsa_review(_review_frame())
+    assert result.loc[0, "facility_id"] == "MQSA-NC-0001"
+    assert result.loc[0, "active"]
+    assert result.loc[0, "source_record_hash"] == "abc123"
+
+
+def _review_frame(
+    review_status: str = "reviewed",
+    latitude: str = "35.7796",
+) -> pd.DataFrame:
+    return pd.DataFrame(
+        [
+            {
+                "facility_id": "MQSA-NC-0001",
+                "facility_name": "Demo Facility",
+                "latitude": latitude,
+                "longitude": "-78.6382",
+                "annual_capacity": "1000",
+                "active": "true",
+                "review_status": review_status,
+                "source_record_hash": "abc123",
+                "source_name": "fda-mqsa-public",
+                "source_schema_version": "fda_mqsa_pipe_delimited",
+            }
+        ]
+    )
 
 
 def _mqsa_line(

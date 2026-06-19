@@ -75,3 +75,31 @@ def test_prepare_mqsa_review_command(tmp_path: Path) -> None:
     assert review.loc[0, "source_facility_name"] == "Demo Facility"
     assert review.loc[0, "facility_id"] == ""
     assert review.loc[0, "active"] == ""
+
+
+def test_finalize_mqsa_review_command_writes_snapshot_ready_csv(tmp_path: Path) -> None:
+    review = tmp_path / "review.csv"
+    output = tmp_path / "snapshot_ready.csv"
+    pd.DataFrame(
+        [
+            {
+                "facility_id": "MQSA-NC-0001",
+                "facility_name": "Demo Facility",
+                "latitude": "35.7796",
+                "longitude": "-78.6382",
+                "annual_capacity": "1000",
+                "active": "true",
+                "review_status": "reviewed",
+                "source_record_hash": "abc123",
+                "source_name": "fda-mqsa-public",
+                "source_schema_version": "fda_mqsa_pipe_delimited",
+            }
+        ]
+    ).to_csv(review, index=False)
+    result = CliRunner().invoke(
+        app,
+        ["finalize-mqsa-review", str(review), "--output-csv", str(output)],
+    )
+    assert result.exit_code == 0
+    snapshot_ready = pd.read_csv(output, dtype=str)
+    assert snapshot_ready.loc[0, "facility_id"] == "MQSA-NC-0001"

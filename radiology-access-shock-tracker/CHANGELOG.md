@@ -8,6 +8,7 @@
 - Added CLI snapshot validation, dry-run ingestion, snapshot comparison, and HTML policy briefs.
 - Added persistent synthetic-data warnings and filtering/download improvements to the Streamlit app.
 - Added source archive/provenance utilities and an FDA MQSA review-template workflow.
+- Added an MQSA review finalization gate before real snapshot ingestion.
 
 ## 0.1.0 - 2026-06-19
 

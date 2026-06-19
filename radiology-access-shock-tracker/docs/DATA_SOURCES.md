@@ -17,6 +17,11 @@ The layout includes facility name, address lines, city, state, ZIP, phone, and f
 provide stable tracker IDs, coordinates, capacity, or verified active status, so the review CSV
 leaves those fields blank before snapshot ingestion.
 
+`radshock finalize-mqsa-review` is the required gate between the FDA review CSV and a
+snapshot-ready facility file. It fails if any row remains `needs_review` or if `facility_id`,
+`latitude`, `longitude`, `annual_capacity`, or `active` is blank. Approved review statuses are
+`reviewed`, `verified`, and `approved`.
+
 ## CDC PLACES
 
 The CDC PLACES county dataset provides model-based small-area estimates. The adapter uses the official Socrata resource endpoint for the current county dataset and filters for North Carolina mammography records. Measurement year and data-value type must remain visible in downstream products.

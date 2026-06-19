@@ -23,13 +23,14 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 
 1. A raw source file is downloaded or manually supplied and archived with checksum metadata.
 2. FDA/MQSA fixed-width files can be converted into a human-review CSV.
-3. A reviewed facility source is normalized and validated.
-4. `store_snapshot` writes a dated immutable snapshot directory with source provenance.
-5. Two snapshots are compared to produce facility event signals.
-6. Population points are evaluated against before and after facilities.
-7. County access deltas, vulnerability context, and utilization summaries are merged.
-8. Candidate response sites are ranked by geographic access recovery.
-9. CSV outputs, briefs, and dashboard views expose the results with limitations.
+3. The review CSV is finalized only after required reviewed fields and review statuses pass.
+4. A reviewed facility source is normalized and validated.
+5. `store_snapshot` writes a dated immutable snapshot directory with source provenance.
+6. Two snapshots are compared to produce facility event signals.
+7. Population points are evaluated against before and after facilities.
+8. County access deltas, vulnerability context, and utilization summaries are merged.
+9. Candidate response sites are ranked by geographic access recovery.
+10. CSV outputs, briefs, and dashboard views expose the results with limitations.
 
 ## Failure Modes
 
@@ -40,3 +41,5 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 - Live public-data schemas and API requirements can change; CI uses fixtures and mocked responses.
 - FDA/MQSA public files lack coordinates and stable tracker IDs, so human review is required before
   a production snapshot can be created.
+- Review CSVs with blank production fields or unapproved review statuses are blocked before
+  snapshot ingestion.

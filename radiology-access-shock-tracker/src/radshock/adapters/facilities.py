@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from radshock.schemas import FACILITY_COLUMNS, validate_facilities
+from radshock.schemas import FACILITY_COLUMNS, require_columns, validate_facilities
 
 FDA_MQSA_PUBLIC_ZIP_URL = "https://www.accessdata.fda.gov/premarket/ftparea/public.zip"
 
@@ -22,6 +22,15 @@ FDA_MQSA_FIXED_WIDTH_LAYOUT = [
     ("source_phone", 50),
     ("source_fax", 50),
 ]
+
+MQSA_REVIEW_REQUIRED_COLUMNS = FACILITY_COLUMNS | {
+    "review_status",
+    "source_record_hash",
+    "source_name",
+    "source_schema_version",
+}
+
+MQSA_REVIEW_APPROVED_STATUSES = {"reviewed", "verified", "approved"}
 
 
 def normalize_manual_facility_export(frame: pd.DataFrame) -> pd.DataFrame:
@@ -133,6 +142,26 @@ def build_mqsa_review_template(raw_mqsa: pd.DataFrame) -> pd.DataFrame:
     return result[ordered]
 
 
+def finalize_mqsa_review(frame: pd.DataFrame) -> pd.DataFrame:
+    """Validate a completed MQSA review CSV and return snapshot-ready facility rows."""
+    require_columns(frame, MQSA_REVIEW_REQUIRED_COLUMNS, "MQSA review")
+    result = frame.copy()
+    for column in MQSA_REVIEW_REQUIRED_COLUMNS:
+        result[column] = result[column].astype(str).str.strip()
+
+    _require_no_blank_review_values(result)
+    status = result["review_status"].str.lower()
+    invalid_status = ~status.isin(MQSA_REVIEW_APPROVED_STATUSES)
+    if invalid_status.any():
+        examples = result.loc[invalid_status, ["source_record_hash", "review_status"]].head(5)
+        raise ValueError(
+            "MQSA review contains rows that are not approved for snapshot ingestion: "
+            + examples.to_dict(orient="records").__repr__()
+        )
+
+    return validate_facilities(result)
+
+
 def _read_text_or_zip_payload(path: Path) -> str:
     if path.suffix.lower() == ".zip":
         with zipfile.ZipFile(path) as archive:
@@ -146,6 +175,18 @@ def _read_text_or_zip_payload(path: Path) -> str:
             with archive.open(candidates[0]) as handle:
                 return handle.read().decode("latin-1", errors="replace")
     return path.read_text(encoding="latin-1", errors="replace")
+
+
+def _require_no_blank_review_values(frame: pd.DataFrame) -> None:
+    checked_columns = sorted(FACILITY_COLUMNS | {"review_status"})
+    blank_messages: list[str] = []
+    for column in checked_columns:
+        blank = frame[column].isna() | (frame[column].astype(str).str.strip() == "")
+        if blank.any():
+            hashes = frame.loc[blank, "source_record_hash"].head(5).tolist()
+            blank_messages.append(f"{column} blank for source_record_hash values {hashes}")
+    if blank_messages:
+        raise ValueError("MQSA review is incomplete: " + "; ".join(blank_messages))
 
 
 def _looks_pipe_delimited(payload: str) -> bool:
