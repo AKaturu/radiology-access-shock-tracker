@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: Radiology Access Shock Tracker
+message: If you use this software, please cite it using this metadata.
+type: software
+authors:
+  - family-names: Katuru
+    given-names: Krishna
+version: 0.1.0
+date-released: 2026-06-19
+license: MIT
