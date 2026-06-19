@@ -140,3 +140,15 @@ ranking are not yet modeled.
 Each snapshot directory contains the normalized CSV, analysis date, source label, record counts,
 creation time, and SHA-256 checksum. Production use should also archive the original source file,
 extraction code version, geocoder version, and manual adjudication log.
+
+## 7. Readiness Audit
+
+`radshock readiness-audit` checks whether an analysis package is safe to move into real-world
+publication review. It blocks synthetic manifests, unresolved facility-event verification, missing
+core outputs, invalid snapshot checksums, and missing required artifacts. It warns on incomplete
+provenance, missing sensitivity analysis, missing policy briefs, and distance-only outputs when
+road-time analysis is not explicitly required.
+
+The audit is intentionally conservative. A passing audit means required artifacts and safety gates
+are present; it does not mean facility events are true, the shock score is clinically validated, or
+the analysis is ready to publish without domain review.

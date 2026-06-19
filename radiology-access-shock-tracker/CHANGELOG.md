@@ -12,6 +12,7 @@
 - Added cached MQSA geocoding support with Census and static providers for candidate coordinates.
 - Added reviewed travel-time matrix access comparisons and a CLI export workflow.
 - Added shock-score sensitivity analysis scenarios, CLI export, demo output, and dashboard view.
+- Added production readiness auditing with JSON and Markdown reports.
 
 ## 0.1.0 - 2026-06-19
 

@@ -19,6 +19,8 @@ alerts, evaluates candidate response sites, and generates cautious reports.
   transparent shock-score components.
 - `radshock.sensitivity`: post-processing sensitivity analysis for alternate shock-score weights
   and rank movement.
+- `radshock.readiness`: publication-readiness audit checks for output completeness, synthetic-data
+  blockers, event verification, snapshot checksums, and source provenance.
 - `radshock.utilization`: descriptive CMS-style utilization change summaries.
 - `radshock.intervention`: geographic planning simulation for candidate mobile or fixed sites.
 - `radshock.briefs`: Markdown and HTML report generation.
@@ -38,7 +40,8 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 9. County access deltas, vulnerability context, and utilization summaries are merged.
 10. Sensitivity analysis re-scores county shocks under alternate transparent weighting assumptions.
 11. Candidate response sites are ranked by geographic access recovery.
-12. CSV outputs, briefs, and dashboard views expose the results with limitations.
+12. Readiness auditing checks blockers, warnings, provenance, and publication limits.
+13. CSV outputs, briefs, and dashboard views expose the results with limitations.
 
 ## Failure Modes
 
@@ -56,3 +59,5 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 - Review CSVs with blank production fields or unapproved review statuses are blocked before
   snapshot ingestion.
 - Sensitivity scenarios reveal score/rank instability but do not validate the exploratory score.
+- Readiness audits cannot replace human verification; they only make missing or unsafe publication
+  conditions explicit.

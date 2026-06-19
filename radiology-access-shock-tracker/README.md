@@ -12,6 +12,7 @@ An open-source surveillance toolkit for detecting changes in mammography access,
   before and after a change.
 - Produces a vulnerability-adjusted county shock score and alert level.
 - Re-scores county shocks under alternative weighting assumptions for sensitivity review.
+- Audits analysis packages for publication-readiness blockers, warnings, and provenance gaps.
 - Summarizes before/after screening utilization signals.
 - Ranks hypothetical mobile mammography or fixed-site locations by geographic access recovery.
 - Generates CSV outputs, a Streamlit dashboard, and a downloadable Markdown policy brief.
@@ -164,6 +165,21 @@ radshock sensitivity-analysis \
 
 The sensitivity output keeps the baseline score and rank next to each alternative scenario. It is a
 review aid, not a validated clinical or policy threshold.
+
+Audit production readiness before sharing real-world findings:
+
+```bash
+radshock readiness-audit \
+  --analysis-dir outputs/2026-Q3 \
+  --before-snapshot-dir data/snapshots/2026-04-01 \
+  --after-snapshot-dir data/snapshots/2026-07-01 \
+  --raw-source-metadata data/raw/fda-mqsa-public/2026-07-01/public.zip.metadata.json \
+  --output-json outputs/2026-Q3/readiness_audit.json \
+  --output-md outputs/2026-Q3/readiness_audit.md
+```
+
+The audit blocks synthetic manifests, unresolved facility-event verification, missing core outputs,
+bad snapshot checksums, and missing required production artifacts.
 
 Run the full analysis:
 

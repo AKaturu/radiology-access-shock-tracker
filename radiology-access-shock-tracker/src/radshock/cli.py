@@ -24,6 +24,7 @@ from radshock.geocoding import (
     geocode_mqsa_review,
 )
 from radshock.intervention import simulate_candidates
+from radshock.readiness import audit_to_json, render_readiness_markdown, run_readiness_audit
 from radshock.schemas import validate_facilities
 from radshock.sensitivity import run_sensitivity_analysis
 from radshock.snapshots import store_snapshot
@@ -292,6 +293,41 @@ def sensitivity_analysis_command(
         typer.echo(sensitivity.to_csv(index=False))
 
 
+@app.command("readiness-audit")
+def readiness_audit_command(
+    analysis_dir: Annotated[Path, typer.Option()] = Path("outputs/demo/analysis"),
+    before_snapshot_dir: Annotated[Path | None, typer.Option(exists=True, file_okay=False)] = None,
+    after_snapshot_dir: Annotated[Path | None, typer.Option(exists=True, file_okay=False)] = None,
+    raw_source_metadata: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    output_json: Annotated[Path | None, typer.Option()] = None,
+    output_md: Annotated[Path | None, typer.Option()] = None,
+    require_travel_time: Annotated[
+        bool, typer.Option(help="Block readiness if county shocks are distance-only.")
+    ] = False,
+    force: Annotated[bool, typer.Option(help="Overwrite existing report files.")] = False,
+) -> None:
+    """Audit whether analysis outputs are ready for real-world publication review."""
+    audit = run_readiness_audit(
+        analysis_dir,
+        before_snapshot_dir=before_snapshot_dir,
+        after_snapshot_dir=after_snapshot_dir,
+        raw_source_metadata=raw_source_metadata,
+        require_travel_time=require_travel_time,
+    )
+    if output_json is not None:
+        _write_report(output_json, audit_to_json(audit), force)
+        typer.echo(f"Readiness JSON written: {output_json.resolve()}")
+    if output_md is not None:
+        _write_report(output_md, render_readiness_markdown(audit), force)
+        typer.echo(f"Readiness report written: {output_md.resolve()}")
+    blocker_count = sum(check.status == "BLOCKER" for check in audit.checks)
+    warning_count = sum(check.status == "WARN" for check in audit.checks)
+    typer.echo(
+        f"Readiness status: {audit.overall_status}; "
+        f"blockers: {blocker_count}; warnings: {warning_count}"
+    )
+
+
 def _build_geocode_provider(
     provider_name: str,
     static_csv: Path | None,
@@ -306,6 +342,13 @@ def _build_geocode_provider(
             raise typer.BadParameter("--static-csv is required when --provider static")
         return StaticGeocoder.from_csv(static_csv)
     raise typer.BadParameter("provider must be one of: census, static")
+
+
+def _write_report(path: Path, content: str, force: bool) -> None:
+    if path.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {path}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
 
 
 @app.command()

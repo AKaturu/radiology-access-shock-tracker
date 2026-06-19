@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -255,3 +256,49 @@ def test_sensitivity_analysis_command_writes_scenario_rows(tmp_path: Path) -> No
     assert "baseline" in set(sensitivity["scenario_id"])
     assert "threshold_heavy" in set(sensitivity["scenario_id"])
     assert sensitivity.loc[0, "county_fips"] == 37001
+
+
+def test_readiness_audit_command_writes_reports(tmp_path: Path) -> None:
+    analysis = tmp_path / "analysis"
+    analysis.mkdir()
+    (tmp_path / "manifest.json").write_text('{"synthetic_data": true}\n')
+    pd.DataFrame(
+        [
+            {
+                "event_type": "POSSIBLE_CLOSURE",
+                "requires_verification": True,
+            }
+        ]
+    ).to_csv(analysis / "facility_events.csv", index=False)
+    pd.DataFrame(
+        [
+            {
+                "county_fips": "37001",
+                "county_name": "Demo",
+                "shock_score": 24.4,
+                "alert_level": "WARNING",
+            }
+        ]
+    ).to_csv(analysis / "county_shocks.csv", index=False)
+    pd.DataFrame([{"candidate_id": "C1"}]).to_csv(
+        analysis / "intervention_rankings.csv",
+        index=False,
+    )
+    json_output = tmp_path / "readiness.json"
+    md_output = tmp_path / "readiness.md"
+    result = CliRunner().invoke(
+        app,
+        [
+            "readiness-audit",
+            "--analysis-dir",
+            str(analysis),
+            "--output-json",
+            str(json_output),
+            "--output-md",
+            str(md_output),
+        ],
+    )
+    assert result.exit_code == 0
+    payload = json.loads(json_output.read_text())
+    assert payload["overall_status"] == "BLOCKED"
+    assert "Production Readiness Audit" in md_output.read_text()

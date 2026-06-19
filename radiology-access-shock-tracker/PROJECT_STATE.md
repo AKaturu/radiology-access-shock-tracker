@@ -17,6 +17,7 @@ The downloaded MVP has been committed as a baseline. The project now has safer e
 score transparency, adapter validation, reports, CLI behavior, source archiving, FDA/MQSA review
 gates, cached geocoding assistance, reviewed travel-time matrix comparisons, docs, and tests.
 It now also produces shock-score sensitivity-analysis outputs for reviewer robustness checks.
+Production readiness auditing now makes publication blockers and provenance gaps explicit.
 
 ## Completed Features
 
@@ -111,6 +112,21 @@ stable and which depend on exploratory weights.
 Tests cover baseline score/rank preservation, threshold-heavy emphasis changes, travel-time shock
 component support, missing-component rejection, CLI export, and demo output generation.
 
+### Production Readiness Audit
+
+#### Validation
+
+`readiness-audit` produces JSON and Markdown reports with `READY`, `WARN`, or `BLOCKED` status. It
+blocks synthetic manifests, unresolved facility-event verification, missing core outputs, invalid
+snapshot checksums, and missing required production artifacts. It warns on missing provenance,
+missing sensitivity analysis, missing policy briefs, and distance-only outputs when road time is not
+required.
+
+#### Tests Added
+
+Tests cover synthetic/unverified blockers, verified real-data-like audit packages, and CLI report
+generation.
+
 ## Current Work
 
 ### Active Feature
@@ -121,26 +137,30 @@ Production readiness hardening.
 
 Latest validation gate completed:
 
-- `python -m pytest` passed with 36 tests.
+- `python -m pytest` passed with 39 tests.
 - `python -m ruff check .` passed.
 - `python -m mypy src/radshock` passed.
 - `python -m pip wheel . -w work/dist` built the package wheel.
 - `radshock demo --output-dir work/demo-smoke` regenerated demo outputs.
 - `radshock sensitivity-analysis work/demo-smoke/analysis/county_shocks.csv` wrote 40 scenario
   rows.
-- Streamlit startup smoke test returned HTTP 200 on `127.0.0.1:8768`.
+- `radshock readiness-audit --analysis-dir work/demo-smoke/analysis` produced a blocked synthetic
+  demo audit as expected, with 2 blockers and 4 warnings.
+- Streamlit startup smoke test returned HTTP 200 on `127.0.0.1:8769`.
 
 ### Remaining Work
 
-- Use a real FDA MQSA ZIP to generate the first fully reviewed NC facility CSV.
+- Use a real FDA MQSA ZIP to generate and human-review the first NC facility CSV.
 - Add a documented routing-engine adapter or recipe for generating travel-time matrices.
-- Add scheduled workflow templates only after repository secrets and source review are configured.
+- Add scheduled workflow templates after repository secrets and source review are configured.
+- Run `readiness-audit` on the first real analysis package and resolve all blockers before sharing.
 
 ## Next Actions
 
 1. Review and approve the first real MQSA-derived NC facility CSV.
 2. Add a reproducible recipe for generating the reviewed travel-time matrix inputs.
-3. Add scheduled workflow templates after repository secrets and source review are configured.
+3. Run readiness auditing on real analysis outputs and resolve blockers.
+4. Add scheduled workflow templates after repository secrets and source review are configured.
 
 ## Risks
 
