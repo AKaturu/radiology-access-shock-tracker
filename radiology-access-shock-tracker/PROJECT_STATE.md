@@ -26,6 +26,8 @@ Direct `radshock analyze` runs now emit manifests and readiness reports as part 
 package, so non-demo analyses carry their own initial publication-gate evidence.
 The guarded quarterly MQSA source-refresh workflow now produces review artifacts instead of a
 placeholder failure, while still requiring human review before any snapshot or findings.
+Facility annual capacity is now optional because FDA/MQSA public data do not publish
+authoritative per-facility capacity; any capacity proxy must be explicitly reviewed and labeled.
 
 ## Completed Features
 
@@ -189,6 +191,21 @@ CSV, and uploads those files as artifacts. It does not finalize snapshots or pub
 No runtime tests were added for the GitHub-hosted workflow. The local CLI commands used by the
 workflow are covered by existing tests.
 
+### Optional Capacity Handling
+
+#### Validation
+
+Facility snapshots and MQSA review finalization no longer require `annual_capacity`. Capacity
+reduction events are emitted only when both compared snapshots contain reviewed numeric capacity.
+The FDA MQSA national statistics page was checked and reports only aggregate national procedure
+counts. NC DHSR's equipment registration database was checked as a potential proxy source, but its
+documentation describes in-process working data rather than authoritative MQSA facility capacity.
+
+#### Tests Added
+
+Tests cover MQSA finalization with blank capacity and confirm missing capacity does not create
+`SERVICE_REDUCTION` events.
+
 ## Current Work
 
 ### Active Feature
@@ -211,10 +228,17 @@ Latest validation gate completed:
 - `radshock fetch-fda-mqsa --output-dir work/source-refresh-smoke/raw --force` downloaded and
   archived the live FDA MQSA ZIP for 2026-06-19 with metadata.
 - `radshock prepare-mqsa-review` created an NC review artifact with 289 rows from that archive.
+- `python -m pytest` passed with 49 tests after the optional-capacity change.
+- `python -m ruff check .` passed.
+- `python -m mypy src/radshock` passed.
+- `python -m pip wheel . -w work/dist` built the package wheel.
+- `finalize-mqsa-review` successfully finalized a matched MQSA smoke row with blank
+  `annual_capacity`.
 
 ### Remaining Work
 
-- Use a real FDA MQSA ZIP to generate and human-review the first NC facility CSV.
+- Human-review the first real MQSA-derived NC facility CSV, including the 30 rows still missing
+  geocoded coordinates.
 - Enable the guarded scheduled workflow after source review owners are configured.
 - Run `readiness-audit` on the first real analysis package and resolve all blockers before sharing.
 

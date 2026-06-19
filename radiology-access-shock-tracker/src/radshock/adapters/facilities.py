@@ -7,7 +7,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from radshock.schemas import FACILITY_COLUMNS, require_columns, validate_facilities
+from radshock.schemas import (
+    FACILITY_REQUIRED_COLUMNS,
+    require_columns,
+    validate_facilities,
+)
 
 FDA_MQSA_PUBLIC_ZIP_URL = "https://www.accessdata.fda.gov/premarket/ftparea/public.zip"
 
@@ -23,7 +27,7 @@ FDA_MQSA_FIXED_WIDTH_LAYOUT = [
     ("source_fax", 50),
 ]
 
-MQSA_REVIEW_REQUIRED_COLUMNS = FACILITY_COLUMNS | {
+MQSA_REVIEW_REQUIRED_COLUMNS = FACILITY_REQUIRED_COLUMNS | {
     "review_status",
     "source_record_hash",
     "source_name",
@@ -48,7 +52,7 @@ def normalize_manual_facility_export(frame: pd.DataFrame) -> pd.DataFrame:
         "is_active": "active",
     }
     result = frame.rename(columns={key: value for key, value in aliases.items() if key in frame})
-    missing = sorted(FACILITY_COLUMNS - set(result.columns))
+    missing = sorted(FACILITY_REQUIRED_COLUMNS - set(result.columns))
     if missing:
         raise ValueError(
             "manual facility export is missing required normalized columns: "
@@ -178,7 +182,7 @@ def _read_text_or_zip_payload(path: Path) -> str:
 
 
 def _require_no_blank_review_values(frame: pd.DataFrame) -> None:
-    checked_columns = sorted(FACILITY_COLUMNS | {"review_status"})
+    checked_columns = sorted(FACILITY_REQUIRED_COLUMNS | {"review_status"})
     blank_messages: list[str] = []
     for column in checked_columns:
         blank = frame[column].isna() | (frame[column].astype(str).str.strip() == "")

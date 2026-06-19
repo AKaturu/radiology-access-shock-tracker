@@ -14,7 +14,7 @@ from radshock.adapters.facilities import (
 from radshock.adapters.places import fetch_nc_mammography
 
 
-def test_manual_facility_export_requires_explicit_active_and_capacity() -> None:
+def test_manual_facility_export_requires_explicit_active() -> None:
     frame = pd.DataFrame(
         [{"id": "F1", "name": "Facility", "lat": 35.0, "lon": -78.0, "capacity": 1000}]
     )
@@ -113,9 +113,16 @@ def test_finalize_mqsa_review_outputs_valid_snapshot_rows() -> None:
     assert result.loc[0, "source_record_hash"] == "abc123"
 
 
+def test_finalize_mqsa_review_allows_blank_capacity() -> None:
+    result = finalize_mqsa_review(_review_frame(annual_capacity=""))
+    assert result.loc[0, "facility_id"] == "MQSA-NC-0001"
+    assert pd.isna(result.loc[0, "annual_capacity"])
+
+
 def _review_frame(
     review_status: str = "reviewed",
     latitude: str = "35.7796",
+    annual_capacity: str = "1000",
 ) -> pd.DataFrame:
     return pd.DataFrame(
         [
@@ -124,7 +131,7 @@ def _review_frame(
                 "facility_name": "Demo Facility",
                 "latitude": latitude,
                 "longitude": "-78.6382",
-                "annual_capacity": "1000",
+                "annual_capacity": annual_capacity,
                 "active": "true",
                 "review_status": review_status,
                 "source_record_hash": "abc123",

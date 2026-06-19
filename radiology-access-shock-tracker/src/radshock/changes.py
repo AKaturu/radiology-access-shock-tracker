@@ -102,9 +102,11 @@ def detect_changes(
                 )
             )
 
-        old_capacity = float(previous["annual_capacity"])
-        new_capacity = float(current["annual_capacity"])
-        if old_capacity > 0:
+        old_capacity = previous["annual_capacity"]
+        new_capacity = current["annual_capacity"]
+        if pd.notna(old_capacity) and pd.notna(new_capacity) and float(old_capacity) > 0:
+            old_capacity = float(old_capacity)
+            new_capacity = float(new_capacity)
             drop_fraction = (old_capacity - new_capacity) / old_capacity
             if drop_fraction >= capacity_drop_threshold:
                 rows.append(

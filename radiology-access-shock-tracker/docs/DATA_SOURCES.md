@@ -8,19 +8,32 @@ Official entry point: <https://www.fda.gov/findmammography>
 
 Official public ZIP: <https://www.accessdata.fda.gov/premarket/ftparea/public.zip>
 
+Official national statistics page:
+<https://www.fda.gov/radiation-emitting-products/mammography-information-patients/mqsa-national-statistics>
+
 The production workflow now supports `radshock fetch-fda-mqsa` for downloading and archiving the
 weekly ZIP, `radshock archive-source` for manually downloaded files, and
 `radshock prepare-mqsa-review` for creating a human-review CSV. The FDA page documents a fixed-width
 layout, while the live ZIP retrieved on 2026-06-19 contained pipe-delimited rows with the same
 logical fields. The parser supports both formats and records the observed `source_schema_version`.
 The layout includes facility name, address lines, city, state, ZIP, phone, and fax. It does not
-provide stable tracker IDs, coordinates, capacity, or verified active status, so the review CSV
-leaves those fields blank before snapshot ingestion.
+provide stable tracker IDs, coordinates, facility-level annual capacity, or verified active status,
+so the review CSV leaves those fields blank before snapshot ingestion.
 
 `radshock finalize-mqsa-review` is the required gate between the FDA review CSV and a
 snapshot-ready facility file. It fails if any row remains `needs_review` or if `facility_id`,
-`latitude`, `longitude`, `annual_capacity`, or `active` is blank. Approved review statuses are
-`reviewed`, `verified`, and `approved`.
+`latitude`, `longitude`, or `active` is blank. Approved review statuses are `reviewed`, `verified`,
+and `approved`. `annual_capacity` is optional and should remain blank unless a reviewed source or
+explicitly labeled proxy supports it.
+
+The FDA MQSA national statistics page reports total annual mammography procedures as an aggregate
+national number from facility reports to accreditation bodies, not as a facility-level public
+capacity field. NC DHSR's Registration and Inventory of Medical Equipment database may support
+equipment or procedure proxy research, but its documentation describes it as in-process working data
+and it should not be treated as authoritative facility annual capacity without review.
+
+Official NC DHSR equipment database:
+<https://info.ncdhhs.gov/dhsr/mfp/data/equipment.html>
 
 ## CDC PLACES
 

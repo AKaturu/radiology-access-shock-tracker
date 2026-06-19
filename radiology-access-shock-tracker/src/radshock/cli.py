@@ -155,8 +155,9 @@ def prepare_mqsa_review(
     review.to_csv(output_csv, index=False)
     typer.echo(f"Review template written: {output_csv.resolve()}")
     typer.echo(
-        "Review required: facility_id, latitude, longitude, annual_capacity, and active "
-        "must be completed before snapshot ingestion."
+        "Review required: facility_id, latitude, longitude, active, and review_status must be "
+        "completed before snapshot ingestion. annual_capacity is optional and should stay blank "
+        "unless a reviewed source supports it."
     )
 
 

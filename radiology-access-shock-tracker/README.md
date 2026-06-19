@@ -7,7 +7,8 @@ An open-source surveillance toolkit for detecting changes in mammography access,
 ## What the MVP does
 
 - Versions dated facility snapshots with checksums and metadata.
-- Detects new listings, possible closures, relocations, status changes, renames, and capacity reductions.
+- Detects new listings, possible closures, relocations, status changes, renames, and capacity
+  reductions when reviewed capacity data are supplied.
 - Calculates population-weighted distance, or reviewed travel time, to the nearest active facility
   before and after a change.
 - Produces a vulnerability-adjusted county shock score and alert level.
@@ -63,7 +64,9 @@ working and visible in the dashboard.
 
 Production facility ingestion is intentionally two-stage. First archive the raw source file, then
 create a review template. The FDA MQSA public file does not contain stable tracker IDs, coordinates,
-active status, or capacity, so those fields must be reviewed before snapshot ingestion.
+active status, or facility-level annual capacity, so IDs, coordinates, and active status must be
+reviewed before snapshot ingestion. Capacity is optional and should remain blank unless a reviewed
+source or explicitly labeled proxy supports it.
 
 Archive the weekly FDA MQSA public ZIP:
 
@@ -101,7 +104,7 @@ radshock geocode-mqsa-review \
 Geocoding writes candidate coordinates and provenance columns, but it does not approve any row.
 Human review is still required before finalization.
 
-Complete the blank reviewed fields, set `review_status` to `reviewed`, `verified`, or `approved`,
+Complete the blank required reviewed fields, set `review_status` to `reviewed`, `verified`, or `approved`,
 then finalize it into a snapshot-ready CSV:
 
 ```bash
@@ -111,13 +114,16 @@ radshock finalize-mqsa-review \
 ```
 
 This command fails if any row is still `needs_review` or if `facility_id`, `latitude`,
-`longitude`, `annual_capacity`, or `active` is blank.
+`longitude`, or `active` is blank. `annual_capacity` may be blank.
 
 Your finalized facility CSV must contain:
 
 ```text
-facility_id,facility_name,latitude,longitude,annual_capacity,active
+facility_id,facility_name,latitude,longitude,active
 ```
+
+An optional `annual_capacity` column is accepted. It is used only for capacity-reduction signals
+when both compared snapshots contain reviewed numeric values.
 
 Store a dated snapshot:
 

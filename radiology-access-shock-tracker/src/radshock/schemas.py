@@ -13,6 +13,8 @@ FACILITY_COLUMNS = {
     "active",
 }
 
+FACILITY_REQUIRED_COLUMNS = FACILITY_COLUMNS - {"annual_capacity"}
+
 COUNTY_COLUMNS = {
     "county_fips",
     "county_name",
@@ -62,13 +64,15 @@ def require_columns(frame: pd.DataFrame, required: Iterable[str], label: str) ->
 
 
 def validate_facilities(frame: pd.DataFrame) -> pd.DataFrame:
-    require_columns(frame, FACILITY_COLUMNS, "facilities")
+    require_columns(frame, FACILITY_REQUIRED_COLUMNS, "facilities")
     result = frame.copy()
+    if "annual_capacity" not in result.columns:
+        result["annual_capacity"] = pd.NA
     result["facility_id"] = result["facility_id"].astype(str)
     result["facility_name"] = result["facility_name"].astype(str)
     result["latitude"] = pd.to_numeric(result["latitude"], errors="raise")
     result["longitude"] = pd.to_numeric(result["longitude"], errors="raise")
-    result["annual_capacity"] = pd.to_numeric(result["annual_capacity"], errors="coerce").fillna(0)
+    result["annual_capacity"] = pd.to_numeric(result["annual_capacity"], errors="coerce")
     result["active"] = result["active"].map(_coerce_bool)
     if result["facility_id"].duplicated().any():
         duplicates = result.loc[result["facility_id"].duplicated(), "facility_id"].tolist()

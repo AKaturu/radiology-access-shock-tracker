@@ -9,7 +9,8 @@ Snapshots are keyed by a stable `facility_id` supplied by the ingestion process.
 - `SERVICE_LOSS`: active status changes from true to false.
 - `REACTIVATED`: active status changes from false to true.
 - `RELOCATED`: coordinates move by at least the configured threshold, one mile by default.
-- `SERVICE_REDUCTION`: annual capacity falls by at least 25% by default.
+- `SERVICE_REDUCTION`: reviewed annual capacity falls by at least 25% by default. This signal is
+  skipped when either snapshot lacks numeric capacity.
 - `RENAMED`: normalized names differ while the ID remains stable.
 
 Every event is a surveillance signal requiring source verification. Outputs include
@@ -147,7 +148,9 @@ ranking are not yet modeled.
 
 Each snapshot directory contains the normalized CSV, analysis date, source label, record counts,
 creation time, and SHA-256 checksum. Production use should also archive the original source file,
-extraction code version, geocoder version, and manual adjudication log.
+extraction code version, geocoder version, and manual adjudication log. Facility annual capacity is
+optional; if used, the source or proxy method must be documented because FDA MQSA public facility
+exports do not provide authoritative per-facility capacity.
 
 ## 7. Readiness Audit
 

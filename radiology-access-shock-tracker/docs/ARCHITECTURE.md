@@ -62,6 +62,8 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 - Live public-data schemas and API requirements can change; CI uses fixtures and mocked responses.
 - FDA/MQSA public files lack coordinates and stable tracker IDs, so human review is required before
   a production snapshot can be created.
+- Facility-level annual capacity is optional because FDA/MQSA public data do not expose an
+  authoritative per-facility capacity field.
 - Geocoder matches can be ambiguous, stale, or incorrect; candidate coordinates cannot bypass the
   review-status gate.
 - Review CSVs with blank production fields or unapproved review statuses are blocked before
