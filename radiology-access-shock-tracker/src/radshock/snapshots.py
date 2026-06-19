@@ -44,7 +44,13 @@ def store_snapshot(
     return destination
 
 
-def copy_snapshot_tree(source_dir: Path, destination_dir: Path) -> None:
+def copy_snapshot_tree(source_dir: Path, destination_dir: Path, force: bool = False) -> None:
+    """Copy a snapshot tree without overwriting unless force is explicit."""
     if destination_dir.exists():
+        if not force:
+            raise FileExistsError(
+                f"snapshot destination already exists: {destination_dir}. "
+                "Pass force=True only for documented regeneration."
+            )
         shutil.rmtree(destination_dir)
     shutil.copytree(source_dir, destination_dir)

@@ -14,7 +14,7 @@ Official dataset: <https://data.cdc.gov/resource/swc5-untb.json>
 
 ## American Community Survey
 
-The ACS 5-year API supplies county socioeconomic context. The included adapter retrieves poverty and vehicle-access components for North Carolina counties. Variable definitions and release-year changes must be reviewed whenever the configured ACS year changes.
+The ACS 5-year API supplies county socioeconomic context. The included adapter retrieves poverty and vehicle-access components for North Carolina counties. Variable definitions and release-year changes must be reviewed whenever the configured ACS year changes. The Census developer documentation currently states that ACS API queries require an API key, so production workflows should read the key from local configuration or environment variables rather than committing it.
 
 Official API documentation: <https://www.census.gov/data/developers/data-sets/acs-5year.html>
 
@@ -27,3 +27,9 @@ Official dataset family: <https://data.cms.gov/provider-summary-by-type-of-servi
 ## Geocoding
 
 No production geocoder is bundled. Facility coordinates should be generated using a documented geocoder, cached, quality-checked, and manually reviewed for events that drive alerts.
+
+## Fixture-based testing
+
+CI tests should not depend on live FDA, CDC, Census, CMS, geocoding, or routing endpoints. Adapter
+tests should use fixture files or mocked responses and reserve live endpoint checks for manually
+triggered workflows with explicit credentials and source review.

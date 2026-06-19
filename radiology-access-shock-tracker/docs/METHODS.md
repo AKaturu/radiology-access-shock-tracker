@@ -1,67 +1,84 @@
 # Methods
 
-## 1. Facility change detection
+## 1. Facility Change Detection
 
 Snapshots are keyed by a stable `facility_id` supplied by the ingestion process.
 
-- `OPENED`: ID appears only in the later snapshot.
-- `CLOSED`: ID appears only in the earlier snapshot.
+- `NEW_LISTING`: ID appears only in the later snapshot.
+- `POSSIBLE_CLOSURE`: ID appears only in the earlier snapshot. This is not a confirmed closure.
 - `SERVICE_LOSS`: active status changes from true to false.
 - `REACTIVATED`: active status changes from false to true.
 - `RELOCATED`: coordinates move by at least the configured threshold, one mile by default.
 - `SERVICE_REDUCTION`: annual capacity falls by at least 25% by default.
 - `RENAMED`: normalized names differ while the ID remains stable.
 
-Every event is a surveillance signal requiring source verification. Probabilistic entity matching is intentionally deferred because false matches can create misleading closure or relocation claims.
+Every event is a surveillance signal requiring source verification. Outputs include
+`requires_verification`, `match_confidence`, and `matching_rationale` fields so users can separate
+exact same-ID comparisons from events that may reflect identifier drift or source-publication
+changes. Probabilistic entity matching is intentionally deferred because false matches can create
+misleading closure or relocation claims.
 
-## 2. Geographic access
+## 2. Geographic Access
 
-For each population point, the engine calculates great-circle distance to every active facility and selects the minimum. County summaries use point weights:
+For each population point, the engine calculates great-circle distance to every active facility and
+selects the minimum. County summaries use point weights:
 
 - weighted mean nearest-facility distance;
 - weighted 90th-percentile nearest-facility distance;
 - weighted percentage farther than a configurable threshold, 30 miles by default.
 
-Population points can represent census-block-group centroids, gridded population cells, or another reviewed small-area representation. County centroids alone are not recommended for research-grade results.
+Comparison outputs also report the population newly exceeding 30-, 45-, and 60-mile thresholds and
+the population whose nearest facility identifier changes. These metrics are calculated from
+population points, not county centroids.
 
-## 3. Shock score
+Population points can represent census-block-group centroids, gridded population cells, or another
+reviewed small-area representation. County centroids alone are not recommended for research-grade
+results.
+
+## 3. Shock Score
 
 Only worsening access contributes to the deterioration component:
 
 ```text
-D = 0.45 × min(max(mean-distance change, 0) / 20, 1)
-  + 0.30 × min(max(p90-distance change, 0) / 30, 1)
-  + 0.25 × min(max(threshold-population change, 0) / 0.40, 1)
+D = 0.45 x min(max(mean-distance change, 0) / 20, 1)
+  + 0.30 x min(max(p90-distance change, 0) / 30, 1)
+  + 0.25 x min(max(threshold-population change, 0) / 0.40, 1)
 ```
 
 Community vulnerability is:
 
 ```text
-V = 0.40 × min(poverty percentage / 30, 1)
-  + 0.30 × rurality index
-  + 0.30 × high-risk index
+V = 0.40 x min(poverty percentage / 30, 1)
+  + 0.30 x rurality index
+  + 0.30 x high-risk index
 ```
 
 The exploratory score is:
 
 ```text
-Shock score = 100 × D × (0.70 + 0.30 × V)
+Shock score = 100 x D x (0.70 + 0.30 x V)
 ```
 
 Alert levels:
 
-- `NONE`: 0–5
-- `WATCH`: >5–20
-- `WARNING`: >20–40
+- `NONE`: 0-5
+- `WATCH`: >5-20
+- `WARNING`: >20-40
 - `CRITICAL`: >40
 
-These thresholds and weights are policy-design choices, not clinically validated cutoffs. Sensitivity analysis is required before real-world deployment.
+These thresholds and weights are policy-design choices, not clinically validated cutoffs.
+Sensitivity analysis is required before real-world deployment. The output table stores the
+deterioration, vulnerability, and individual component values next to the composite score to
+support review and sensitivity analysis.
 
-## 4. Utilization signal
+## 4. Utilization Signal
 
-The MVP calculates services per 1,000 eligible beneficiaries for two specified periods. A negative change near an access shock is descriptive and does not establish causality. A future study should use multiple pre/post periods, comparison communities, uncertainty estimates, and an appropriate quasi-experimental design.
+The MVP calculates services per 1,000 eligible beneficiaries for two specified periods. A negative
+change near an access shock is descriptive and does not establish causality. A future study should
+use multiple pre/post periods, comparison communities, uncertainty estimates, and an appropriate
+quasi-experimental design.
 
-## 5. Intervention simulation
+## 5. Intervention Simulation
 
 Each candidate is temporarily treated as an unconstrained facility. The engine calculates:
 
@@ -70,8 +87,12 @@ Each candidate is temporarily treated as an unconstrained facility. The engine c
 - population brought within the distance threshold;
 - population receiving any meaningful improvement.
 
-Candidate ranking combines normalized person-miles reduction (65%) and threshold recovery (35%). Capacity, route schedules, operating cost, referral networks, and road travel time are not yet modeled.
+Candidate ranking combines normalized person-miles reduction (65%) and threshold recovery (35%).
+Capacity, route schedules, operating cost, referral networks, and road travel time are not yet
+modeled.
 
 ## 6. Reproducibility
 
-Each snapshot directory contains the normalized CSV, analysis date, source label, record counts, creation time, and SHA-256 checksum. Production use should also archive the original source file, extraction code version, geocoder version, and manual adjudication log.
+Each snapshot directory contains the normalized CSV, analysis date, source label, record counts,
+creation time, and SHA-256 checksum. Production use should also archive the original source file,
+extraction code version, geocoder version, and manual adjudication log.

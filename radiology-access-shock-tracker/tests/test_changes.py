@@ -27,5 +27,9 @@ def test_detects_open_close_relocation_and_capacity_drop() -> None:
         ],
         columns=COLUMNS,
     )
-    event_types = set(detect_changes(before, after)["event_type"])
-    assert {"OPENED", "CLOSED", "RELOCATED", "SERVICE_REDUCTION"} <= event_types
+    events = detect_changes(before, after)
+    event_types = set(events["event_type"])
+    assert {"NEW_LISTING", "POSSIBLE_CLOSURE", "RELOCATED", "SERVICE_REDUCTION"} <= event_types
+    possible_closure = events.loc[events["event_type"] == "POSSIBLE_CLOSURE"].iloc[0]
+    assert possible_closure["requires_verification"]
+    assert "not a confirmed closure" in possible_closure["details"]

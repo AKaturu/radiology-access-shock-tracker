@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import pandas as pd
 
+from radshock.schemas import FACILITY_COLUMNS, validate_facilities
+
 
 def normalize_manual_facility_export(frame: pd.DataFrame) -> pd.DataFrame:
     """Normalize a reviewed facility export into the tracker snapshot schema.
@@ -18,8 +20,10 @@ def normalize_manual_facility_export(frame: pd.DataFrame) -> pd.DataFrame:
         "is_active": "active",
     }
     result = frame.rename(columns={key: value for key, value in aliases.items() if key in frame})
-    if "annual_capacity" not in result:
-        result["annual_capacity"] = 0
-    if "active" not in result:
-        result["active"] = True
-    return result
+    missing = sorted(FACILITY_COLUMNS - set(result.columns))
+    if missing:
+        raise ValueError(
+            "manual facility export is missing required normalized columns: "
+            + ", ".join(missing)
+        )
+    return validate_facilities(result)

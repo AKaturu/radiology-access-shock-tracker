@@ -12,7 +12,11 @@ def detect_changes(
     relocation_threshold_miles: float = 1.0,
     capacity_drop_threshold: float = 0.25,
 ) -> pd.DataFrame:
-    """Detect openings, closures, relocations, renames, and service reductions."""
+    """Detect facility-level surveillance signals between two snapshots.
+
+    Disappearances are deliberately labeled as possible closures because a missing identifier can
+    also reflect source-publication, entity-resolution, or manual extraction changes.
+    """
     old = validate_facilities(before).set_index("facility_id")
     new = validate_facilities(after).set_index("facility_id")
     rows: list[dict[str, object]] = []
@@ -22,12 +26,33 @@ def detect_changes(
         in_new = facility_id in new.index
         if in_new and not in_old:
             row = new.loc[facility_id]
-            rows.append(_event(facility_id, row["facility_name"], "OPENED", 1.0, details="New ID"))
+            rows.append(
+                _event(
+                    facility_id,
+                    row["facility_name"],
+                    "NEW_LISTING",
+                    1.0,
+                    details="ID present only in later snapshot",
+                    match_confidence=0.0,
+                    matching_rationale="No prior record with the same facility_id.",
+                )
+            )
             continue
         if in_old and not in_new:
             row = old.loc[facility_id]
             rows.append(
-                _event(facility_id, row["facility_name"], "CLOSED", 1.0, details="ID absent")
+                _event(
+                    facility_id,
+                    row["facility_name"],
+                    "POSSIBLE_CLOSURE",
+                    1.0,
+                    details="ID absent from later snapshot; not a confirmed closure",
+                    match_confidence=0.0,
+                    matching_rationale=(
+                        "A disappeared facility_id can reflect closure, identifier drift, "
+                        "geocoding changes, or source-publication changes."
+                    ),
+                )
             )
             continue
 
@@ -41,6 +66,7 @@ def detect_changes(
                     "SERVICE_LOSS",
                     1.0,
                     details="Active status changed to false",
+                    matching_rationale="Same facility_id appears in both snapshots.",
                 )
             )
         elif not bool(previous["active"]) and bool(current["active"]):
@@ -51,6 +77,7 @@ def detect_changes(
                     "REACTIVATED",
                     0.5,
                     details="Active status changed to true",
+                    matching_rationale="Same facility_id appears in both snapshots.",
                 )
             )
 
@@ -71,6 +98,7 @@ def detect_changes(
                     min(1.0, moved / 50.0),
                     details=f"Moved {moved:.1f} miles",
                     distance_miles=moved,
+                    matching_rationale="Same facility_id appears in both snapshots.",
                 )
             )
 
@@ -87,6 +115,7 @@ def detect_changes(
                         min(1.0, drop_fraction),
                         details=f"Capacity fell {drop_fraction:.0%}",
                         capacity_change=new_capacity - old_capacity,
+                        matching_rationale="Same facility_id appears in both snapshots.",
                     )
                 )
 
@@ -98,6 +127,7 @@ def detect_changes(
                     "RENAMED",
                     0.1,
                     details=f"Previously: {previous['facility_name']}",
+                    matching_rationale="Same facility_id appears in both snapshots.",
                 )
             )
 
@@ -109,6 +139,9 @@ def detect_changes(
         "details",
         "distance_miles",
         "capacity_change",
+        "match_confidence",
+        "matching_rationale",
+        "requires_verification",
     ]
     return (
         pd.DataFrame(rows, columns=columns)
@@ -125,6 +158,9 @@ def _event(
     details: str,
     distance_miles: float | None = None,
     capacity_change: float | None = None,
+    match_confidence: float = 1.0,
+    matching_rationale: str = "Same facility_id appears in both snapshots.",
+    requires_verification: bool = True,
 ) -> dict[str, object]:
     return {
         "facility_id": facility_id,
@@ -134,4 +170,7 @@ def _event(
         "details": details,
         "distance_miles": distance_miles,
         "capacity_change": capacity_change,
+        "match_confidence": round(float(match_confidence), 4),
+        "matching_rationale": matching_rationale,
+        "requires_verification": requires_verification,
     }

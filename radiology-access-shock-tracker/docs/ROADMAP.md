@@ -3,7 +3,7 @@
 ## MVP: access-shock surveillance
 
 - North Carolina mammography facility snapshots
-- openings, closures, relocations, and possible service reductions
+- new listings, possible closures, relocations, and possible service reductions
 - population-weighted geographic access change
 - vulnerability-adjusted county alerts
 - CMS screening utilization signal
@@ -18,6 +18,7 @@
 4. Add quarterly snapshot scheduling and human verification status.
 5. Add multiple pre/post CMS periods and causal-study export tables.
 6. Add data-quality dashboards, geocoder confidence, and identifier crosswalks.
+7. Add sensitivity-analysis reports for alternative shock-score weights.
 
 ## Reserved future applications
 

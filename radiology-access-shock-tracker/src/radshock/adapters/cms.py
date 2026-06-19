@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import pandas as pd
 
+from radshock.schemas import require_columns
+
 MAMMOGRAPHY_HCPCS_PREFIXES = ("77063", "77065", "77066", "77067", "G0202")
 
 
@@ -16,6 +18,11 @@ def summarize_mammography_claims(
     CMS schemas change by release; callers explicitly map source columns instead of relying on
     brittle hard-coded field names.
     """
+    require_columns(
+        frame,
+        {hcpcs_column, county_fips_column, services_column},
+        "CMS provider/service extract",
+    )
     result = frame.copy()
     result[hcpcs_column] = result[hcpcs_column].astype(str)
     mask = result[hcpcs_column].str.startswith(MAMMOGRAPHY_HCPCS_PREFIXES)

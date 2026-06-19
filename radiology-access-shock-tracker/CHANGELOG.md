@@ -1,6 +1,14 @@
 # Changelog
 
-## 0.1.0 — 2026-06-19
+## Unreleased
+
+- Renamed disappearance events from `CLOSED` to `POSSIBLE_CLOSURE` and added verification metadata.
+- Added shock-score component columns and point-level access-change populations.
+- Added stricter manual facility and CMS adapter validation plus mocked PLACES adapter coverage.
+- Added CLI snapshot validation, dry-run ingestion, snapshot comparison, and HTML policy briefs.
+- Added persistent synthetic-data warnings and filtering/download improvements to the Streamlit app.
+
+## 0.1.0 - 2026-06-19
 
 - Added immutable facility snapshot versioning with checksums.
 - Added opening, closure, relocation, rename, status, and capacity-change detection.

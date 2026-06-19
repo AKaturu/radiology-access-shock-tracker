@@ -39,6 +39,9 @@ def test_county_distance_increases_after_facility_moves() -> None:
     result = compare_county_access(points, _facilities(-78.0), _facilities(-79.0), counties)
     assert result.loc[0, "mean_distance_delta"] > 50
     assert result.loc[0, "shock_score"] > 0
+    assert result.loc[0, "deterioration_component"] > 0
+    assert result.loc[0, "vulnerability_component"] > 0
+    assert "population_newly_over_30_miles" in result.columns
 
 
 def test_weighted_mean_uses_population_weights() -> None:
@@ -51,3 +54,23 @@ def test_weighted_mean_uses_population_weights() -> None:
     )
     result = summarize_county_access(points, _facilities(-78.0))
     assert 5 < result.loc[0, "mean_distance_miles"] < 10
+
+
+def test_no_active_facilities_marks_population_over_threshold() -> None:
+    points = pd.DataFrame(
+        [["P1", "37001", 35.0, -78.0, 100]],
+        columns=["point_id", "county_fips", "latitude", "longitude", "weight"],
+    )
+    facilities = pd.DataFrame(
+        [["F1", "Facility", 35.0, -78.0, 1000, False]],
+        columns=[
+            "facility_id",
+            "facility_name",
+            "latitude",
+            "longitude",
+            "annual_capacity",
+            "active",
+        ],
+    )
+    result = summarize_county_access(points, facilities)
+    assert result.loc[0, "pct_over_30_miles"] == 1.0

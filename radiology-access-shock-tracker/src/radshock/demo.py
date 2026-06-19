@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from radshock.access import compare_county_access
-from radshock.briefs import generate_policy_brief
+from radshock.briefs import generate_policy_brief, generate_policy_brief_html
 from radshock.changes import detect_changes
 from radshock.intervention import simulate_candidates
 from radshock.snapshots import file_sha256
@@ -57,8 +57,10 @@ def build_demo(output_dir: Path) -> dict[str, Path]:
         utilization_change,
         title="Demonstration Radiology Access Shock Brief",
         as_of=date(2026, 4, 1),
+        synthetic_data=True,
     )
     (briefs / "policy_brief.md").write_text(brief)
+    (briefs / "policy_brief.html").write_text(generate_policy_brief_html(brief))
     manifest = {
         "synthetic_data": True,
         "before_snapshot": "2026-01-01",
@@ -69,6 +71,7 @@ def build_demo(output_dir: Path) -> dict[str, Path]:
             "interventions": "analysis/intervention_rankings.csv",
             "utilization": "analysis/utilization_change.csv",
             "brief": "briefs/policy_brief.md",
+            "brief_html": "briefs/policy_brief.html",
         },
     }
     (output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
@@ -77,6 +80,7 @@ def build_demo(output_dir: Path) -> dict[str, Path]:
         "shocks": analysis / "county_shocks.csv",
         "interventions": analysis / "intervention_rankings.csv",
         "brief": briefs / "policy_brief.md",
+        "brief_html": briefs / "policy_brief.html",
     }
 
 

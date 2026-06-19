@@ -7,7 +7,7 @@ An open-source surveillance toolkit for detecting changes in mammography access,
 ## What the MVP does
 
 - Versions dated facility snapshots with checksums and metadata.
-- Detects possible openings, closures, relocations, status changes, renames, and capacity reductions.
+- Detects new listings, possible closures, relocations, status changes, renames, and capacity reductions.
 - Calculates population-weighted distance to the nearest active facility before and after a change.
 - Produces a vulnerability-adjusted county shock score and alert level.
 - Summarizes before/after screening utilization signals.
@@ -61,7 +61,25 @@ radshock ingest-snapshot facilities_2026_07.csv \
   --source-name reviewed-mqsa-export
 ```
 
+Validate without writing:
+
+```bash
+radshock ingest-snapshot facilities_2026_07.csv \
+  --as-of 2026-07-01 \
+  --source-name reviewed-mqsa-export \
+  --dry-run
+```
+
 Compare two snapshots:
+
+```bash
+radshock compare-snapshots \
+  --before-csv data/snapshots/2026-04-01/facilities.csv \
+  --after-csv data/snapshots/2026-07-01/facilities.csv \
+  --output-csv outputs/2026-Q3/facility_events.csv
+```
+
+Run the full analysis:
 
 ```bash
 radshock analyze \
@@ -83,7 +101,7 @@ The MVP deliberately separates source ingestion from the surveillance engine:
 - `radshock.adapters.facilities` normalizes reviewed facility exports into the snapshot schema.
 - `radshock.adapters.cms` summarizes user-downloaded provider/service extracts after explicit source-column mapping.
 
-Facility changes are **signals requiring verification**, not definitive claims. A facility can disappear because of identifier, geocoding, naming, or source-publication changes.
+Facility changes are **signals requiring verification**, not definitive claims. A facility can disappear because of identifier, geocoding, naming, or source-publication changes. Disappearances are labeled `POSSIBLE_CLOSURE`, not confirmed closure.
 
 ## Methodology
 

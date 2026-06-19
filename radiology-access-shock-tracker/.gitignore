@@ -8,5 +8,6 @@ dist/
 build/
 *.egg-info/
 outputs/
+work/
 data/snapshots/
 .DS_Store

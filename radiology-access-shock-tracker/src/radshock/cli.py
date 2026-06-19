@@ -8,10 +8,11 @@ import pandas as pd
 import typer
 
 from radshock.access import compare_county_access
-from radshock.briefs import generate_policy_brief
+from radshock.briefs import generate_policy_brief, generate_policy_brief_html
 from radshock.changes import detect_changes
 from radshock.demo import build_demo
 from radshock.intervention import simulate_candidates
+from radshock.schemas import validate_facilities
 from radshock.snapshots import store_snapshot
 from radshock.utilization import summarize_utilization_change
 
@@ -37,14 +38,45 @@ def ingest_snapshot(
     as_of: Annotated[str, typer.Option(help="Snapshot date in YYYY-MM-DD format.")],
     store_dir: Annotated[Path, typer.Option()] = Path("data/snapshots"),
     source_name: Annotated[str, typer.Option()] = "manual-import",
+    dry_run: Annotated[bool, typer.Option(help="Validate without writing a snapshot.")] = False,
 ) -> None:
     """Validate and store an immutable facility snapshot."""
     try:
         snapshot_date = date.fromisoformat(as_of)
     except ValueError as exc:
         raise typer.BadParameter("as_of must use YYYY-MM-DD format") from exc
+    frame = validate_facilities(pd.read_csv(input_csv))
+    if dry_run:
+        active_count = int(frame["active"].sum())
+        typer.echo(f"Snapshot valid: {len(frame)} records, {active_count} active")
+        return
     destination = store_snapshot(input_csv, snapshot_date, store_dir, source_name)
     typer.echo(f"Stored snapshot: {destination.resolve()}")
+
+
+@app.command("validate-snapshot")
+def validate_snapshot(
+    snapshot_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
+) -> None:
+    """Validate a normalized facility snapshot CSV."""
+    frame = validate_facilities(pd.read_csv(snapshot_csv))
+    typer.echo(f"Snapshot valid: {len(frame)} records, {int(frame['active'].sum())} active")
+
+
+@app.command("compare-snapshots")
+def compare_snapshots(
+    before_csv: Annotated[Path, typer.Option(exists=True)],
+    after_csv: Annotated[Path, typer.Option(exists=True)],
+    output_csv: Annotated[Path | None, typer.Option()] = None,
+) -> None:
+    """Compare two facility snapshots and optionally write event signals."""
+    events = detect_changes(pd.read_csv(before_csv), pd.read_csv(after_csv))
+    if output_csv is not None:
+        output_csv.parent.mkdir(parents=True, exist_ok=True)
+        events.to_csv(output_csv, index=False)
+        typer.echo(f"Event signals written: {output_csv.resolve()}")
+    else:
+        typer.echo(events.to_csv(index=False))
 
 
 @app.command()
@@ -58,6 +90,9 @@ def analyze(
     utilization_csv: Annotated[Path | None, typer.Option()] = None,
     before_period: Annotated[str, typer.Option()] = "2025Q4",
     after_period: Annotated[str, typer.Option()] = "2026Q2",
+    synthetic_data: Annotated[
+        bool, typer.Option(help="Mark generated reports as synthetic demonstration outputs.")
+    ] = False,
 ) -> None:
     """Compare two snapshots and generate analysis outputs."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -79,8 +114,15 @@ def analyze(
     events.to_csv(output_dir / "facility_events.csv", index=False)
     shocks.to_csv(output_dir / "county_shocks.csv", index=False)
     interventions.to_csv(output_dir / "intervention_rankings.csv", index=False)
-    brief = generate_policy_brief(events, shocks, interventions, utilization_change)
+    brief = generate_policy_brief(
+        events,
+        shocks,
+        interventions,
+        utilization_change,
+        synthetic_data=synthetic_data,
+    )
     (output_dir / "policy_brief.md").write_text(brief)
+    (output_dir / "policy_brief.html").write_text(generate_policy_brief_html(brief))
     typer.echo(f"Analysis complete: {output_dir.resolve()}")
 
 

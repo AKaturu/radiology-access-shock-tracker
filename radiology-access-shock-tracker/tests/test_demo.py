@@ -14,4 +14,6 @@ def test_demo_runs_end_to_end(tmp_path: Path) -> None:
     assert not events.empty
     assert not shocks.empty
     assert not interventions.empty
-    assert "CLOSED" in set(events["event_type"])
+    assert "POSSIBLE_CLOSURE" in set(events["event_type"])
+    assert outputs["brief_html"].exists()
+    assert "population_newly_over_30_miles" in shocks.columns

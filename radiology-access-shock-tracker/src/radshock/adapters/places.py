@@ -8,7 +8,7 @@ PLACES_COUNTY_ENDPOINT = "https://data.cdc.gov/resource/swc5-untb.json"
 
 def fetch_nc_mammography(timeout: int = 30) -> pd.DataFrame:
     """Fetch the current CDC PLACES county mammography measure for North Carolina."""
-    params = {
+    params: dict[str, str | int] = {
         "$select": "year,stateabbr,locationname,locationid,measure,data_value,data_value_type",
         "$where": "stateabbr='NC' AND upper(measure) like '%MAMMOGRAM%'",
         "$limit": 5000,

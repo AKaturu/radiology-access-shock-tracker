@@ -1,0 +1,19 @@
+[project]
+state = "NC"
+synthetic_data = false
+
+[snapshots]
+store_dir = "data/snapshots"
+source_name = "manual-reviewed-export"
+
+[access]
+primary_threshold_miles = 30
+report_thresholds_miles = [30, 45, 60]
+
+[adapters.census]
+year = 2024
+api_key_env = "CENSUS_API_KEY"
+
+[reports]
+output_dir = "outputs/analysis"
+include_html = true

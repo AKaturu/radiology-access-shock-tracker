@@ -10,6 +10,8 @@ from radshock.schemas import (
     validate_population_points,
 )
 
+DEFAULT_ACCESS_THRESHOLDS_MILES = (30.0, 45.0, 60.0)
+
 
 def nearest_access(population_points: pd.DataFrame, facilities: pd.DataFrame) -> pd.DataFrame:
     points = validate_population_points(population_points)
@@ -86,7 +88,14 @@ def compare_county_access(
     context = validate_counties(counties)
     threshold_column = f"pct_over_{int(threshold_miles)}_miles"
     merged = before.merge(after, on="county_fips", suffixes=("_before", "_after"))
+    access_change = summarize_access_change(
+        population_points,
+        before_facilities,
+        after_facilities,
+        thresholds_miles=DEFAULT_ACCESS_THRESHOLDS_MILES,
+    )
     merged = context.merge(merged, on="county_fips", how="left")
+    merged = merged.merge(access_change, on="county_fips", how="left")
     merged["mean_distance_delta"] = (
         merged["mean_distance_miles_after"] - merged["mean_distance_miles_before"]
     )
@@ -96,7 +105,7 @@ def compare_county_access(
     merged["pct_over_threshold_delta"] = (
         merged[f"{threshold_column}_after"] - merged[f"{threshold_column}_before"]
     )
-    merged["shock_score"] = _shock_score(merged)
+    merged = add_shock_components(merged)
     merged["alert_level"] = pd.cut(
         merged["shock_score"],
         bins=[-0.001, 5, 20, 40, 100],
@@ -108,15 +117,84 @@ def compare_county_access(
     )
 
 
-def _shock_score(frame: pd.DataFrame) -> pd.Series:
-    mean_component = frame["mean_distance_delta"].clip(lower=0).div(20).clip(upper=1)
-    p90_component = frame["p90_distance_delta"].clip(lower=0).div(30).clip(upper=1)
-    threshold_component = frame["pct_over_threshold_delta"].clip(lower=0).div(0.40).clip(upper=1)
-    deterioration = 0.45 * mean_component + 0.30 * p90_component + 0.25 * threshold_component
+def summarize_access_change(
+    population_points: pd.DataFrame,
+    before_facilities: pd.DataFrame,
+    after_facilities: pd.DataFrame,
+    thresholds_miles: tuple[float, ...] = DEFAULT_ACCESS_THRESHOLDS_MILES,
+) -> pd.DataFrame:
+    """Summarize point-level access changes without substituting county centroids."""
+    before = nearest_access(population_points, before_facilities)[
+        ["point_id", "county_fips", "weight", "nearest_facility_id", "distance_miles"]
+    ].rename(
+        columns={
+            "nearest_facility_id": "nearest_facility_id_before",
+            "distance_miles": "distance_miles_before",
+        }
+    )
+    after = nearest_access(population_points, after_facilities)[
+        ["point_id", "nearest_facility_id", "distance_miles"]
+    ].rename(
+        columns={
+            "nearest_facility_id": "nearest_facility_id_after",
+            "distance_miles": "distance_miles_after",
+        }
+    )
+    merged = before.merge(after, on="point_id", how="inner")
+    rows: list[dict[str, float | str]] = []
+    for county_fips, group in merged.groupby("county_fips", sort=True):
+        weights = group["weight"].to_numpy(dtype=float)
+        changed = group["nearest_facility_id_before"].astype(str) != group[
+            "nearest_facility_id_after"
+        ].astype(str)
+        row: dict[str, float | str] = {
+            "county_fips": county_fips,
+            "population_nearest_facility_changed": float(weights[changed.to_numpy()].sum()),
+        }
+        before_distance = group["distance_miles_before"].to_numpy(dtype=float)
+        after_distance = group["distance_miles_after"].to_numpy(dtype=float)
+        for threshold in thresholds_miles:
+            before_over = (before_distance > threshold) | ~np.isfinite(before_distance)
+            after_over = (after_distance > threshold) | ~np.isfinite(after_distance)
+            newly_over = (~before_over) & after_over
+            threshold_label = int(threshold)
+            row[f"population_newly_over_{threshold_label}_miles"] = float(
+                weights[newly_over].sum()
+            )
+        rows.append(row)
+    return pd.DataFrame(rows)
 
-    poverty = frame["poverty_pct"].div(30).clip(lower=0, upper=1)
-    rurality = frame["rurality_index"].clip(lower=0, upper=1)
-    risk = frame["high_risk_index"].clip(lower=0, upper=1)
-    vulnerability = 0.4 * poverty + 0.3 * rurality + 0.3 * risk
-    score = 100 * deterioration * (0.70 + 0.30 * vulnerability)
-    return score.clip(lower=0, upper=100).round(1)
+
+def add_shock_components(frame: pd.DataFrame) -> pd.DataFrame:
+    """Attach transparent score components alongside the composite shock score."""
+    result = frame.copy()
+    result["shock_mean_distance_component"] = (
+        result["mean_distance_delta"].clip(lower=0).div(20).clip(upper=1)
+    )
+    result["shock_p90_distance_component"] = (
+        result["p90_distance_delta"].clip(lower=0).div(30).clip(upper=1)
+    )
+    result["shock_threshold_component"] = (
+        result["pct_over_threshold_delta"].clip(lower=0).div(0.40).clip(upper=1)
+    )
+    result["deterioration_component"] = (
+        0.45 * result["shock_mean_distance_component"]
+        + 0.30 * result["shock_p90_distance_component"]
+        + 0.25 * result["shock_threshold_component"]
+    )
+
+    result["vulnerability_poverty_component"] = result["poverty_pct"].div(30).clip(
+        lower=0, upper=1
+    )
+    result["vulnerability_rurality_component"] = result["rurality_index"].clip(lower=0, upper=1)
+    result["vulnerability_risk_component"] = result["high_risk_index"].clip(lower=0, upper=1)
+    result["vulnerability_component"] = (
+        0.4 * result["vulnerability_poverty_component"]
+        + 0.3 * result["vulnerability_rurality_component"]
+        + 0.3 * result["vulnerability_risk_component"]
+    )
+    score = 100 * result["deterioration_component"] * (
+        0.70 + 0.30 * result["vulnerability_component"]
+    )
+    result["shock_score"] = score.clip(lower=0, upper=100).round(1)
+    return result
