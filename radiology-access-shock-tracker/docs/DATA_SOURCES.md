@@ -88,6 +88,12 @@ retrieval timestamp, and error columns. Candidate coordinates remain unapproved:
 still be checked and marked `reviewed`, `verified`, or `approved` before
 `radshock finalize-mqsa-review` will produce a snapshot-ready file.
 
+If reviewers supplement Census matches with manual or fallback geocoding, the fallback provider,
+matched address, score or benchmark, source URL, retrieval timestamp, and any approximate-match note
+must stay in the geocode provenance columns. The 2026-06-19 NC review artifact used Census one-line
+matching and ArcGIS World Geocoding fallback rows for addresses that the structured Census pass did
+not resolve; those rows remain candidate coordinates until reviewed.
+
 ## Fixture-based testing
 
 CI tests should not depend on live FDA, CDC, Census, CMS, geocoding, or routing endpoints. Adapter

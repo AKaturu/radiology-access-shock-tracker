@@ -102,7 +102,10 @@ radshock geocode-mqsa-review \
 ```
 
 Geocoding writes candidate coordinates and provenance columns, but it does not approve any row.
-Human review is still required before finalization.
+Human review is still required before finalization. If you supplement unmatched rows with a
+manual or third-party fallback geocoder, keep the fallback provider, matched address, score or
+benchmark, source URL, retrieval timestamp, and any approximate-match note in the geocode
+provenance columns.
 
 Complete the blank required reviewed fields, set `review_status` to `reviewed`, `verified`, or `approved`,
 then finalize it into a snapshot-ready CSV:

@@ -234,17 +234,23 @@ Latest validation gate completed:
 - `python -m pip wheel . -w work/dist` built the package wheel.
 - `finalize-mqsa-review` successfully finalized a matched MQSA smoke row with blank
   `annual_capacity`.
+- The real 2026-06-19 NC MQSA review artifact now has all 289 latitude/longitude candidate
+  coordinates filled: 259 original Census structured matches, 3 Census one-line fallback matches,
+  and 27 ArcGIS World Geocoding fallback matches. One fallback row is marked approximate and should
+  be spot reviewed.
 
 ### Remaining Work
 
-- Human-review the first real MQSA-derived NC facility CSV, including the 30 rows still missing
-  geocoded coordinates.
+- Human-review the first real MQSA-derived NC facility CSV's candidate coordinates, especially the
+  one approximate fallback match.
+- Assign stable `facility_id` values and fill the required `active` flag for all 289 NC facility
+  rows before running `finalize-mqsa-review`.
 - Enable the guarded scheduled workflow after source review owners are configured.
 - Run `readiness-audit` on the first real analysis package and resolve all blockers before sharing.
 
 ## Next Actions
 
-1. Review and approve the first real MQSA-derived NC facility CSV.
+1. Assign reviewed facility IDs and active flags in the first real MQSA-derived NC facility CSV.
 2. Generate reviewed travel-time matrices with the chosen routing process and finalize them.
 3. Run readiness auditing on real analysis outputs and resolve blockers.
 4. Configure source review owners and enable scheduled workflow execution.
