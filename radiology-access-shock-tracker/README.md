@@ -47,7 +47,35 @@ outputs/demo/
 
 ## Use your own reviewed facility data
 
-Your facility CSV must contain:
+Production facility ingestion is intentionally two-stage. First archive the raw source file, then
+create a review template. The FDA MQSA public file does not contain stable tracker IDs, coordinates,
+active status, or capacity, so those fields must be reviewed before snapshot ingestion.
+
+Archive the weekly FDA MQSA public ZIP:
+
+```bash
+radshock fetch-fda-mqsa --output-dir data/raw
+```
+
+If you already downloaded the FDA ZIP manually:
+
+```bash
+radshock archive-source public.zip \
+  --source-name fda-mqsa-public \
+  --source-url https://www.accessdata.fda.gov/premarket/ftparea/public.zip
+```
+
+Prepare a human-review CSV:
+
+```bash
+radshock prepare-mqsa-review \
+  data/raw/fda-mqsa-public/2026-07-01/public.zip \
+  --output-csv work/fda_mqsa_nc_review.csv \
+  --state NC
+```
+
+Complete the blank reviewed fields, then ingest the reviewed snapshot. Your reviewed facility CSV
+must contain:
 
 ```text
 facility_id,facility_name,latitude,longitude,annual_capacity,active
@@ -58,7 +86,9 @@ Store a dated snapshot:
 ```bash
 radshock ingest-snapshot facilities_2026_07.csv \
   --as-of 2026-07-01 \
-  --source-name reviewed-mqsa-export
+  --source-name reviewed-mqsa-export \
+  --source-url https://www.accessdata.fda.gov/premarket/ftparea/public.zip \
+  --raw-source-path data/raw/fda-mqsa-public/2026-07-01/public.zip
 ```
 
 Validate without writing:

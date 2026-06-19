@@ -1,8 +1,15 @@
+import zipfile
+from pathlib import Path
+
 import pandas as pd
 import pytest
 
 from radshock.adapters.cms import summarize_mammography_claims
-from radshock.adapters.facilities import normalize_manual_facility_export
+from radshock.adapters.facilities import (
+    build_mqsa_review_template,
+    normalize_manual_facility_export,
+    read_fda_mqsa_fixed_width,
+)
 from radshock.adapters.places import fetch_nc_mammography
 
 
@@ -49,3 +56,62 @@ def test_places_adapter_uses_fixture_response(monkeypatch: pytest.MonkeyPatch) -
     assert result.loc[0, "county_fips"] == "37001"
     assert result.loc[0, "data_value"] == 71.2
     assert calls[0]["params"] is not None
+
+
+def test_fda_mqsa_fixed_width_zip_builds_review_template(tmp_path: Path) -> None:
+    line = _mqsa_line(
+        name="Demo Mobile Mammography",
+        address_1="100 Main St",
+        city="Raleigh",
+        state="NC",
+        zip_code="27601",
+        phone="919-555-0100",
+    )
+    zip_path = tmp_path / "public.zip"
+    with zipfile.ZipFile(zip_path, "w") as archive:
+        archive.writestr("public.txt", line + "\n")
+
+    raw = read_fda_mqsa_fixed_width(zip_path, state="NC")
+    review = build_mqsa_review_template(raw)
+
+    assert raw.loc[0, "source_facility_name"] == "Demo Mobile Mammography"
+    assert raw.loc[0, "is_mobile_name_hint"]
+    assert review.loc[0, "facility_id"] == ""
+    assert review.loc[0, "latitude"] == ""
+    assert review.loc[0, "active"] == ""
+    assert review.loc[0, "facility_name"] == "Demo Mobile Mammography"
+
+
+def test_fda_mqsa_pipe_delimited_source_is_supported(tmp_path: Path) -> None:
+    source = tmp_path / "public.txt"
+    source.write_text(
+        "Demo Facility|100 Main St|||Raleigh|NC|27601|9195550100|9195550101\n"
+    )
+    raw = read_fda_mqsa_fixed_width(source, state="NC")
+    assert raw.loc[0, "source_facility_name"] == "Demo Facility"
+    assert raw.loc[0, "source_state"] == "NC"
+    assert raw.loc[0, "source_schema_version"] == "fda_mqsa_pipe_delimited"
+
+
+def _mqsa_line(
+    name: str,
+    address_1: str,
+    city: str,
+    state: str,
+    zip_code: str,
+    phone: str,
+    address_2: str = "",
+    address_3: str = "",
+    fax: str = "",
+) -> str:
+    return (
+        f"{name:<75}"
+        f"{address_1:<50}"
+        f"{address_2:<50}"
+        f"{address_3:<50}"
+        f"{city:<50}"
+        f"{state:<2}"
+        f"{zip_code:<15}"
+        f"{phone:<50}"
+        f"{fax:<50}"
+    )

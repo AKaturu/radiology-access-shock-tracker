@@ -13,8 +13,9 @@ uses synthetic data safely for demos and supports reviewed public-data ingestion
 
 ### Current Status
 
-The downloaded MVP has been committed as a baseline. This session is hardening event semantics,
-score transparency, adapter validation, reports, CLI behavior, docs, and tests.
+The downloaded MVP has been committed as a baseline. The project now has safer event semantics,
+score transparency, adapter validation, reports, CLI behavior, docs, and tests. Current work is
+adding production source archiving and FDA/MQSA review-template creation.
 
 ## Completed Features
 
@@ -41,11 +42,25 @@ confirmed closure claims.
 Tests now cover safer event labels, score components, adapter validation, mocked PLACES fetching,
 CLI snapshot validation, CLI comparison, and snapshot-copy immutability.
 
+### Source Archive and FDA Review Workflow
+
+#### Validation
+
+Raw source files can be archived with checksums and metadata. FDA MQSA fixed-width files can be
+converted into a human-review CSV that leaves facility IDs, coordinates, active status, and capacity
+blank until reviewed. The live FDA ZIP retrieved on 2026-06-19 used pipe-delimited rows, so the
+parser now auto-detects fixed-width versus pipe-delimited source formats.
+
+#### Tests Added
+
+Tests cover local source archiving, overwrite protection, FDA MQSA fixed-width ZIP parsing, and the
+observed pipe-delimited FDA layout, plus the CLI review-template workflow.
+
 ## Current Work
 
 ### Active Feature
 
-Release-readiness hardening for the synthetic-data MVP.
+Production source ingestion groundwork.
 
 ### Progress
 
@@ -54,7 +69,7 @@ Implementation is in progress. Full validation must be rerun before release or p
 ### Remaining Work
 
 - Complete road-network travel-time backend design and implementation.
-- Add source-specific live data acquisition workflows with human review.
+- Use a real FDA MQSA ZIP to generate the first reviewed NC facility CSV.
 - Add sensitivity-analysis reports for alternative shock-score weights.
 - Add scheduled workflow templates only after repository secrets and source review are configured.
 
@@ -62,7 +77,7 @@ Implementation is in progress. Full validation must be rerun before release or p
 
 1. Run pytest, Ruff, mypy, package build, CLI demo, and Streamlit smoke test.
 2. Inspect diffs and generated demo outputs.
-3. Commit the hardening changes if validation passes.
+3. Commit the source-ingestion groundwork if validation passes.
 
 ## Risks
 

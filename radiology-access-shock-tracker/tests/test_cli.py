@@ -49,3 +49,29 @@ def test_compare_snapshots_command_writes_possible_closure(tmp_path: Path) -> No
     assert result.exit_code == 0
     events = pd.read_csv(output)
     assert events.loc[0, "event_type"] == "POSSIBLE_CLOSURE"
+
+
+def test_prepare_mqsa_review_command(tmp_path: Path) -> None:
+    source = tmp_path / "public.txt"
+    source.write_text(
+        f"{'Demo Facility':<75}"
+        f"{'100 Main St':<50}"
+        f"{'':<50}"
+        f"{'':<50}"
+        f"{'Raleigh':<50}"
+        f"{'NC':<2}"
+        f"{'27601':<15}"
+        f"{'919-555-0100':<50}"
+        f"{'':<50}"
+        "\n"
+    )
+    output = tmp_path / "review.csv"
+    result = CliRunner().invoke(
+        app,
+        ["prepare-mqsa-review", str(source), "--output-csv", str(output), "--state", "NC"],
+    )
+    assert result.exit_code == 0
+    review = pd.read_csv(output, dtype=str).fillna("")
+    assert review.loc[0, "source_facility_name"] == "Demo Facility"
+    assert review.loc[0, "facility_id"] == ""
+    assert review.loc[0, "active"] == ""

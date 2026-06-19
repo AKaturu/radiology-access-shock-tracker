@@ -8,12 +8,18 @@ import pandas as pd
 import typer
 
 from radshock.access import compare_county_access
+from radshock.adapters.facilities import (
+    FDA_MQSA_PUBLIC_ZIP_URL,
+    build_mqsa_review_template,
+    read_fda_mqsa_fixed_width,
+)
 from radshock.briefs import generate_policy_brief, generate_policy_brief_html
 from radshock.changes import detect_changes
 from radshock.demo import build_demo
 from radshock.intervention import simulate_candidates
 from radshock.schemas import validate_facilities
 from radshock.snapshots import store_snapshot
+from radshock.sources import archive_local_source, fetch_url_source
 from radshock.utilization import summarize_utilization_change
 
 app = typer.Typer(help="Radiology Access Shock Tracker command line interface.")
@@ -38,6 +44,11 @@ def ingest_snapshot(
     as_of: Annotated[str, typer.Option(help="Snapshot date in YYYY-MM-DD format.")],
     store_dir: Annotated[Path, typer.Option()] = Path("data/snapshots"),
     source_name: Annotated[str, typer.Option()] = "manual-import",
+    source_url: Annotated[
+        str | None, typer.Option(help="Source URL or source landing page.")
+    ] = None,
+    raw_source_path: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    schema_version: Annotated[str, typer.Option()] = "facility_snapshot_v1",
     dry_run: Annotated[bool, typer.Option(help="Validate without writing a snapshot.")] = False,
 ) -> None:
     """Validate and store an immutable facility snapshot."""
@@ -50,8 +61,89 @@ def ingest_snapshot(
         active_count = int(frame["active"].sum())
         typer.echo(f"Snapshot valid: {len(frame)} records, {active_count} active")
         return
-    destination = store_snapshot(input_csv, snapshot_date, store_dir, source_name)
+    destination = store_snapshot(
+        input_csv,
+        snapshot_date,
+        store_dir,
+        source_name,
+        source_url=source_url,
+        raw_source_path=raw_source_path,
+        schema_version=schema_version,
+    )
     typer.echo(f"Stored snapshot: {destination.resolve()}")
+
+
+@app.command("fetch-source")
+def fetch_source(
+    url: Annotated[str, typer.Option(help="Source file URL.")],
+    source_name: Annotated[str, typer.Option()] = "manual-source",
+    output_dir: Annotated[Path, typer.Option()] = Path("data/raw"),
+    timeout: Annotated[int, typer.Option()] = 60,
+    force: Annotated[bool, typer.Option(help="Overwrite an existing archived source.")] = False,
+) -> None:
+    """Download a raw source file into the auditable archive."""
+    archived = fetch_url_source(url, output_dir, source_name, timeout=timeout, force=force)
+    typer.echo(f"Archived source: {archived.resolve()}")
+    typer.echo(f"Metadata: {archived.with_suffix(archived.suffix + '.metadata.json').resolve()}")
+
+
+@app.command("fetch-fda-mqsa")
+def fetch_fda_mqsa(
+    output_dir: Annotated[Path, typer.Option()] = Path("data/raw"),
+    timeout: Annotated[int, typer.Option()] = 60,
+    force: Annotated[bool, typer.Option(help="Overwrite an existing archived source.")] = False,
+) -> None:
+    """Download the FDA MQSA weekly public facility ZIP into the source archive."""
+    archived = fetch_url_source(
+        FDA_MQSA_PUBLIC_ZIP_URL,
+        output_dir,
+        "fda-mqsa-public",
+        timeout=timeout,
+        force=force,
+    )
+    typer.echo(f"Archived FDA MQSA source: {archived.resolve()}")
+    typer.echo(f"Metadata: {archived.with_suffix(archived.suffix + '.metadata.json').resolve()}")
+
+
+@app.command("archive-source")
+def archive_source(
+    input_path: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    source_name: Annotated[str, typer.Option()],
+    output_dir: Annotated[Path, typer.Option()] = Path("data/raw"),
+    source_url: Annotated[str | None, typer.Option()] = None,
+    force: Annotated[bool, typer.Option(help="Overwrite an existing archived source.")] = False,
+) -> None:
+    """Archive a manually downloaded source file with checksum metadata."""
+    archived = archive_local_source(
+        input_path,
+        output_dir,
+        source_name,
+        source_url=source_url,
+        force=force,
+    )
+    typer.echo(f"Archived source: {archived.resolve()}")
+    typer.echo(f"Metadata: {archived.with_suffix(archived.suffix + '.metadata.json').resolve()}")
+
+
+@app.command("prepare-mqsa-review")
+def prepare_mqsa_review(
+    input_path: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    output_csv: Annotated[Path, typer.Option()],
+    state: Annotated[str, typer.Option(help="Two-letter state filter.")] = "NC",
+    force: Annotated[bool, typer.Option(help="Overwrite an existing review CSV.")] = False,
+) -> None:
+    """Create a human-review CSV from the FDA MQSA fixed-width source file."""
+    if output_csv.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    raw = read_fda_mqsa_fixed_width(input_path, state=state)
+    review = build_mqsa_review_template(raw)
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    review.to_csv(output_csv, index=False)
+    typer.echo(f"Review template written: {output_csv.resolve()}")
+    typer.echo(
+        "Review required: facility_id, latitude, longitude, annual_capacity, and active "
+        "must be completed before snapshot ingestion."
+    )
 
 
 @app.command("validate-snapshot")

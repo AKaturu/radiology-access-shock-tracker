@@ -21,13 +21,15 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 
 ## Data Flow
 
-1. A reviewed facility source is normalized and validated.
-2. `store_snapshot` writes a dated immutable snapshot directory.
-3. Two snapshots are compared to produce facility event signals.
-4. Population points are evaluated against before and after facilities.
-5. County access deltas, vulnerability context, and utilization summaries are merged.
-6. Candidate response sites are ranked by geographic access recovery.
-7. CSV outputs, briefs, and dashboard views expose the results with limitations.
+1. A raw source file is downloaded or manually supplied and archived with checksum metadata.
+2. FDA/MQSA fixed-width files can be converted into a human-review CSV.
+3. A reviewed facility source is normalized and validated.
+4. `store_snapshot` writes a dated immutable snapshot directory with source provenance.
+5. Two snapshots are compared to produce facility event signals.
+6. Population points are evaluated against before and after facilities.
+7. County access deltas, vulnerability context, and utilization summaries are merged.
+8. Candidate response sites are ranked by geographic access recovery.
+9. CSV outputs, briefs, and dashboard views expose the results with limitations.
 
 ## Failure Modes
 
@@ -36,3 +38,5 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 - CMS fee-for-service utilization does not represent the full population.
 - Synthetic data can resemble real geography and must remain clearly labeled.
 - Live public-data schemas and API requirements can change; CI uses fixtures and mocked responses.
+- FDA/MQSA public files lack coordinates and stable tracker IDs, so human review is required before
+  a production snapshot can be created.

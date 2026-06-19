@@ -6,6 +6,17 @@ The FDA maintains a searchable listing of certified mammography facilities and d
 
 Official entry point: <https://www.fda.gov/findmammography>
 
+Official public ZIP: <https://www.accessdata.fda.gov/premarket/ftparea/public.zip>
+
+The production workflow now supports `radshock fetch-fda-mqsa` for downloading and archiving the
+weekly ZIP, `radshock archive-source` for manually downloaded files, and
+`radshock prepare-mqsa-review` for creating a human-review CSV. The FDA page documents a fixed-width
+layout, while the live ZIP retrieved on 2026-06-19 contained pipe-delimited rows with the same
+logical fields. The parser supports both formats and records the observed `source_schema_version`.
+The layout includes facility name, address lines, city, state, ZIP, phone, and fax. It does not
+provide stable tracker IDs, coordinates, capacity, or verified active status, so the review CSV
+leaves those fields blank before snapshot ingestion.
+
 ## CDC PLACES
 
 The CDC PLACES county dataset provides model-based small-area estimates. The adapter uses the official Socrata resource endpoint for the current county dataset and filters for North Carolina mammography records. Measurement year and data-value type must remain visible in downstream products.

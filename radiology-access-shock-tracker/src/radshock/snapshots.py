@@ -24,6 +24,9 @@ def store_snapshot(
     as_of: date,
     store_dir: Path,
     source_name: str = "manual-import",
+    source_url: str | None = None,
+    raw_source_path: Path | None = None,
+    schema_version: str = "facility_snapshot_v1",
 ) -> Path:
     """Validate and version a facility snapshot with immutable metadata."""
     frame = validate_facilities(pd.read_csv(input_csv))
@@ -39,7 +42,12 @@ def store_snapshot(
         "sha256": file_sha256(snapshot_path),
         "created_at_utc": datetime.now(UTC).isoformat(),
         "input_filename": input_csv.name,
+        "schema_version": schema_version,
+        "source_url": source_url,
     }
+    if raw_source_path is not None:
+        metadata["raw_source_filename"] = raw_source_path.name
+        metadata["raw_source_sha256"] = file_sha256(raw_source_path)
     (destination / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
     return destination
 
