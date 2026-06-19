@@ -28,6 +28,8 @@ required = {
     "utilization": analysis_dir / "utilization_change.csv",
 }
 sensitivity_path = analysis_dir / "sensitivity_analysis.csv"
+readiness_json_path = analysis_dir / "readiness_audit.json"
+readiness_md_path = analysis_dir / "readiness_audit.md"
 missing = [str(path) for path in required.values() if not path.exists()]
 if missing:
     st.warning("Run `radshock demo` first. Missing: " + ", ".join(missing))
@@ -42,6 +44,13 @@ sensitivity = (
     if sensitivity_path.exists()
     else pd.DataFrame()
 )
+readiness_audit = {}
+readiness_error = ""
+if readiness_json_path.exists():
+    try:
+        readiness_audit = json.loads(readiness_json_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        readiness_error = f"Readiness audit JSON could not be parsed: {exc}"
 manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
 
 if bool(manifest.get("synthetic_data")):
@@ -64,6 +73,7 @@ col4.metric("Best intervention score", f"{interventions['intervention_score'].ma
     intervention_tab,
     utilization_tab,
     sensitivity_tab,
+    readiness_tab,
     methods_tab,
 ) = st.tabs(
     [
@@ -73,6 +83,7 @@ col4.metric("Best intervention score", f"{interventions['intervention_score'].ma
         "Interventions",
         "Utilization",
         "Sensitivity",
+        "Readiness",
         "Methods",
     ]
 )
@@ -211,6 +222,53 @@ with sensitivity_tab:
             file_name="sensitivity_analysis.csv",
             mime="text/csv",
         )
+
+with readiness_tab:
+    if readiness_error:
+        st.error(readiness_error)
+    elif not readiness_audit:
+        st.info("No production readiness audit found.")
+    else:
+        overall_status = str(readiness_audit.get("overall_status", "UNKNOWN"))
+        checks = pd.DataFrame(readiness_audit.get("checks", []))
+        blocker_count = (
+            int(checks["status"].eq("BLOCKER").sum()) if "status" in checks.columns else 0
+        )
+        warning_count = int(checks["status"].eq("WARN").sum()) if "status" in checks.columns else 0
+        pass_count = int(checks["status"].eq("PASS").sum()) if "status" in checks.columns else 0
+        status_col, blocker_col, warning_col, pass_col = st.columns(4)
+        status_col.metric("Readiness status", overall_status)
+        blocker_col.metric("Blockers", blocker_count)
+        warning_col.metric("Warnings", warning_count)
+        pass_col.metric("Passing checks", pass_count)
+        if overall_status == "BLOCKED":
+            st.error("Publication is blocked until the readiness findings are resolved.")
+        elif overall_status == "WARN":
+            st.warning("No blockers were found, but warnings remain for review.")
+        elif overall_status == "READY":
+            st.success("No blockers or warnings were found in this audit.")
+        if not checks.empty:
+            display_columns = [
+                "status",
+                "label",
+                "details",
+                "recommendation",
+            ]
+            display_columns = [column for column in display_columns if column in checks.columns]
+            st.dataframe(checks[display_columns], use_container_width=True, hide_index=True)
+        st.download_button(
+            "Download readiness JSON",
+            readiness_json_path.read_text(encoding="utf-8"),
+            file_name="readiness_audit.json",
+            mime="application/json",
+        )
+        if readiness_md_path.exists():
+            st.download_button(
+                "Download readiness report",
+                readiness_md_path.read_text(encoding="utf-8"),
+                file_name="readiness_audit.md",
+                mime="text/markdown",
+            )
 
 with methods_tab:
     st.markdown(

@@ -26,7 +26,8 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 - `radshock.utilization`: descriptive CMS-style utilization change summaries.
 - `radshock.intervention`: geographic planning simulation for candidate mobile or fixed sites.
 - `radshock.briefs`: Markdown and HTML report generation.
-- `radshock.cli` and `radshock.app`: user-facing automation and dashboard surfaces.
+- `radshock.cli` and `radshock.app`: user-facing automation and dashboard surfaces, including
+  readiness-audit review.
 
 ## Data Flow
 
@@ -45,7 +46,8 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 11. Sensitivity analysis re-scores county shocks under alternate transparent weighting assumptions.
 12. Candidate response sites are ranked by geographic access recovery.
 13. Readiness auditing checks blockers, warnings, provenance, and publication limits.
-14. CSV outputs, briefs, and dashboard views expose the results with limitations.
+14. CSV outputs, briefs, readiness reports, and dashboard views expose the results with
+    limitations.
 
 ## Failure Modes
 

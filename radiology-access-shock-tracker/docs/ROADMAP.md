@@ -12,13 +12,14 @@
 
 ## Next production steps
 
-1. Create a documented FDA/MQSA snapshot acquisition and adjudication workflow.
+1. Complete the first reviewed FDA/MQSA snapshot using the documented acquisition and adjudication
+   workflow.
 2. Replace synthetic population points with Census-derived small-area populations.
-3. Add road-network travel-time matrices and uncertainty checks.
-4. Add quarterly snapshot scheduling and human verification status.
+3. Generate reviewed road-network travel-time matrices and uncertainty checks.
+4. Enable quarterly snapshot scheduling after source credentials and review owners are configured.
 5. Add multiple pre/post CMS periods and causal-study export tables.
 6. Add data-quality dashboards, geocoder confidence, and identifier crosswalks.
-7. Add sensitivity-analysis reports for alternative shock-score weights.
+7. Expand sensitivity-analysis reports beyond CSV outputs for reviewer signoff.
 
 ## Reserved future applications
 

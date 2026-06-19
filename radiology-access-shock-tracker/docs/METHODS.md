@@ -157,6 +157,9 @@ core outputs, invalid snapshot checksums, and missing required artifacts. It war
 provenance, missing sensitivity analysis, missing policy briefs, and distance-only outputs when
 road-time analysis is not explicitly required.
 
+The synthetic demo writes a blocked audit report by default so reviewers can see the publication
+gate and confirm that synthetic outputs are not publishable real-world findings.
+
 The audit is intentionally conservative. A passing audit means required artifacts and safety gates
 are present; it does not mean facility events are true, the shock score is clinically validated, or
 the analysis is ready to publish without domain review.

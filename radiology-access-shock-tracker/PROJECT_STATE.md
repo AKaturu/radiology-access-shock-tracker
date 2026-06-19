@@ -20,6 +20,8 @@ It now also produces shock-score sensitivity-analysis outputs for reviewer robus
 Production readiness auditing now makes publication blockers and provenance gaps explicit.
 Travel-time route-review templates and finalization gates now provide a reproducible path from
 external routing outputs to the access engine.
+Synthetic demo runs now emit blocked readiness-audit reports by default, and the dashboard includes
+a readiness view for audit findings.
 
 ## Completed Features
 
@@ -144,6 +146,18 @@ minutes before emitting the minimal travel-time matrix accepted by
 Tests cover active-only pairing, straight-line filtering, routed versus unreachable finalization,
 incomplete review rejection, and CLI prepare/finalize behavior.
 
+### Demo Readiness Audit and Dashboard View
+
+#### Validation
+
+`radshock demo` now writes `readiness_audit.json` and `readiness_audit.md` beside the analysis
+outputs. The Streamlit dashboard reads those audit artifacts when present and displays overall
+status, blocker/warning/pass counts, findings, and report downloads.
+
+#### Tests Added
+
+Demo coverage now asserts that synthetic outputs produce a blocked readiness audit.
+
 ## Current Work
 
 ### Active Feature
@@ -158,19 +172,17 @@ Latest validation gate completed:
 - `python -m ruff check .` passed.
 - `python -m mypy src/radshock` passed.
 - `python -m pip wheel . -w work/dist` built the package wheel.
-- `radshock demo --output-dir work/demo-smoke` regenerated demo outputs.
-- `radshock sensitivity-analysis work/demo-smoke/analysis/county_shocks.csv` wrote 40 scenario
-  rows.
-- `radshock readiness-audit --analysis-dir work/demo-smoke/analysis` produced a blocked synthetic
-  demo audit as expected, with 2 blockers and 4 warnings.
-- `radshock prepare-travel-time-review` generated 40 synthetic route-review pairs, and
-  `radshock finalize-travel-time-review` emitted 40 matrix rows.
-- Streamlit startup smoke test returned HTTP 200 on `127.0.0.1:8770`.
+- `radshock demo --output-dir work/demo-smoke-readiness` regenerated demo outputs, including
+  `readiness_audit.json` and `readiness_audit.md`.
+- The generated synthetic demo readiness audit was `BLOCKED`, with 4 blockers and 2 warnings.
+- `radshock demo --output-dir outputs/demo` refreshed the default dashboard demo package.
+- Streamlit startup smoke test returned HTTP 200 on `127.0.0.1:8771`.
 
 ### Remaining Work
 
 - Use a real FDA MQSA ZIP to generate and human-review the first NC facility CSV.
-- Add scheduled workflow templates after repository secrets and source review are configured.
+- Configure and enable the guarded scheduled workflow after repository secrets and source review
+  owners are configured.
 - Run `readiness-audit` on the first real analysis package and resolve all blockers before sharing.
 
 ## Next Actions
@@ -178,7 +190,8 @@ Latest validation gate completed:
 1. Review and approve the first real MQSA-derived NC facility CSV.
 2. Generate reviewed travel-time matrices with the chosen routing process and finalize them.
 3. Run readiness auditing on real analysis outputs and resolve blockers.
-4. Add scheduled workflow templates after repository secrets and source review are configured.
+4. Configure and enable scheduled workflow execution after repository secrets and source review
+   owners are configured.
 
 ## Risks
 

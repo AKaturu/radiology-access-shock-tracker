@@ -11,6 +11,7 @@ from radshock.access import compare_county_access
 from radshock.briefs import generate_policy_brief, generate_policy_brief_html
 from radshock.changes import detect_changes
 from radshock.intervention import simulate_candidates
+from radshock.readiness import audit_to_json, render_readiness_markdown, run_readiness_audit
 from radshock.sensitivity import run_sensitivity_analysis
 from radshock.snapshots import file_sha256
 from radshock.utilization import summarize_utilization_change
@@ -79,11 +80,20 @@ def build_demo(output_dir: Path) -> dict[str, Path]:
         },
     }
     (output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    audit = run_readiness_audit(
+        analysis,
+        before_snapshot_dir=snapshots / "2026-01-01",
+        after_snapshot_dir=snapshots / "2026-04-01",
+    )
+    (analysis / "readiness_audit.json").write_text(audit_to_json(audit))
+    (analysis / "readiness_audit.md").write_text(render_readiness_markdown(audit))
     return {
         "events": analysis / "facility_events.csv",
         "shocks": analysis / "county_shocks.csv",
         "interventions": analysis / "intervention_rankings.csv",
         "sensitivity": analysis / "sensitivity_analysis.csv",
+        "readiness_json": analysis / "readiness_audit.json",
+        "readiness_md": analysis / "readiness_audit.md",
         "brief": briefs / "policy_brief.md",
         "brief_html": briefs / "policy_brief.html",
     }

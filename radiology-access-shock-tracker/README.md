@@ -40,16 +40,24 @@ Then open the local Streamlit URL shown in the terminal.
 
 ```text
 outputs/demo/
-├── analysis/
-│   ├── county_shocks.csv
-│   ├── facility_events.csv
-│   ├── intervention_rankings.csv
-│   └── utilization_change.csv
-├── briefs/policy_brief.md
-├── inputs/
-├── snapshots/
-└── manifest.json
+|-- analysis/
+|   |-- county_shocks.csv
+|   |-- facility_events.csv
+|   |-- intervention_rankings.csv
+|   |-- readiness_audit.json
+|   |-- readiness_audit.md
+|   |-- sensitivity_analysis.csv
+|   `-- utilization_change.csv
+|-- briefs/
+|   |-- policy_brief.html
+|   `-- policy_brief.md
+|-- inputs/
+|-- snapshots/
+`-- manifest.json
 ```
+
+The synthetic demo readiness audit is expected to be `BLOCKED`; it proves the publication gate is
+working and visible in the dashboard.
 
 ## Use your own reviewed facility data
 
