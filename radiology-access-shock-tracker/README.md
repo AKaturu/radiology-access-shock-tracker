@@ -142,6 +142,24 @@ radshock compare-snapshots \
 Compare county access with reviewed road travel-time matrices:
 
 ```bash
+radshock prepare-travel-time-review \
+  --population-csv data/population_points.csv \
+  --facilities-csv data/snapshots/2026-07-01/facilities.csv \
+  --output-csv work/2026-07-01_travel_time_review.csv \
+  --max-distance-miles 150
+```
+
+Fill the routing worklist with results from your reviewed routing process, set `route_status` to
+`routed`, `unreachable`, or `excluded`, and set `review_status` to `reviewed`, `verified`, or
+`approved`. Then finalize the matrix:
+
+```bash
+radshock finalize-travel-time-review \
+  work/2026-07-01_travel_time_review.csv \
+  --output-csv data/travel_times/2026-07-01_point_facility.csv
+```
+
+```bash
 radshock compare-travel-time-access \
   --before-csv data/snapshots/2026-04-01/facilities.csv \
   --after-csv data/snapshots/2026-07-01/facilities.csv \

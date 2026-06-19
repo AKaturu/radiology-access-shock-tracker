@@ -29,6 +29,10 @@ from radshock.schemas import validate_facilities
 from radshock.sensitivity import run_sensitivity_analysis
 from radshock.snapshots import store_snapshot
 from radshock.sources import archive_local_source, fetch_url_source
+from radshock.travel_times import (
+    build_travel_time_review_template,
+    finalize_travel_time_review,
+)
 from radshock.utilization import summarize_utilization_change
 
 app = typer.Typer(help="Radiology Access Shock Tracker command line interface.")
@@ -269,6 +273,61 @@ def compare_travel_time_access_command(
         typer.echo(f"Records: {len(shocks)}; warning_or_critical: {warning_count}")
     else:
         typer.echo(shocks.to_csv(index=False))
+
+
+@app.command("prepare-travel-time-review")
+def prepare_travel_time_review_command(
+    population_csv: Annotated[Path, typer.Option(exists=True, readable=True)],
+    facilities_csv: Annotated[Path, typer.Option(exists=True, readable=True)],
+    output_csv: Annotated[Path, typer.Option()],
+    max_distance_miles: Annotated[
+        float | None,
+        typer.Option(help="Optional straight-line prefilter for route pairs."),
+    ] = None,
+    include_inactive: Annotated[
+        bool, typer.Option(help="Include inactive facilities in the routing worklist.")
+    ] = False,
+    force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
+) -> None:
+    """Create a point-to-facility routing worklist for external route review."""
+    if output_csv.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    review = build_travel_time_review_template(
+        pd.read_csv(population_csv, dtype={"point_id": str, "county_fips": str}),
+        pd.read_csv(facilities_csv, dtype={"facility_id": str}),
+        active_only=not include_inactive,
+        max_distance_miles=max_distance_miles,
+    )
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    review.to_csv(output_csv, index=False)
+    typer.echo(f"Travel-time review template written: {output_csv.resolve()}")
+    typer.echo(f"Route pairs: {len(review)}")
+    typer.echo(
+        "Fill travel_time_minutes, route_status, route provider metadata, and review_status "
+        "before finalizing."
+    )
+
+
+@app.command("finalize-travel-time-review")
+def finalize_travel_time_review_command(
+    input_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    output_csv: Annotated[Path, typer.Option()],
+    force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
+    dry_run: Annotated[bool, typer.Option(help="Validate without writing output.")] = False,
+) -> None:
+    """Validate reviewed route rows and write a travel-time matrix."""
+    if output_csv.exists() and not force and not dry_run:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    matrix = finalize_travel_time_review(
+        pd.read_csv(input_csv, dtype={"point_id": str, "facility_id": str}, keep_default_na=False)
+    )
+    if dry_run:
+        typer.echo(f"Travel-time review complete: {len(matrix)} routed pairs")
+        return
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    matrix.to_csv(output_csv, index=False)
+    typer.echo(f"Travel-time matrix written: {output_csv.resolve()}")
+    typer.echo(f"Routed pairs: {len(matrix)}")
 
 
 @app.command("sensitivity-analysis")

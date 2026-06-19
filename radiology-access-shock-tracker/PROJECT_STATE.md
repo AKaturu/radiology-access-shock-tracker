@@ -18,6 +18,8 @@ score transparency, adapter validation, reports, CLI behavior, source archiving,
 gates, cached geocoding assistance, reviewed travel-time matrix comparisons, docs, and tests.
 It now also produces shock-score sensitivity-analysis outputs for reviewer robustness checks.
 Production readiness auditing now makes publication blockers and provenance gaps explicit.
+Travel-time route-review templates and finalization gates now provide a reproducible path from
+external routing outputs to the access engine.
 
 ## Completed Features
 
@@ -127,6 +129,21 @@ required.
 Tests cover synthetic/unverified blockers, verified real-data-like audit packages, and CLI report
 generation.
 
+### Travel-Time Route Review Workflow
+
+#### Validation
+
+`prepare-travel-time-review` creates point-to-facility routing worklists from reviewed population
+and facility files, with optional straight-line prefiltering. `finalize-travel-time-review` blocks
+unapproved rows, invalid route statuses, duplicate point/facility pairs, and routed rows without
+minutes before emitting the minimal travel-time matrix accepted by
+`compare-travel-time-access`.
+
+#### Tests Added
+
+Tests cover active-only pairing, straight-line filtering, routed versus unreachable finalization,
+incomplete review rejection, and CLI prepare/finalize behavior.
+
 ## Current Work
 
 ### Active Feature
@@ -137,7 +154,7 @@ Production readiness hardening.
 
 Latest validation gate completed:
 
-- `python -m pytest` passed with 39 tests.
+- `python -m pytest` passed with 45 tests.
 - `python -m ruff check .` passed.
 - `python -m mypy src/radshock` passed.
 - `python -m pip wheel . -w work/dist` built the package wheel.
@@ -146,19 +163,20 @@ Latest validation gate completed:
   rows.
 - `radshock readiness-audit --analysis-dir work/demo-smoke/analysis` produced a blocked synthetic
   demo audit as expected, with 2 blockers and 4 warnings.
-- Streamlit startup smoke test returned HTTP 200 on `127.0.0.1:8769`.
+- `radshock prepare-travel-time-review` generated 40 synthetic route-review pairs, and
+  `radshock finalize-travel-time-review` emitted 40 matrix rows.
+- Streamlit startup smoke test returned HTTP 200 on `127.0.0.1:8770`.
 
 ### Remaining Work
 
 - Use a real FDA MQSA ZIP to generate and human-review the first NC facility CSV.
-- Add a documented routing-engine adapter or recipe for generating travel-time matrices.
 - Add scheduled workflow templates after repository secrets and source review are configured.
 - Run `readiness-audit` on the first real analysis package and resolve all blockers before sharing.
 
 ## Next Actions
 
 1. Review and approve the first real MQSA-derived NC facility CSV.
-2. Add a reproducible recipe for generating the reviewed travel-time matrix inputs.
+2. Generate reviewed travel-time matrices with the chosen routing process and finalize them.
 3. Run readiness auditing on real analysis outputs and resolve blockers.
 4. Add scheduled workflow templates after repository secrets and source review are configured.
 

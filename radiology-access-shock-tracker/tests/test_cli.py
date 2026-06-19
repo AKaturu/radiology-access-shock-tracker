@@ -223,6 +223,49 @@ def test_compare_travel_time_access_command_writes_county_shocks(tmp_path: Path)
     assert shocks.loc[0, "population_newly_over_45_minutes"] == 100
 
 
+def test_prepare_and_finalize_travel_time_review_commands(tmp_path: Path) -> None:
+    population = tmp_path / "population.csv"
+    facilities = tmp_path / "facilities.csv"
+    review = tmp_path / "travel_time_review.csv"
+    matrix = tmp_path / "travel_time_matrix.csv"
+    pd.DataFrame(
+        [["P1", "37001", 35.0, -78.0, 100]],
+        columns=["point_id", "county_fips", "latitude", "longitude", "weight"],
+    ).to_csv(population, index=False)
+    _snapshot(facilities, [["F1", "Facility", 35.0, -78.0, 1000, True]])
+    prepared = CliRunner().invoke(
+        app,
+        [
+            "prepare-travel-time-review",
+            "--population-csv",
+            str(population),
+            "--facilities-csv",
+            str(facilities),
+            "--output-csv",
+            str(review),
+        ],
+    )
+    assert prepared.exit_code == 0
+    route_review = pd.read_csv(review, dtype=str)
+    route_review.loc[0, "travel_time_minutes"] = "18.5"
+    route_review.loc[0, "route_status"] = "routed"
+    route_review.loc[0, "route_provider"] = "fixture"
+    route_review.loc[0, "review_status"] = "approved"
+    route_review.to_csv(review, index=False)
+    finalized = CliRunner().invoke(
+        app,
+        [
+            "finalize-travel-time-review",
+            str(review),
+            "--output-csv",
+            str(matrix),
+        ],
+    )
+    assert finalized.exit_code == 0
+    output = pd.read_csv(matrix)
+    assert output.loc[0, "travel_time_minutes"] == 18.5
+
+
 def test_sensitivity_analysis_command_writes_scenario_rows(tmp_path: Path) -> None:
     county_shocks = tmp_path / "county_shocks.csv"
     output = tmp_path / "sensitivity.csv"

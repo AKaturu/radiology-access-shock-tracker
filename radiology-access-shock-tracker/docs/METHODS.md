@@ -42,6 +42,14 @@ contain `point_id`, `facility_id`, and `travel_time_minutes`. The engine filters
 facilities, selects the fastest facility for each population point, treats points without a route to
 an active facility as uncovered, and reports county-level route coverage.
 
+The recommended workflow is gated:
+
+1. `prepare-travel-time-review` creates a route worklist from reviewed population and facility
+   inputs without inventing travel times.
+2. An external routing process fills travel-time minutes and provenance.
+3. Reviewers mark each route as `routed`, `unreachable`, or `excluded` and approve each row.
+4. `finalize-travel-time-review` emits the minimal matrix only after the reviewed rows pass.
+
 Travel-time comparison outputs include:
 
 - weighted mean nearest-facility travel time;

@@ -42,15 +42,22 @@ Official dataset family: <https://data.cms.gov/provider-summary-by-type-of-servi
 
 ## Road travel-time matrices
 
-`radshock compare-travel-time-access` accepts reviewed point-to-facility matrices from an external
-routing process. The required columns are `point_id`, `facility_id`, and `travel_time_minutes`.
-Matrix rows should be generated from the same reviewed population points and facility snapshots used
-in the analysis. Store the routing engine, network vintage, travel mode, departure-time or traffic
-assumption, and any excluded routes with the source archive.
+`radshock prepare-travel-time-review` creates the reproducible point-to-facility routing worklist
+from reviewed population points and facility snapshots. It includes point coordinates, facility
+coordinates, active status, straight-line miles, blank `travel_time_minutes`, route provenance
+columns, and review status. The optional straight-line distance filter can reduce the route set
+before sending it to a routing engine.
 
-The toolkit rejects duplicate point/facility pairs and negative travel times, filters to active
-facilities, and reports county-level travel-time coverage. It does not validate the upstream road
-network or routing assumptions.
+Route reviewers should fill `travel_time_minutes`, set `route_status` to `routed`, `unreachable`,
+or `excluded`, record the provider/source metadata, and set `review_status` to `reviewed`,
+`verified`, or `approved`. `radshock finalize-travel-time-review` blocks unapproved rows, invalid
+route statuses, duplicate point/facility pairs, and routed rows without minutes. It emits only the
+minimal matrix columns accepted by `radshock compare-travel-time-access`: `point_id`,
+`facility_id`, and `travel_time_minutes`.
+
+Store the routing engine, network vintage, travel mode, departure-time or traffic assumption, and
+any excluded routes with the source archive. The toolkit validates matrix shape and review status,
+but it does not validate the upstream road network or routing assumptions.
 
 ## Geocoding
 

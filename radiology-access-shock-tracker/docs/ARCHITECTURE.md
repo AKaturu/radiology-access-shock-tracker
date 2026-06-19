@@ -17,6 +17,8 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 - `radshock.changes`: facility-level event signal detection.
 - `radshock.access`: nearest-facility distance and reviewed travel-time access calculations with
   transparent shock-score components.
+- `radshock.travel_times`: route-review template creation and finalization gates for externally
+  generated point-to-facility travel-time matrices.
 - `radshock.sensitivity`: post-processing sensitivity analysis for alternate shock-score weights
   and rank movement.
 - `radshock.readiness`: publication-readiness audit checks for output completeness, synthetic-data
@@ -35,13 +37,15 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 5. A reviewed facility source is normalized and validated.
 6. `store_snapshot` writes a dated immutable snapshot directory with source provenance.
 7. Two snapshots are compared to produce facility event signals.
-8. Population points are evaluated against before and after facilities using distance or a reviewed
-   point-to-facility travel-time matrix.
-9. County access deltas, vulnerability context, and utilization summaries are merged.
-10. Sensitivity analysis re-scores county shocks under alternate transparent weighting assumptions.
-11. Candidate response sites are ranked by geographic access recovery.
-12. Readiness auditing checks blockers, warnings, provenance, and publication limits.
-13. CSV outputs, briefs, and dashboard views expose the results with limitations.
+8. Optional route-review templates are filled by an external routing process and finalized into
+   reviewed point-to-facility travel-time matrices.
+9. Population points are evaluated against before and after facilities using distance or a reviewed
+   travel-time matrix.
+10. County access deltas, vulnerability context, and utilization summaries are merged.
+11. Sensitivity analysis re-scores county shocks under alternate transparent weighting assumptions.
+12. Candidate response sites are ranked by geographic access recovery.
+13. Readiness auditing checks blockers, warnings, provenance, and publication limits.
+14. CSV outputs, briefs, and dashboard views expose the results with limitations.
 
 ## Failure Modes
 
