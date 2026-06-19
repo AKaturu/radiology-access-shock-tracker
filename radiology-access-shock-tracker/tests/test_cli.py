@@ -103,3 +103,58 @@ def test_finalize_mqsa_review_command_writes_snapshot_ready_csv(tmp_path: Path) 
     assert result.exit_code == 0
     snapshot_ready = pd.read_csv(output, dtype=str)
     assert snapshot_ready.loc[0, "facility_id"] == "MQSA-NC-0001"
+
+
+def test_geocode_mqsa_review_command_uses_static_provider(tmp_path: Path) -> None:
+    review = tmp_path / "review.csv"
+    static = tmp_path / "static.csv"
+    output = tmp_path / "geocoded.csv"
+    pd.DataFrame(
+        [
+            {
+                "facility_id": "",
+                "facility_name": "Demo Facility",
+                "latitude": "",
+                "longitude": "",
+                "annual_capacity": "",
+                "active": "",
+                "review_status": "needs_review",
+                "source_record_hash": "abc123",
+                "source_name": "fda-mqsa-public",
+                "source_schema_version": "fda_mqsa_pipe_delimited",
+                "source_facility_name": "Demo Facility",
+                "source_address_1": "100 Main St",
+                "source_city": "Raleigh",
+                "source_state": "NC",
+                "source_zip_code": "27601",
+            }
+        ]
+    ).to_csv(review, index=False)
+    pd.DataFrame(
+        [
+            {
+                "source_record_hash": "abc123",
+                "latitude": "35.7796",
+                "longitude": "-78.6382",
+                "matched_address": "100 MAIN ST, RALEIGH, NC, 27601",
+            }
+        ]
+    ).to_csv(static, index=False)
+    result = CliRunner().invoke(
+        app,
+        [
+            "geocode-mqsa-review",
+            str(review),
+            "--output-csv",
+            str(output),
+            "--provider",
+            "static",
+            "--static-csv",
+            str(static),
+        ],
+    )
+    assert result.exit_code == 0
+    geocoded = pd.read_csv(output, dtype=str)
+    assert geocoded.loc[0, "latitude"] == "35.7796"
+    assert geocoded.loc[0, "geocode_status"] == "matched"
+    assert geocoded.loc[0, "review_status"] == "needs_review"

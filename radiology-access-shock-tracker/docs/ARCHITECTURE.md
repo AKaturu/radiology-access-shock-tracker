@@ -10,6 +10,8 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 
 - `radshock.adapters`: source-specific ingestion helpers. These normalize reviewed source files or
   mocked/live API responses into internal tables without making clinical claims.
+- `radshock.geocoding`: optional provider and cache layer for filling MQSA review coordinate
+  candidates with provenance before human approval.
 - `radshock.schemas`: shared table contracts and validation.
 - `radshock.snapshots`: immutable dated snapshot storage with checksums and provenance metadata.
 - `radshock.changes`: facility-level event signal detection.
@@ -23,14 +25,15 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 
 1. A raw source file is downloaded or manually supplied and archived with checksum metadata.
 2. FDA/MQSA fixed-width files can be converted into a human-review CSV.
-3. The review CSV is finalized only after required reviewed fields and review statuses pass.
-4. A reviewed facility source is normalized and validated.
-5. `store_snapshot` writes a dated immutable snapshot directory with source provenance.
-6. Two snapshots are compared to produce facility event signals.
-7. Population points are evaluated against before and after facilities.
-8. County access deltas, vulnerability context, and utilization summaries are merged.
-9. Candidate response sites are ranked by geographic access recovery.
-10. CSV outputs, briefs, and dashboard views expose the results with limitations.
+3. Optional geocoding fills candidate coordinates and provenance in the review CSV.
+4. The review CSV is finalized only after required reviewed fields and review statuses pass.
+5. A reviewed facility source is normalized and validated.
+6. `store_snapshot` writes a dated immutable snapshot directory with source provenance.
+7. Two snapshots are compared to produce facility event signals.
+8. Population points are evaluated against before and after facilities.
+9. County access deltas, vulnerability context, and utilization summaries are merged.
+10. Candidate response sites are ranked by geographic access recovery.
+11. CSV outputs, briefs, and dashboard views expose the results with limitations.
 
 ## Failure Modes
 
@@ -41,5 +44,7 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 - Live public-data schemas and API requirements can change; CI uses fixtures and mocked responses.
 - FDA/MQSA public files lack coordinates and stable tracker IDs, so human review is required before
   a production snapshot can be created.
+- Geocoder matches can be ambiguous, stale, or incorrect; candidate coordinates cannot bypass the
+  review-status gate.
 - Review CSVs with blank production fields or unapproved review statuses are blocked before
   snapshot ingestion.

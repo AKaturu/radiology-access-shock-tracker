@@ -9,6 +9,7 @@
 - Added persistent synthetic-data warnings and filtering/download improvements to the Streamlit app.
 - Added source archive/provenance utilities and an FDA MQSA review-template workflow.
 - Added an MQSA review finalization gate before real snapshot ingestion.
+- Added cached MQSA geocoding support with Census and static providers for candidate coordinates.
 
 ## 0.1.0 - 2026-06-19
 

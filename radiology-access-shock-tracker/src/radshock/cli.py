@@ -17,6 +17,12 @@ from radshock.adapters.facilities import (
 from radshock.briefs import generate_policy_brief, generate_policy_brief_html
 from radshock.changes import detect_changes
 from radshock.demo import build_demo
+from radshock.geocoding import (
+    CensusGeocoder,
+    GeocodeCache,
+    StaticGeocoder,
+    geocode_mqsa_review,
+)
 from radshock.intervention import simulate_candidates
 from radshock.schemas import validate_facilities
 from radshock.snapshots import store_snapshot
@@ -168,6 +174,42 @@ def finalize_mqsa_review_command(
     typer.echo(f"Records: {len(reviewed)}; active: {active_count}")
 
 
+@app.command("geocode-mqsa-review")
+def geocode_mqsa_review_command(
+    input_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    output_csv: Annotated[Path, typer.Option()],
+    provider_name: Annotated[str, typer.Option("--provider")] = "census",
+    static_csv: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    cache_path: Annotated[Path, typer.Option()] = Path("data/cache/geocoding/census.json"),
+    benchmark: Annotated[str, typer.Option()] = "Public_AR_Current",
+    timeout: Annotated[int, typer.Option()] = 30,
+    limit: Annotated[int | None, typer.Option(help="Maximum rows to attempt.")] = None,
+    overwrite_coordinates: Annotated[
+        bool, typer.Option(help="Replace existing latitude/longitude values.")
+    ] = False,
+    force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
+) -> None:
+    """Fill MQSA review CSV coordinate candidates with cached geocoder provenance."""
+    if output_csv.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    provider = _build_geocode_provider(provider_name, static_csv, benchmark, timeout)
+    cache = None if provider.name == "static" else GeocodeCache(cache_path)
+    result = geocode_mqsa_review(
+        pd.read_csv(input_csv, dtype=str, keep_default_na=False),
+        provider,
+        cache=cache,
+        overwrite_coordinates=overwrite_coordinates,
+        limit=limit,
+    )
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    result.to_csv(output_csv, index=False)
+    matched = int((result["geocode_status"] == "matched").sum())
+    attempted = int(result["geocode_status"].astype(str).str.len().gt(0).sum())
+    typer.echo(f"Geocoded review written: {output_csv.resolve()}")
+    typer.echo(f"Attempted: {attempted}; matched: {matched}")
+    typer.echo("Human review is still required before running finalize-mqsa-review.")
+
+
 @app.command("validate-snapshot")
 def validate_snapshot(
     snapshot_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
@@ -191,6 +233,22 @@ def compare_snapshots(
         typer.echo(f"Event signals written: {output_csv.resolve()}")
     else:
         typer.echo(events.to_csv(index=False))
+
+
+def _build_geocode_provider(
+    provider_name: str,
+    static_csv: Path | None,
+    benchmark: str,
+    timeout: int,
+) -> CensusGeocoder | StaticGeocoder:
+    normalized = provider_name.strip().lower()
+    if normalized == "census":
+        return CensusGeocoder(benchmark=benchmark, timeout=timeout)
+    if normalized == "static":
+        if static_csv is None:
+            raise typer.BadParameter("--static-csv is required when --provider static")
+        return StaticGeocoder.from_csv(static_csv)
+    raise typer.BadParameter("provider must be one of: census, static")
 
 
 @app.command()

@@ -42,7 +42,19 @@ Official dataset family: <https://data.cms.gov/provider-summary-by-type-of-servi
 
 ## Geocoding
 
-No production geocoder is bundled. Facility coordinates should be generated using a documented geocoder, cached, quality-checked, and manually reviewed for events that drive alerts.
+`radshock geocode-mqsa-review` can fill candidate coordinates in an MQSA review CSV before human
+review. The default live provider uses the US Census Geocoder single-address endpoint with
+structured street, city, state, ZIP, benchmark, and JSON response parameters. The Census geocoder
+documentation states that the service supports US, Puerto Rico, and US Island Areas addresses.
+
+Official API documentation:
+<https://geocoding.geo.census.gov/geocoder/Geocoding_Services_API.html>
+
+Live geocoder results are cached under `data/cache/geocoding/` by normalized address and provider.
+The output keeps `geocode_status`, provider, matched address, benchmark, source URL, cache flag,
+retrieval timestamp, and error columns. Candidate coordinates remain unapproved: review rows must
+still be checked and marked `reviewed`, `verified`, or `approved` before
+`radshock finalize-mqsa-review` will produce a snapshot-ready file.
 
 ## Fixture-based testing
 

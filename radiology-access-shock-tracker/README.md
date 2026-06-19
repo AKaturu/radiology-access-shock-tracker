@@ -74,12 +74,25 @@ radshock prepare-mqsa-review \
   --state NC
 ```
 
+Optionally fill coordinate candidates from the US Census Geocoder before manual review:
+
+```bash
+radshock geocode-mqsa-review \
+  work/fda_mqsa_nc_review.csv \
+  --output-csv work/fda_mqsa_nc_geocoded.csv \
+  --provider census \
+  --cache-path data/cache/geocoding/census.json
+```
+
+Geocoding writes candidate coordinates and provenance columns, but it does not approve any row.
+Human review is still required before finalization.
+
 Complete the blank reviewed fields, set `review_status` to `reviewed`, `verified`, or `approved`,
 then finalize it into a snapshot-ready CSV:
 
 ```bash
 radshock finalize-mqsa-review \
-  work/fda_mqsa_nc_review.csv \
+  work/fda_mqsa_nc_geocoded.csv \
   --output-csv work/facilities_2026_07_reviewed.csv
 ```
 

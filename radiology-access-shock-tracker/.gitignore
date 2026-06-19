@@ -9,5 +9,7 @@ build/
 *.egg-info/
 outputs/
 work/
+data/cache/
+data/raw/
 data/snapshots/
 .DS_Store
