@@ -48,6 +48,12 @@ UTILIZATION_COLUMNS = {
     "eligible_beneficiaries",
 }
 
+TRAVEL_TIME_MATRIX_COLUMNS = {
+    "point_id",
+    "facility_id",
+    "travel_time_minutes",
+}
+
 
 def require_columns(frame: pd.DataFrame, required: Iterable[str], label: str) -> None:
     missing = sorted(set(required) - set(frame.columns))
@@ -102,6 +108,31 @@ def validate_population_points(frame: pd.DataFrame) -> pd.DataFrame:
     if (result["weight"] < 0).any():
         raise ValueError("population point weights must be nonnegative")
     return result.sort_values("point_id").reset_index(drop=True)
+
+
+def validate_travel_time_matrix(frame: pd.DataFrame) -> pd.DataFrame:
+    require_columns(frame, TRAVEL_TIME_MATRIX_COLUMNS, "travel time matrix")
+    result = frame.copy()
+    result["point_id"] = result["point_id"].astype(str)
+    result["facility_id"] = result["facility_id"].astype(str)
+    result["travel_time_minutes"] = pd.to_numeric(
+        result["travel_time_minutes"], errors="raise"
+    )
+    if (result["travel_time_minutes"] < 0).any():
+        raise ValueError("travel_time_minutes must be nonnegative")
+    duplicate_mask = result.duplicated(["point_id", "facility_id"])
+    if duplicate_mask.any():
+        duplicates = (
+            result.loc[duplicate_mask, ["point_id", "facility_id"]]
+            .astype(str)
+            .agg(" -> ".join, axis=1)
+            .tolist()
+        )
+        raise ValueError(
+            "travel time matrix contains duplicate point/facility pairs: "
+            f"{duplicates}"
+        )
+    return result.sort_values(["point_id", "facility_id"]).reset_index(drop=True)
 
 
 def _coerce_bool(value: object) -> bool:

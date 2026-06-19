@@ -15,7 +15,8 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 - `radshock.schemas`: shared table contracts and validation.
 - `radshock.snapshots`: immutable dated snapshot storage with checksums and provenance metadata.
 - `radshock.changes`: facility-level event signal detection.
-- `radshock.access`: nearest-facility access calculations and transparent shock-score components.
+- `radshock.access`: nearest-facility distance and reviewed travel-time access calculations with
+  transparent shock-score components.
 - `radshock.utilization`: descriptive CMS-style utilization change summaries.
 - `radshock.intervention`: geographic planning simulation for candidate mobile or fixed sites.
 - `radshock.briefs`: Markdown and HTML report generation.
@@ -30,7 +31,8 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 5. A reviewed facility source is normalized and validated.
 6. `store_snapshot` writes a dated immutable snapshot directory with source provenance.
 7. Two snapshots are compared to produce facility event signals.
-8. Population points are evaluated against before and after facilities.
+8. Population points are evaluated against before and after facilities using distance or a reviewed
+   point-to-facility travel-time matrix.
 9. County access deltas, vulnerability context, and utilization summaries are merged.
 10. Candidate response sites are ranked by geographic access recovery.
 11. CSV outputs, briefs, and dashboard views expose the results with limitations.
@@ -39,6 +41,8 @@ alerts, evaluates candidate response sites, and generates cautious reports.
 
 - A disappeared facility ID can be a closure, identifier change, extraction issue, or source update.
 - Great-circle distance is not road travel time.
+- Travel-time matrices can be incomplete or generated with unsuitable routing assumptions; route
+  coverage and provenance must be reviewed before publication.
 - CMS fee-for-service utilization does not represent the full population.
 - Synthetic data can resemble real geography and must remain clearly labeled.
 - Live public-data schemas and API requirements can change; CI uses fixtures and mocked responses.

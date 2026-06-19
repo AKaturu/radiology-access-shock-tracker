@@ -9,6 +9,8 @@ source_name = "manual-reviewed-export"
 [access]
 primary_threshold_miles = 30
 report_thresholds_miles = [30, 45, 60]
+travel_time_threshold_minutes = 45
+report_thresholds_minutes = [30, 45, 60]
 
 [adapters.census]
 year = 2024

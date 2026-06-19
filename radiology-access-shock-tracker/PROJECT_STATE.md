@@ -15,7 +15,7 @@ uses synthetic data safely for demos and supports reviewed public-data ingestion
 
 The downloaded MVP has been committed as a baseline. The project now has safer event semantics,
 score transparency, adapter validation, reports, CLI behavior, source archiving, FDA/MQSA review
-gates, cached geocoding assistance, docs, and tests.
+gates, cached geocoding assistance, reviewed travel-time matrix comparisons, docs, and tests.
 
 ## Completed Features
 
@@ -82,6 +82,20 @@ approval remains required before finalization.
 Tests cover blank coordinate filling, overwrite protection, cache reuse, Census response parsing
 from a fixture, and the CLI static-provider workflow.
 
+### Reviewed Travel-Time Matrix Access
+
+#### Validation
+
+`compare-travel-time-access` accepts before/after facility snapshots, population points, county
+context, and reviewed point-to-facility travel-time matrices. It filters to active facilities,
+chooses the fastest reachable facility for each population point, reports route coverage, computes
+minute-based county shock scores, and blocks duplicate or negative matrix values.
+
+#### Tests Added
+
+Tests cover fastest active facility selection, threshold-population changes, duplicate matrix
+rejection, and the CLI export workflow.
+
 ## Current Work
 
 ### Active Feature
@@ -92,7 +106,7 @@ Production readiness hardening.
 
 Latest validation gate completed:
 
-- `python -m pytest` passed with 27 tests.
+- `python -m pytest` passed with 31 tests.
 - `python -m ruff check .` passed.
 - `python -m mypy src/radshock` passed.
 - `python -m pip wheel . -w work/dist` built the package wheel.
@@ -101,15 +115,15 @@ Latest validation gate completed:
 
 ### Remaining Work
 
-- Complete road-network travel-time backend design and implementation.
 - Use a real FDA MQSA ZIP to generate the first fully reviewed NC facility CSV.
+- Add a documented routing-engine adapter or recipe for generating travel-time matrices.
 - Add sensitivity-analysis reports for alternative shock-score weights.
 - Add scheduled workflow templates only after repository secrets and source review are configured.
 
 ## Next Actions
 
 1. Review and approve the first real MQSA-derived NC facility CSV.
-2. Design the road-network travel-time backend and compare outputs against great-circle distance.
+2. Add a reproducible recipe for generating the reviewed travel-time matrix inputs.
 3. Add sensitivity-analysis reporting for alternative shock-score weights.
 
 ## Risks
@@ -117,19 +131,20 @@ Latest validation gate completed:
 ### Open Questions
 
 - Which reviewed FDA/MQSA export format will be used for the first real snapshot?
-- Which road-time backend should be approved for production use?
+- Which road-time engine or source should be approved to generate the matrix inputs?
 
 ### Known Issues
 
 - Live FDA, CDC, Census geocoding, and CMS integrations were not all end-to-end verified against
   live endpoints in CI.
-- Great-circle distance remains the default method.
+- Great-circle distance remains the default demo method.
 
 ### Technical Concerns
 
 - ACS Census API queries require an API key under current official documentation.
 - CMS and public-data schemas can change by release, so fixture tests must be maintained.
 - Geocoder matches can be ambiguous and must remain subject to manual review.
+- Travel-time matrix validity depends on upstream routing assumptions and network vintage.
 
 ## Resume Instructions
 

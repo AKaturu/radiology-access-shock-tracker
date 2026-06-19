@@ -40,6 +40,18 @@ CMS publishes Medicare Physician and Other Practitioners data by provider and se
 
 Official dataset family: <https://data.cms.gov/provider-summary-by-type-of-service/medicare-physician-other-practitioners>
 
+## Road travel-time matrices
+
+`radshock compare-travel-time-access` accepts reviewed point-to-facility matrices from an external
+routing process. The required columns are `point_id`, `facility_id`, and `travel_time_minutes`.
+Matrix rows should be generated from the same reviewed population points and facility snapshots used
+in the analysis. Store the routing engine, network vintage, travel mode, departure-time or traffic
+assumption, and any excluded routes with the source archive.
+
+The toolkit rejects duplicate point/facility pairs and negative travel times, filters to active
+facilities, and reports county-level travel-time coverage. It does not validate the upstream road
+network or routing assumptions.
+
 ## Geocoding
 
 `radshock geocode-mqsa-review` can fill candidate coordinates in an MQSA review CSV before human

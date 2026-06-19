@@ -158,3 +158,65 @@ def test_geocode_mqsa_review_command_uses_static_provider(tmp_path: Path) -> Non
     assert geocoded.loc[0, "latitude"] == "35.7796"
     assert geocoded.loc[0, "geocode_status"] == "matched"
     assert geocoded.loc[0, "review_status"] == "needs_review"
+
+
+def test_compare_travel_time_access_command_writes_county_shocks(tmp_path: Path) -> None:
+    before = tmp_path / "before.csv"
+    after = tmp_path / "after.csv"
+    population = tmp_path / "population.csv"
+    counties = tmp_path / "counties.csv"
+    before_times = tmp_path / "before_times.csv"
+    after_times = tmp_path / "after_times.csv"
+    output = tmp_path / "travel_time_shocks.csv"
+    _snapshot(before, [["F1", "Facility", 35.0, -78.0, 1000, True]])
+    _snapshot(after, [["F1", "Facility", 35.0, -78.0, 1000, True]])
+    pd.DataFrame(
+        [["P1", "37001", 35.0, -78.0, 100]],
+        columns=["point_id", "county_fips", "latitude", "longitude", "weight"],
+    ).to_csv(population, index=False)
+    pd.DataFrame(
+        [["37001", "Demo", "NC", 35.0, -78.0, 100, 20, 0.8, 0.7]],
+        columns=[
+            "county_fips",
+            "county_name",
+            "state",
+            "centroid_lat",
+            "centroid_lon",
+            "eligible_population",
+            "poverty_pct",
+            "rurality_index",
+            "high_risk_index",
+        ],
+    ).to_csv(counties, index=False)
+    pd.DataFrame(
+        [["P1", "F1", 20]],
+        columns=["point_id", "facility_id", "travel_time_minutes"],
+    ).to_csv(before_times, index=False)
+    pd.DataFrame(
+        [["P1", "F1", 55]],
+        columns=["point_id", "facility_id", "travel_time_minutes"],
+    ).to_csv(after_times, index=False)
+    result = CliRunner().invoke(
+        app,
+        [
+            "compare-travel-time-access",
+            "--before-csv",
+            str(before),
+            "--after-csv",
+            str(after),
+            "--population-csv",
+            str(population),
+            "--counties-csv",
+            str(counties),
+            "--before-travel-times-csv",
+            str(before_times),
+            "--after-travel-times-csv",
+            str(after_times),
+            "--output-csv",
+            str(output),
+        ],
+    )
+    assert result.exit_code == 0
+    shocks = pd.read_csv(output)
+    assert shocks.loc[0, "access_metric"] == "travel_time_minutes"
+    assert shocks.loc[0, "population_newly_over_45_minutes"] == 100

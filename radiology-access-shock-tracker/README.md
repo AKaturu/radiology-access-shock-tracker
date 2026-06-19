@@ -8,7 +8,8 @@ An open-source surveillance toolkit for detecting changes in mammography access,
 
 - Versions dated facility snapshots with checksums and metadata.
 - Detects new listings, possible closures, relocations, status changes, renames, and capacity reductions.
-- Calculates population-weighted distance to the nearest active facility before and after a change.
+- Calculates population-weighted distance, or reviewed travel time, to the nearest active facility
+  before and after a change.
 - Produces a vulnerability-adjusted county shock score and alert level.
 - Summarizes before/after screening utilization signals.
 - Ranks hypothetical mobile mammography or fixed-site locations by geographic access recovery.
@@ -16,7 +17,10 @@ An open-source surveillance toolkit for detecting changes in mammography access,
 
 ## Important status
 
-The included demonstration uses **synthetic North Carolina-like data**. It must not be interpreted as a real facility, county, screening, or utilization assessment. The MVP uses great-circle distance rather than road-network travel time and does not infer that facility events caused utilization changes.
+The included demonstration uses **synthetic North Carolina-like data**. It must not be interpreted
+as a real facility, county, screening, or utilization assessment. The default demo uses
+great-circle distance; production road-time analysis requires reviewed travel-time matrix inputs.
+The toolkit does not infer that facility events caused utilization changes.
 
 ## Quick start
 
@@ -132,6 +136,22 @@ radshock compare-snapshots \
   --after-csv data/snapshots/2026-07-01/facilities.csv \
   --output-csv outputs/2026-Q3/facility_events.csv
 ```
+
+Compare county access with reviewed road travel-time matrices:
+
+```bash
+radshock compare-travel-time-access \
+  --before-csv data/snapshots/2026-04-01/facilities.csv \
+  --after-csv data/snapshots/2026-07-01/facilities.csv \
+  --population-csv data/population_points.csv \
+  --counties-csv data/counties.csv \
+  --before-travel-times-csv data/travel_times/2026-04-01_point_facility.csv \
+  --after-travel-times-csv data/travel_times/2026-07-01_point_facility.csv \
+  --output-csv outputs/2026-Q3/county_travel_time_shocks.csv
+```
+
+Travel-time matrices must contain `point_id`, `facility_id`, and `travel_time_minutes`.
+Duplicate point/facility pairs and negative travel times are rejected.
 
 Run the full analysis:
 

@@ -7,7 +7,7 @@ from typing import Annotated
 import pandas as pd
 import typer
 
-from radshock.access import compare_county_access
+from radshock.access import compare_county_access, compare_county_travel_time_access
 from radshock.adapters.facilities import (
     FDA_MQSA_PUBLIC_ZIP_URL,
     build_mqsa_review_template,
@@ -233,6 +233,40 @@ def compare_snapshots(
         typer.echo(f"Event signals written: {output_csv.resolve()}")
     else:
         typer.echo(events.to_csv(index=False))
+
+
+@app.command("compare-travel-time-access")
+def compare_travel_time_access_command(
+    before_csv: Annotated[Path, typer.Option(exists=True, readable=True)],
+    after_csv: Annotated[Path, typer.Option(exists=True, readable=True)],
+    population_csv: Annotated[Path, typer.Option(exists=True, readable=True)],
+    counties_csv: Annotated[Path, typer.Option(exists=True, readable=True)],
+    before_travel_times_csv: Annotated[Path, typer.Option(exists=True, readable=True)],
+    after_travel_times_csv: Annotated[Path, typer.Option(exists=True, readable=True)],
+    output_csv: Annotated[Path | None, typer.Option()] = None,
+    threshold_minutes: Annotated[float, typer.Option()] = 45.0,
+    force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
+) -> None:
+    """Compare county access using reviewed point-to-facility travel-time matrices."""
+    if output_csv is not None and output_csv.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    shocks = compare_county_travel_time_access(
+        pd.read_csv(population_csv, dtype={"point_id": str, "county_fips": str}),
+        pd.read_csv(before_csv, dtype={"facility_id": str}),
+        pd.read_csv(after_csv, dtype={"facility_id": str}),
+        pd.read_csv(counties_csv, dtype={"county_fips": str}),
+        pd.read_csv(before_travel_times_csv, dtype={"point_id": str, "facility_id": str}),
+        pd.read_csv(after_travel_times_csv, dtype={"point_id": str, "facility_id": str}),
+        threshold_minutes=threshold_minutes,
+    )
+    if output_csv is not None:
+        output_csv.parent.mkdir(parents=True, exist_ok=True)
+        shocks.to_csv(output_csv, index=False)
+        warning_count = int(shocks["alert_level"].isin(["WARNING", "CRITICAL"]).sum())
+        typer.echo(f"Travel-time county shocks written: {output_csv.resolve()}")
+        typer.echo(f"Records: {len(shocks)}; warning_or_critical: {warning_count}")
+    else:
+        typer.echo(shocks.to_csv(index=False))
 
 
 def _build_geocode_provider(
