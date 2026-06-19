@@ -16,7 +16,6 @@ permissions:
 jobs:
   prepare-mqsa-review-artifact:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || vars.ENABLE_QUARTERLY_SNAPSHOT == 'true' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

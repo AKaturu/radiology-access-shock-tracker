@@ -240,10 +240,14 @@ The analysis command writes CSV outputs, `manifest.json`, `readiness_audit.json`
 
 The `quarterly MQSA source refresh` GitHub Actions workflow can be run manually to fetch the FDA
 MQSA public ZIP, archive source metadata, and upload a state-filtered review CSV artifact. Scheduled
-runs are skipped unless the repository variable `ENABLE_QUARTERLY_SNAPSHOT` is set to `true`.
+runs are enabled on the quarterly cron in `.github/workflows/quarterly-snapshot.yml`.
 
 The workflow stops at the review artifact. It does not approve rows, finalize a snapshot, run a
 public analysis, or publish findings.
+
+Operational owner and credential notes are tracked in `docs/OPERATIONS.md`. The FDA source-refresh
+workflow does not require a secret. Production ACS context and road-time routing need approved
+external credentials before publication workflows can use those data.
 
 ## Public-data integration approach
 

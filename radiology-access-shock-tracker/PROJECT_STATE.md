@@ -234,26 +234,49 @@ Latest validation gate completed:
 - `python -m pip wheel . -w work/dist` built the package wheel.
 - `finalize-mqsa-review` successfully finalized a matched MQSA smoke row with blank
   `annual_capacity`.
-- The real 2026-06-19 NC MQSA review artifact now has all 289 latitude/longitude candidate
-  coordinates filled: 259 original Census structured matches, 3 Census one-line fallback matches,
-  and 27 ArcGIS World Geocoding fallback matches. One fallback row is marked approximate and should
-  be spot reviewed.
+- The real 2026-06-19 NC MQSA review artifact now has all 289 rows completed for
+  `facility_id`, `latitude`, `longitude`, `active`, and `review_status`.
+- `facility_id` values use deterministic `MQSA-NC-<source_record_hash prefix>` IDs because the FDA
+  public extract does not expose a stable facility identifier.
+- `active=true` was inferred for all 289 rows from inclusion in the current FDA MQSA
+  certified-facility extract.
+- The Cherokee Indian Hospital Authority coordinate was spot-reviewed against the official
+  `1 Hospital Rd, Cherokee, NC 28719` address and updated to an ArcGIS PointAddress score 100
+  candidate. No rows remain marked approximate.
+- `finalize-mqsa-review` produced
+  `work/source-refresh-smoke/final/facilities_2026-06-19_NC_reviewed.csv` with 289 active records.
+- `ingest-snapshot` stored the reviewed real facility snapshot at
+  `work/source-refresh-smoke/snapshots/2026-06-19`.
+- A real-facility smoke analysis was run at
+  `work/source-refresh-smoke/analysis-real-facility-smoke` using the reviewed real facility
+  snapshot and existing demo population/county/candidate context. It is intentionally marked
+  synthetic and is blocked for publication.
+- `prepare-travel-time-review` created
+  `work/source-refresh-smoke/travel-time/travel_time_review_real_facility_smoke.csv` with 9,133
+  route pairs, but it was not finalized because real reviewed route minutes/provider metadata are
+  not available locally.
+- The quarterly MQSA source-refresh workflow is now enabled on its cron schedule, and
+  `docs/OPERATIONS.md` records the required external review-owner and credential setup.
 
 ### Remaining Work
 
-- Human-review the first real MQSA-derived NC facility CSV's candidate coordinates, especially the
-  one approximate fallback match.
-- Assign stable `facility_id` values and fill the required `active` flag for all 289 NC facility
-  rows before running `finalize-mqsa-review`.
-- Enable the guarded scheduled workflow after source review owners are configured.
-- Run `readiness-audit` on the first real analysis package and resolve all blockers before sharing.
+- Obtain/configure a Census API key or reviewed alternate county-context source for real ACS
+  production inputs.
+- Replace the demo population/county/candidate context with reviewed real population points,
+  county context, and candidate-site assumptions before publishing analysis outputs.
+- Select an approved routing provider, fill/review route minutes with provider metadata, and run
+  `finalize-travel-time-review` before using road-time analysis.
+- Configure GitHub branch protection or required reviewers in the GitHub UI for source-review
+  ownership; local files cannot assign organization teams without admin access.
+- Add or obtain a second real reviewed snapshot date before publishing change claims.
 
 ## Next Actions
 
-1. Assign reviewed facility IDs and active flags in the first real MQSA-derived NC facility CSV.
-2. Generate reviewed travel-time matrices with the chosen routing process and finalize them.
-3. Run readiness auditing on real analysis outputs and resolve blockers.
-4. Configure source review owners and enable scheduled workflow execution.
+1. Configure `CENSUS_API_KEY` or provide a reviewed alternate county-context file.
+2. Replace demo context inputs with reviewed real population/county/candidate inputs.
+3. Fill and finalize the travel-time review worklist with an approved routing provider.
+4. Run analysis on two reviewed real snapshot dates and resolve readiness-audit blockers.
+5. Configure GitHub branch protection or required source-review owners in the GitHub UI.
 
 ## Risks
 
@@ -261,12 +284,16 @@ Latest validation gate completed:
 
 - Which reviewed FDA/MQSA export format will be used for the first real snapshot?
 - Which road-time engine or source should be approved to generate the matrix inputs?
+- Who should be assigned as GitHub source-review owners for branch protection?
+- What prior reviewed snapshot date should be used for the first real change analysis?
 
 ### Known Issues
 
 - Live FDA, CDC, Census geocoding, and CMS integrations were not all end-to-end verified against
   live endpoints in CI.
 - Great-circle distance remains the default demo method.
+- The current real-facility analysis output is a smoke artifact using demo context and must not be
+  published as real-world findings.
 
 ### Technical Concerns
 

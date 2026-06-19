@@ -32,6 +32,11 @@ capacity field. NC DHSR's Registration and Inventory of Medical Equipment databa
 equipment or procedure proxy research, but its documentation describes it as in-process working data
 and it should not be treated as authoritative facility annual capacity without review.
 
+For the first 2026-06-19 NC reviewed snapshot, `facility_id` values were generated as deterministic
+`MQSA-NC-<source_record_hash prefix>` identifiers because the FDA public ZIP did not expose a stable
+facility ID. `active=true` was inferred from inclusion in the current FDA MQSA certified-facility
+extract. These are reviewed snapshot fields, not raw FDA fields.
+
 Official NC DHSR equipment database:
 <https://info.ncdhhs.gov/dhsr/mfp/data/equipment.html>
 
@@ -100,8 +105,8 @@ CI tests should not depend on live FDA, CDC, Census, CMS, geocoding, or routing 
 tests should use fixture files or mocked responses and reserve live endpoint checks for manually
 triggered workflows with explicit credentials and source review.
 
-The guarded `quarterly MQSA source refresh` workflow is a review-artifact workflow, not a
-publication workflow. Manual dispatch fetches the FDA MQSA ZIP and uploads a state-filtered review
-CSV plus source metadata. Scheduled runs require `ENABLE_QUARTERLY_SNAPSHOT=true`. Reviewers must
-still fill required fields, approve rows, finalize snapshots, generate route matrices, and pass the
-readiness audit before sharing findings.
+The `quarterly MQSA source refresh` workflow is a review-artifact workflow, not a publication
+workflow. Manual dispatch or the quarterly schedule fetches the FDA MQSA ZIP and uploads a
+state-filtered review CSV plus source metadata. Reviewers must still fill required fields, approve
+rows, finalize snapshots, generate route matrices, and pass the readiness audit before sharing
+findings.
