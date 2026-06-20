@@ -35,6 +35,21 @@ MQSA_REVIEW_REQUIRED_COLUMNS = FACILITY_REQUIRED_COLUMNS | {
 }
 
 MQSA_REVIEW_APPROVED_STATUSES = {"reviewed", "verified", "approved"}
+MQSA_REVIEW_CARRY_FORWARD_COLUMNS = [
+    "facility_id",
+    "facility_name",
+    "latitude",
+    "longitude",
+    "annual_capacity",
+    "active",
+    "review_status",
+]
+MQSA_REVIEW_OPTIONAL_CARRY_FORWARD_COLUMNS = {
+    "review_notes",
+    "coordinate_source",
+    "coordinate_quality",
+    "coordinate_review_notes",
+}
 
 
 def normalize_manual_facility_export(frame: pd.DataFrame) -> pd.DataFrame:
@@ -146,6 +161,39 @@ def build_mqsa_review_template(raw_mqsa: pd.DataFrame) -> pd.DataFrame:
     return result[ordered]
 
 
+def carry_forward_mqsa_review(
+    current_review: pd.DataFrame,
+    previous_review: pd.DataFrame,
+) -> pd.DataFrame:
+    """Copy reviewed MQSA fields for rows whose source record hash is unchanged."""
+    require_columns(current_review, {"source_record_hash"}, "current MQSA review")
+    require_columns(previous_review, {"source_record_hash"}, "previous MQSA review")
+    _require_unique_source_hashes(current_review, "current MQSA review")
+    _require_unique_source_hashes(previous_review, "previous MQSA review")
+
+    result = current_review.copy()
+    for column in ["source_record_hash", "review_status"]:
+        if column in result:
+            result[column] = result[column].astype(str).str.strip()
+    previous = previous_review.copy()
+    previous["source_record_hash"] = previous["source_record_hash"].astype(str).str.strip()
+    carry_columns = _mqsa_carry_forward_columns(result, previous)
+    if not carry_columns:
+        return result
+
+    previous_index = previous.set_index("source_record_hash", drop=False)
+    matched = result["source_record_hash"].isin(previous_index.index)
+    if not matched.any():
+        return result
+
+    previous_matches = previous_index.reindex(result.loc[matched, "source_record_hash"])
+    for column in carry_columns:
+        if column not in result.columns:
+            result[column] = ""
+        result.loc[matched, column] = previous_matches[column].astype("object").to_numpy()
+    return result
+
+
 def finalize_mqsa_review(frame: pd.DataFrame) -> pd.DataFrame:
     """Validate a completed MQSA review CSV and return snapshot-ready facility rows."""
     require_columns(frame, MQSA_REVIEW_REQUIRED_COLUMNS, "MQSA review")
@@ -164,6 +212,39 @@ def finalize_mqsa_review(frame: pd.DataFrame) -> pd.DataFrame:
         )
 
     return validate_facilities(result)
+
+
+def _mqsa_carry_forward_columns(
+    current_review: pd.DataFrame,
+    previous_review: pd.DataFrame,
+) -> list[str]:
+    columns: list[str] = [
+        column
+        for column in MQSA_REVIEW_CARRY_FORWARD_COLUMNS
+        if column in current_review.columns and column in previous_review.columns
+    ]
+    optional_columns = [
+        column
+        for column in previous_review.columns
+        if (
+            column.startswith("geocode_")
+            or column in MQSA_REVIEW_OPTIONAL_CARRY_FORWARD_COLUMNS
+        )
+    ]
+    for column in optional_columns:
+        if column not in columns:
+            columns.append(column)
+    return columns
+
+
+def _require_unique_source_hashes(frame: pd.DataFrame, label: str) -> None:
+    hashes = frame["source_record_hash"].astype(str).str.strip()
+    duplicates = hashes[hashes.duplicated()]
+    if not duplicates.empty:
+        raise ValueError(
+            f"{label} contains duplicate source_record_hash values: "
+            + duplicates.head(5).tolist().__repr__()
+        )
 
 
 def _read_text_or_zip_payload(path: Path) -> str:

@@ -6,6 +6,7 @@ from radshock.travel_times import (
     fill_travel_time_review_from_openrouteservice,
     fill_travel_time_review_from_osrm,
     finalize_travel_time_review,
+    limit_travel_time_review_origins,
 )
 
 
@@ -108,6 +109,14 @@ def test_finalize_travel_time_review_blocks_missing_minutes_for_routed_rows() ->
                 ]
             )
         )
+
+
+def test_limit_travel_time_review_origins_preserves_original_indexes() -> None:
+    review = build_travel_time_review_template(_population(), _many_active_facilities())
+    subset = limit_travel_time_review_origins(review, max_origins=1)
+
+    assert set(subset["point_id"]) == {"P1"}
+    assert list(subset.index) == [0, 1, 2]
 
 
 def test_fill_travel_time_review_from_osrm_writes_minutes_and_keeps_review_pending() -> None:

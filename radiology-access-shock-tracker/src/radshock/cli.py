@@ -22,6 +22,7 @@ from radshock.adapters.acs import (
 from radshock.adapters.facilities import (
     FDA_MQSA_PUBLIC_ZIP_URL,
     build_mqsa_review_template,
+    carry_forward_mqsa_review,
     finalize_mqsa_review,
     read_fda_mqsa_fixed_width,
 )
@@ -47,6 +48,7 @@ from radshock.travel_times import (
     fill_travel_time_review_from_openrouteservice,
     fill_travel_time_review_from_osrm,
     finalize_travel_time_review,
+    limit_travel_time_review_origins,
 )
 from radshock.utilization import summarize_utilization_change
 
@@ -107,10 +109,21 @@ def fetch_source(
     source_name: Annotated[str, typer.Option()] = "manual-source",
     output_dir: Annotated[Path, typer.Option()] = Path("data/raw"),
     timeout: Annotated[int, typer.Option()] = 60,
+    retrieved_on: Annotated[
+        str | None,
+        typer.Option(help="Archive retrieval date in YYYY-MM-DD format."),
+    ] = None,
     force: Annotated[bool, typer.Option(help="Overwrite an existing archived source.")] = False,
 ) -> None:
     """Download a raw source file into the auditable archive."""
-    archived = fetch_url_source(url, output_dir, source_name, timeout=timeout, force=force)
+    archived = fetch_url_source(
+        url,
+        output_dir,
+        source_name,
+        timeout=timeout,
+        retrieved_on=_parse_optional_date(retrieved_on, "retrieved_on"),
+        force=force,
+    )
     typer.echo(f"Archived source: {archived.resolve()}")
     typer.echo(f"Metadata: {archived.with_suffix(archived.suffix + '.metadata.json').resolve()}")
 
@@ -119,6 +132,10 @@ def fetch_source(
 def fetch_fda_mqsa(
     output_dir: Annotated[Path, typer.Option()] = Path("data/raw"),
     timeout: Annotated[int, typer.Option()] = 60,
+    retrieved_on: Annotated[
+        str | None,
+        typer.Option(help="Archive retrieval date in YYYY-MM-DD format."),
+    ] = None,
     force: Annotated[bool, typer.Option(help="Overwrite an existing archived source.")] = False,
 ) -> None:
     """Download the FDA MQSA weekly public facility ZIP into the source archive."""
@@ -127,6 +144,7 @@ def fetch_fda_mqsa(
         output_dir,
         "fda-mqsa-public",
         timeout=timeout,
+        retrieved_on=_parse_optional_date(retrieved_on, "retrieved_on"),
         force=force,
     )
     typer.echo(f"Archived FDA MQSA source: {archived.resolve()}")
@@ -139,6 +157,10 @@ def archive_source(
     source_name: Annotated[str, typer.Option()],
     output_dir: Annotated[Path, typer.Option()] = Path("data/raw"),
     source_url: Annotated[str | None, typer.Option()] = None,
+    retrieved_on: Annotated[
+        str | None,
+        typer.Option(help="Archive retrieval date in YYYY-MM-DD format."),
+    ] = None,
     force: Annotated[bool, typer.Option(help="Overwrite an existing archived source.")] = False,
 ) -> None:
     """Archive a manually downloaded source file with checksum metadata."""
@@ -147,6 +169,7 @@ def archive_source(
         output_dir,
         source_name,
         source_url=source_url,
+        retrieved_on=_parse_optional_date(retrieved_on, "retrieved_on"),
         force=force,
     )
     typer.echo(f"Archived source: {archived.resolve()}")
@@ -173,6 +196,59 @@ def prepare_mqsa_review(
         "completed before snapshot ingestion. annual_capacity is optional and should stay blank "
         "unless a reviewed source supports it."
     )
+
+
+@app.command("carry-forward-mqsa-review")
+def carry_forward_mqsa_review_command(
+    input_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    previous_review_csv: Annotated[
+        Path,
+        typer.Option(exists=True, readable=True, help="Prior reviewed MQSA CSV."),
+    ],
+    output_csv: Annotated[Path, typer.Option()],
+    metadata_json: Annotated[
+        Path | None,
+        typer.Option(help="Optional carry-forward metadata JSON path."),
+    ] = None,
+    force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
+) -> None:
+    """Carry reviewed MQSA fields forward when source_record_hash is unchanged."""
+    if output_csv.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    if metadata_json is not None and metadata_json.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {metadata_json}")
+    current = pd.read_csv(input_csv, dtype=str, keep_default_na=False)
+    previous = pd.read_csv(previous_review_csv, dtype=str, keep_default_na=False)
+    result = carry_forward_mqsa_review(current, previous)
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    result.to_csv(output_csv, index=False)
+    matched_count = int(
+        current["source_record_hash"].astype(str).str.strip().isin(
+            set(previous["source_record_hash"].astype(str).str.strip())
+        ).sum()
+    )
+    approved_count = int(
+        result["review_status"].astype(str).str.strip().str.lower().isin(
+            {"reviewed", "verified", "approved"}
+        ).sum()
+    )
+    typer.echo(f"MQSA carry-forward review written: {output_csv.resolve()}")
+    typer.echo(
+        f"Rows: {len(result)}; matched previous source hashes: {matched_count}; "
+        f"approved rows: {approved_count}; still needing review: {len(result) - approved_count}"
+    )
+    if metadata_json is not None:
+        _write_mqsa_carry_forward_metadata(
+            metadata_json,
+            force=force,
+            input_csv=input_csv,
+            previous_review_csv=previous_review_csv,
+            output_csv=output_csv,
+            row_count=len(result),
+            matched_count=matched_count,
+            approved_count=approved_count,
+        )
+        typer.echo(f"MQSA carry-forward metadata written: {metadata_json.resolve()}")
 
 
 @app.command("finalize-mqsa-review")
@@ -553,12 +629,18 @@ def prepare_candidate_review_command(
 def finalize_candidate_review_command(
     input_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
     output_csv: Annotated[Path, typer.Option()],
+    metadata_json: Annotated[
+        Path | None,
+        typer.Option(help="Optional finalized candidate metadata JSON path."),
+    ] = None,
     force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
     dry_run: Annotated[bool, typer.Option(help="Validate without writing output.")] = False,
 ) -> None:
     """Validate reviewed candidate-site assumptions and write analysis-ready candidates."""
     if output_csv.exists() and not force and not dry_run:
         raise typer.BadParameter(f"output already exists: {output_csv}")
+    if metadata_json is not None and metadata_json.exists() and not force and not dry_run:
+        raise typer.BadParameter(f"output already exists: {metadata_json}")
     candidates = finalize_candidate_review(
         pd.read_csv(input_csv, dtype={"candidate_id": str, "county_fips": str})
     )
@@ -569,21 +651,39 @@ def finalize_candidate_review_command(
     candidates.to_csv(output_csv, index=False)
     typer.echo(f"Analysis-ready candidates written: {output_csv.resolve()}")
     typer.echo(f"Candidate rows: {len(candidates)}")
+    if metadata_json is not None:
+        _write_finalized_candidate_metadata(
+            metadata_json,
+            force=force,
+            input_csv=input_csv,
+            output_csv=output_csv,
+            candidates=candidates,
+        )
+        typer.echo(f"Candidate metadata written: {metadata_json.resolve()}")
 
 
 @app.command("finalize-travel-time-review")
 def finalize_travel_time_review_command(
     input_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
     output_csv: Annotated[Path, typer.Option()],
+    metadata_json: Annotated[
+        Path | None,
+        typer.Option(help="Optional finalized travel-time metadata JSON path."),
+    ] = None,
     force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
     dry_run: Annotated[bool, typer.Option(help="Validate without writing output.")] = False,
 ) -> None:
     """Validate reviewed route rows and write a travel-time matrix."""
     if output_csv.exists() and not force and not dry_run:
         raise typer.BadParameter(f"output already exists: {output_csv}")
-    matrix = finalize_travel_time_review(
-        pd.read_csv(input_csv, dtype={"point_id": str, "facility_id": str}, keep_default_na=False)
+    if metadata_json is not None and metadata_json.exists() and not force and not dry_run:
+        raise typer.BadParameter(f"output already exists: {metadata_json}")
+    review = pd.read_csv(
+        input_csv,
+        dtype={"point_id": str, "facility_id": str},
+        keep_default_na=False,
     )
+    matrix = finalize_travel_time_review(review)
     if dry_run:
         typer.echo(f"Travel-time review complete: {len(matrix)} routed pairs")
         return
@@ -591,6 +691,16 @@ def finalize_travel_time_review_command(
     matrix.to_csv(output_csv, index=False)
     typer.echo(f"Travel-time matrix written: {output_csv.resolve()}")
     typer.echo(f"Routed pairs: {len(matrix)}")
+    if metadata_json is not None:
+        _write_finalized_travel_time_metadata(
+            metadata_json,
+            force=force,
+            input_csv=input_csv,
+            output_csv=output_csv,
+            review=review,
+            matrix=matrix,
+        )
+        typer.echo(f"Travel-time metadata written: {metadata_json.resolve()}")
 
 
 @app.command("fill-travel-time-review")
@@ -632,6 +742,10 @@ def fill_travel_time_review_command(
         bool,
         typer.Option(help="Only fill rows that are not already routed, unreachable, or excluded."),
     ] = False,
+    max_origins: Annotated[
+        int | None,
+        typer.Option(help="Maximum point_id groups to fill in this run."),
+    ] = None,
     force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
 ) -> None:
     """Fill travel-time review rows with routing provider minutes and provenance."""
@@ -643,6 +757,7 @@ def fill_travel_time_review_command(
     if only_missing:
         route_status = input_frame["route_status"].astype(str).str.strip().str.lower()
         fill_frame = input_frame.loc[~route_status.isin(TRAVEL_TIME_ROUTE_STATUSES)].copy()
+    fill_frame = limit_travel_time_review_origins(fill_frame, max_origins)
     if normalized_provider == "osrm":
         filled = fill_travel_time_review_from_osrm(
             fill_frame,
@@ -742,6 +857,15 @@ def readiness_audit_command(
         f"Readiness status: {audit.overall_status}; "
         f"blockers: {blocker_count}; warnings: {warning_count}"
     )
+
+
+def _parse_optional_date(value: str | None, label: str) -> date | None:
+    if value is None or not value.strip():
+        return None
+    try:
+        return date.fromisoformat(value)
+    except ValueError as exc:
+        raise typer.BadParameter(f"{label} must use YYYY-MM-DD format") from exc
 
 
 def _build_geocode_provider(
@@ -857,6 +981,136 @@ def _write_travel_time_review_metadata(
     path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _write_mqsa_carry_forward_metadata(
+    path: Path,
+    *,
+    force: bool,
+    input_csv: Path,
+    previous_review_csv: Path,
+    output_csv: Path,
+    row_count: int,
+    matched_count: int,
+    approved_count: int,
+) -> None:
+    if path.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {path}")
+    metadata = {
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "source_name": "radshock-carry-forward-mqsa-review",
+        "outputs": {
+            "review_csv": {
+                "path": str(output_csv),
+                "sha256": file_sha256(output_csv),
+            }
+        },
+        "inputs": {
+            "current_review_template_csv": {
+                "path": str(input_csv),
+                "sha256": file_sha256(input_csv),
+            },
+            "previous_review_csv": {
+                "path": str(previous_review_csv),
+                "sha256": file_sha256(previous_review_csv),
+            },
+        },
+        "row_counts": {
+            "rows": row_count,
+            "matched_previous_source_hashes": matched_count,
+            "approved_rows": approved_count,
+            "needs_review_rows": row_count - approved_count,
+        },
+        "notes": [
+            "review fields were carried forward only for exact source_record_hash matches.",
+            "changed or new source rows must still be reviewed before finalization.",
+        ],
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _write_finalized_travel_time_metadata(
+    path: Path,
+    *,
+    force: bool,
+    input_csv: Path,
+    output_csv: Path,
+    review: pd.DataFrame,
+    matrix: pd.DataFrame,
+) -> None:
+    if path.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {path}")
+    route_status = (
+        review.get("route_status", pd.Series(dtype=str)).astype(str).str.strip().str.lower()
+    )
+    review_status = (
+        review.get("review_status", pd.Series(dtype=str)).astype(str).str.strip().str.lower()
+    )
+    metadata = {
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "source_name": "radshock-finalize-travel-time-review",
+        "outputs": {
+            "matrix_csv": {
+                "path": str(output_csv),
+                "sha256": file_sha256(output_csv),
+            }
+        },
+        "inputs": {
+            "review_csv": {
+                "path": str(input_csv),
+                "sha256": file_sha256(input_csv),
+            }
+        },
+        "row_counts": {
+            "route_rows": int(len(review)),
+            "routed_rows": int((route_status == "routed").sum()),
+            "unreachable_rows": int((route_status == "unreachable").sum()),
+            "excluded_rows": int((route_status == "excluded").sum()),
+            "approved_review_rows": int(
+                review_status.isin({"reviewed", "verified", "approved"}).sum()
+            ),
+            "population_points": int(review["point_id"].nunique()) if "point_id" in review else 0,
+            "facilities": int(review["facility_id"].nunique()) if "facility_id" in review else 0,
+            "finalized_matrix_rows": int(len(matrix)),
+        },
+        "route_metadata": {
+            "route_providers": _unique_nonblank_values(review, "route_provider"),
+            "route_source_urls": _unique_nonblank_values(review, "route_source_url"),
+            "retrieved_at_utc_min": _min_nonblank_value(review, "route_retrieved_at_utc"),
+            "retrieved_at_utc_max": _max_nonblank_value(review, "route_retrieved_at_utc"),
+        },
+        "notes": [
+            "finalized matrix includes routed rows only.",
+            "provider metadata is retained in the reviewed route CSV referenced here.",
+            "traffic assumptions depend on the routing provider and request profile.",
+        ],
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _unique_nonblank_values(frame: pd.DataFrame, column: str) -> list[str]:
+    if column not in frame.columns:
+        return []
+    values = sorted(
+        {
+            value
+            for value in frame[column].astype(str).str.strip()
+            if value and value.lower() != "nan"
+        }
+    )
+    return values
+
+
+def _min_nonblank_value(frame: pd.DataFrame, column: str) -> str | None:
+    values = _unique_nonblank_values(frame, column)
+    return min(values) if values else None
+
+
+def _max_nonblank_value(frame: pd.DataFrame, column: str) -> str | None:
+    values = _unique_nonblank_values(frame, column)
+    return max(values) if values else None
+
+
 def _write_candidate_review_metadata(
     path: Path,
     *,
@@ -887,6 +1141,42 @@ def _write_candidate_review_metadata(
         "notes": [
             "county-centroid candidates are placeholder response locations.",
             "review_status must be reviewed, verified, or approved before finalization.",
+        ],
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _write_finalized_candidate_metadata(
+    path: Path,
+    *,
+    force: bool,
+    input_csv: Path,
+    output_csv: Path,
+    candidates: pd.DataFrame,
+) -> None:
+    if path.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {path}")
+    metadata = {
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "source_name": "radshock-finalize-candidate-review",
+        "output": {
+            "path": str(output_csv),
+            "sha256": file_sha256(output_csv),
+        },
+        "inputs": {
+            "candidate_review_csv": {
+                "path": str(input_csv),
+                "sha256": file_sha256(input_csv),
+            }
+        },
+        "row_counts": {
+            "candidate_rows": int(len(candidates)),
+            "counties": int(candidates["county_fips"].nunique()) if len(candidates) else 0,
+        },
+        "notes": [
+            "candidate rows passed finalize-candidate-review approval checks.",
+            "candidate locations remain planning assumptions, not endorsed service locations.",
         ],
     }
     path.parent.mkdir(parents=True, exist_ok=True)

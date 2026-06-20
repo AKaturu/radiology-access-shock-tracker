@@ -14,6 +14,7 @@ from radshock.adapters.acs import (
 from radshock.adapters.cms import summarize_mammography_claims
 from radshock.adapters.facilities import (
     build_mqsa_review_template,
+    carry_forward_mqsa_review,
     finalize_mqsa_review,
     normalize_manual_facility_export,
     read_fda_mqsa_fixed_width,
@@ -318,6 +319,24 @@ def test_finalize_mqsa_review_outputs_valid_snapshot_rows() -> None:
     assert result.loc[0, "facility_id"] == "MQSA-NC-0001"
     assert result.loc[0, "active"]
     assert result.loc[0, "source_record_hash"] == "abc123"
+
+
+def test_carry_forward_mqsa_review_matches_source_hashes_only() -> None:
+    current = _review_frame(review_status="needs_review", latitude="")
+    current.loc[0, "facility_id"] = ""
+    current.loc[0, "geocode_status"] = ""
+    current.loc[1, :] = current.loc[0, :]
+    current.loc[1, "source_record_hash"] = "new-hash"
+    previous = _review_frame()
+    previous.loc[0, "geocode_status"] = "matched"
+
+    carried = carry_forward_mqsa_review(current, previous)
+
+    assert carried.loc[0, "facility_id"] == "MQSA-NC-0001"
+    assert carried.loc[0, "review_status"] == "reviewed"
+    assert carried.loc[0, "geocode_status"] == "matched"
+    assert carried.loc[1, "facility_id"] == ""
+    assert carried.loc[1, "review_status"] == "needs_review"
 
 
 def test_finalize_mqsa_review_allows_blank_capacity() -> None:

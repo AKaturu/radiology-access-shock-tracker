@@ -79,7 +79,7 @@ source or explicitly labeled proxy supports it.
 Archive the weekly FDA MQSA public ZIP:
 
 ```bash
-radshock fetch-fda-mqsa --output-dir data/raw
+radshock fetch-fda-mqsa --output-dir data/raw --retrieved-on 2026-07-01
 ```
 
 If you already downloaded the FDA ZIP manually:
@@ -87,7 +87,8 @@ If you already downloaded the FDA ZIP manually:
 ```bash
 radshock archive-source public.zip \
   --source-name fda-mqsa-public \
-  --source-url https://www.accessdata.fda.gov/premarket/ftparea/public.zip
+  --source-url https://www.accessdata.fda.gov/premarket/ftparea/public.zip \
+  --retrieved-on 2026-07-01
 ```
 
 Prepare a human-review CSV:
@@ -114,6 +115,18 @@ Human review is still required before finalization. If you supplement unmatched 
 manual or third-party fallback geocoder, keep the fallback provider, matched address, score or
 benchmark, source URL, retrieval timestamp, and any approximate-match note in the geocode
 provenance columns.
+
+For a later FDA pull, carry forward already reviewed rows only when the raw source row is unchanged:
+
+```bash
+radshock carry-forward-mqsa-review \
+  work/fda_mqsa_2026-07-01_nc_review_template.csv \
+  --previous-review-csv work/facilities_2026-06-01_reviewed.csv \
+  --output-csv work/fda_mqsa_2026-07-01_nc_review.csv \
+  --metadata-json work/fda_mqsa_2026-07-01_nc_review.metadata.json
+```
+
+Rows with new or changed `source_record_hash` values remain `needs_review`.
 
 Complete the blank required reviewed fields, set `review_status` to `reviewed`, `verified`, or `approved`,
 then finalize it into a snapshot-ready CSV:
@@ -209,7 +222,8 @@ Fill the routing worklist with results from your reviewed routing process, set `
 ```bash
 radshock finalize-travel-time-review \
   work/2026-07-01_travel_time_review.csv \
-  --output-csv data/travel_times/2026-07-01_point_facility.csv
+  --output-csv data/travel_times/2026-07-01_point_facility.csv \
+  --metadata-json data/travel_times/2026-07-01_point_facility.metadata.json
 ```
 
 For an OSRM-compatible routing server, you can draft route minutes before review:
@@ -219,7 +233,9 @@ radshock fill-travel-time-review \
   work/2026-07-01_travel_time_review.csv \
   --output-csv work/2026-07-01_travel_time_review_osrm_draft.csv \
   --provider osrm \
-  --osrm-base-url https://router.project-osrm.org
+  --osrm-base-url https://router.project-osrm.org \
+  --only-missing \
+  --max-origins 100
 ```
 
 For OpenRouteService testing, set the API key in the environment and use the Matrix endpoint:
@@ -231,7 +247,9 @@ radshock fill-travel-time-review \
   --output-csv work/2026-07-01_travel_time_review_ors_draft.csv \
   --provider openrouteservice \
   --ors-profile driving-car \
-  --request-delay-seconds 3
+  --request-delay-seconds 3 \
+  --only-missing \
+  --max-origins 50
 ```
 
 The fill command keeps `review_status=needs_review` by default. Do not finalize the matrix until
@@ -327,6 +345,12 @@ runs are enabled on the quarterly cron in `.github/workflows/quarterly-snapshot.
 
 The workflow stops at the review artifact. It does not approve rows, finalize a snapshot, run a
 public analysis, or publish findings.
+
+Repository governance lives in `.github/CODEOWNERS`,
+`.github/branch-protection.master.json`, and `scripts/configure_github_governance.ps1`. A GitHub
+repo admin can run the script with authenticated `gh` to set `CENSUS_API_KEY`,
+`OPENROUTESERVICE_API_KEY`, required code-owner review, branch protection, and the `test` status
+check requirement. See `docs/OPERATIONS.md` for the exact setup flow.
 
 Operational owner and credential notes are tracked in `docs/OPERATIONS.md`. The FDA source-refresh
 workflow does not require a secret. Production ACS context and road-time routing need approved

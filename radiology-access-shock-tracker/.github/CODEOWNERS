@@ -1,0 +1,12 @@
+# Default owner for all repository changes.
+* @krishna2006sai
+
+# Source ingestion, governance, and publication-critical data paths.
+/.github/ @krishna2006sai
+/src/radshock/adapters/ @krishna2006sai
+/src/radshock/geocoding.py @krishna2006sai
+/src/radshock/travel_times.py @krishna2006sai
+/src/radshock/readiness.py @krishna2006sai
+/data/ @krishna2006sai
+/docs/DATA_SOURCES.md @krishna2006sai
+/docs/OPERATIONS.md @krishna2006sai

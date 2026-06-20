@@ -266,6 +266,50 @@ Production readiness hardening.
 
 ### Progress
 
+#### Latest Production-Readiness Pass
+
+- `finalize-candidate-review` now supports finalized metadata output. The county-centroid
+  candidate assumptions were marked reviewed as transparent planning placeholders and finalized to
+  `data/candidate_sites.csv` with provenance at `data/candidate_sites.metadata.json`.
+- Source archive commands now expose `--retrieved-on` so dated raw-source archives can be created
+  deterministically from the CLI.
+- `carry-forward-mqsa-review` was added. It copies reviewed MQSA fields only when
+  `source_record_hash` matches a prior reviewed CSV and writes carry-forward metadata.
+- A live FDA MQSA source was archived for `2026-06-20`, an NC review template was prepared, and
+  all 289 rows matched unchanged reviewed `2026-06-19` source hashes. The carried-forward review
+  finalized successfully and was ingested as
+  `work/source-refresh-smoke/snapshots/2026-06-20`.
+- The `2026-06-19` and `2026-06-20` reviewed real snapshots support only a no-observed-change
+  claim for that interval because all source hashes matched.
+- `fill-travel-time-review` now supports `--max-origins` for resumable route batches.
+- `finalize-travel-time-review` now supports finalized matrix metadata with input/output checksums,
+  provider URLs, retrieved timestamp range, and row counts.
+- Hosted OpenRouteService successfully filled part of the tract nearest-20 worklist, but the
+  provided free key returned `{"error": "Quota exceeded"}` before completion. The partial ORS
+  review remains in `work/source-refresh-smoke/travel-time/2026-06-20_tract_nearest20_openrouteservice_review.csv`.
+- A complete uniform OSRM-compatible tract nearest-20 route review was generated at
+  `data/travel_times/2026-06-20_tract_nearest20_osrm_review.csv` with 52,680 routed rows, zero
+  unreachable rows, and provider metadata on every row. It was finalized to
+  `data/travel_times/2026-06-20_tract_nearest20_osrm_matrix.csv` with metadata at
+  `data/travel_times/2026-06-20_tract_nearest20_osrm_matrix.metadata.json`.
+- A real tract-based travel-time analysis package was generated at
+  `work/source-refresh-smoke/analysis-tract-osrm-travel-time` using the two reviewed snapshots,
+  `data/population_points_tracts.csv`, `data/counties.csv`, `data/candidate_sites.csv`, and the
+  finalized OSRM tract matrix for both periods. It produced 100 county records with zero
+  warning/critical alerts, as expected for unchanged facility snapshots.
+- `readiness-audit --require-travel-time` on that real package returned `READY` with 0 blockers
+  and 0 warnings.
+- The policy brief generator now describes travel-time shocks in minutes when road-time outputs are
+  supplied.
+- `.github/CODEOWNERS`, `.github/branch-protection.master.json`, and
+  `scripts/configure_github_governance.ps1` were added. Local execution confirmed GitHub settings
+  cannot be applied from this machine because PowerShell script execution is restricted by default
+  and the GitHub CLI is not installed/on PATH.
+- Latest validation after this pass: `python -m pytest` passed with 72 tests, `python -m ruff
+  check .` passed, `python -m mypy src/radshock` passed, `python -m pip wheel . -w work/dist`
+  built the project wheel, the real tract travel-time readiness audit was READY, the supplied-key
+  secret scan found no matches, and Streamlit health returned HTTP 200.
+
 Latest validation gate completed:
 
 - `python -m pytest` passed with 47 tests.
@@ -364,23 +408,24 @@ Latest validation gate completed:
 
 ### Remaining Work
 
-- Generate and review tract-based travel-time matrices before publishing analysis outputs. The
-  current finalized ORS matrix still uses county-centroid testing points.
-- Review hosted ORS/free-plan route outputs, provider terms, traffic assumptions, and unreachable
-  rows before treating the finalized matrix as publication-grade.
-- Review or replace the generated county-centroid candidate placeholders before publishing
-  intervention rankings.
-- Configure GitHub branch protection or required reviewers in the GitHub UI for source-review
-  ownership; local files cannot assign organization teams without admin access.
-- Add or obtain a second real reviewed snapshot date before publishing change claims.
+- Decide whether the complete OSRM public-endpoint tract matrix is acceptable only for testing or
+  should be regenerated with a production-approved provider such as self-hosted OSRM, Valhalla, a
+  paid OpenRouteService quota, or another reviewed matrix provider.
+- Replace county-centroid candidate placeholders with real mobile-stop or fixed-site assumptions
+  before using intervention rankings for operational planning.
+- Apply GitHub branch protection, repository secrets, and code-owner review in GitHub itself after
+  installing/authenticating `gh` with repo admin access.
+- Obtain a later real reviewed snapshot before making any trend or deterioration claim beyond
+  "no observed change between 2026-06-19 and 2026-06-20."
 
 ## Next Actions
 
-1. Generate and review tract-based travel-time matrices using `data/population_points_tracts.csv`.
-2. Review or replace candidate-site placeholders and run `finalize-candidate-review`.
-3. Obtain a second reviewed snapshot date and rerun real change analysis.
-4. Resolve readiness-audit blockers with the real outputs and explicit snapshot/source metadata.
-5. Configure GitHub branch protection or required source-review owners in the GitHub UI.
+1. Run the GitHub governance setup from an authenticated admin shell:
+   `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\configure_github_governance.ps1 -Apply`.
+2. Choose the production routing provider and, if needed, regenerate
+   `data/travel_times/2026-06-20_tract_nearest20_osrm_matrix.csv` with that provider.
+3. Replace reviewed county-centroid candidate placeholders with real candidate-site assumptions.
+4. Pull and review a later MQSA source snapshot before making actual change claims.
 
 ## Risks
 
@@ -390,15 +435,15 @@ Latest validation gate completed:
 - Should hosted OpenRouteService be approved for publication use, or should the project use a
   self-hosted routing engine/commercial provider?
 - Who should be assigned as GitHub source-review owners for branch protection?
-- What prior reviewed snapshot date should be used for the first real change analysis?
+- Which later reviewed snapshot date should be used for the first real change analysis?
 
 ### Known Issues
 
 - Live FDA, CDC, Census geocoding, and CMS integrations were not all end-to-end verified against
   live endpoints in CI.
 - Great-circle distance remains the default demo method.
-- The current county-centroid ORS travel-time matrix is a testing artifact with real provider
-  output. It still needs production review and regeneration against the tract population points
+- The complete tract OSRM travel-time matrix is a testing artifact with real provider output from
+  the public OSRM-compatible endpoint. It still needs production-provider approval or regeneration
   before publication.
 
 ### Technical Concerns

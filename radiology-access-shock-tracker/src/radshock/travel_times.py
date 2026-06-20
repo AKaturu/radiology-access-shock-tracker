@@ -163,6 +163,20 @@ def finalize_travel_time_review(frame: pd.DataFrame) -> pd.DataFrame:
     return validate_travel_time_matrix(matrix)
 
 
+def limit_travel_time_review_origins(
+    frame: pd.DataFrame,
+    max_origins: int | None,
+) -> pd.DataFrame:
+    """Return only the first N point_id groups while preserving original row indexes."""
+    if max_origins is None:
+        return frame.copy()
+    if max_origins <= 0:
+        raise ValueError("max_origins must be positive")
+    require_columns(frame, {"point_id"}, "travel time review")
+    point_ids = frame["point_id"].astype(str).drop_duplicates().head(max_origins)
+    return frame.loc[frame["point_id"].astype(str).isin(set(point_ids))].copy()
+
+
 def fill_travel_time_review_from_osrm(
     frame: pd.DataFrame,
     *,

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import html
 from datetime import date
+from typing import Any
 
 import pandas as pd
 
@@ -19,13 +20,22 @@ def generate_policy_brief(
     top_counties = county_shocks.head(5)
     top_interventions = interventions.head(3)
     high_priority = county_shocks[county_shocks["alert_level"].isin(["WARNING", "CRITICAL"])]
-    caveat = (
-        "> Synthetic demonstration data are loaded. Do not interpret these outputs as real "
-        "North Carolina facility, county, screening, or utilization findings."
-        if synthetic_data
-        else "> Facility events are surveillance signals requiring source verification. "
-        "Distances are great-circle proxies unless a reviewed road-time backend is used."
-    )
+    uses_travel_time = _uses_travel_time(county_shocks)
+    if synthetic_data:
+        caveat = (
+            "> Synthetic demonstration data are loaded. Do not interpret these outputs as real "
+            "North Carolina facility, county, screening, or utilization findings."
+        )
+    elif uses_travel_time:
+        caveat = (
+            "> Facility events are surveillance signals requiring source verification. "
+            "County access shocks use reviewed route-time matrix inputs."
+        )
+    else:
+        caveat = (
+            "> Facility events are surveillance signals requiring source verification. "
+            "Distances are great-circle proxies unless a reviewed road-time backend is used."
+        )
 
     lines = [
         f"# {title}",
@@ -46,12 +56,7 @@ def generate_policy_brief(
         lines.append("No county access deterioration was detected.")
     else:
         for row in top_counties.itertuples(index=False):
-            lines.append(
-                f"- **{row.county_name} ({row.alert_level})** - shock score "
-                f"{row.shock_score:.1f}; mean distance change "
-                f"{row.mean_distance_delta:+.1f} miles; 90th-percentile change "
-                f"{row.p90_distance_delta:+.1f} miles."
-            )
+            lines.append(_format_county_shock_line(row, uses_travel_time=uses_travel_time))
 
     lines.extend(["", "## Facility events", ""])
     if events.empty:
@@ -95,7 +100,7 @@ def generate_policy_brief(
             "## Interpretation limits",
             "",
             "- A missing facility ID is a possible closure signal, not a confirmed closure.",
-            "- Great-circle distance is a screening metric, not a road travel-time estimate.",
+            _access_limit_line(uses_travel_time),
             "- Facility capacity is not yet used to allocate patient demand.",
             "- Aggregate CMS trends cannot establish that a facility event caused "
             "utilization changes.",
@@ -109,6 +114,37 @@ def generate_policy_brief(
         ]
     )
     return "\n".join(lines)
+
+
+def _uses_travel_time(county_shocks: pd.DataFrame) -> bool:
+    if "access_metric" in county_shocks.columns:
+        return "travel_time_minutes" in set(county_shocks["access_metric"].astype(str))
+    return {
+        "mean_travel_time_delta",
+        "p90_travel_time_delta",
+    }.issubset(county_shocks.columns)
+
+
+def _format_county_shock_line(row: Any, *, uses_travel_time: bool) -> str:
+    if uses_travel_time:
+        return (
+            f"- **{row.county_name} ({row.alert_level})** - shock score "
+            f"{row.shock_score:.1f}; mean travel-time change "
+            f"{row.mean_travel_time_delta:+.1f} minutes; 90th-percentile change "
+            f"{row.p90_travel_time_delta:+.1f} minutes."
+        )
+    return (
+        f"- **{row.county_name} ({row.alert_level})** - shock score "
+        f"{row.shock_score:.1f}; mean distance change "
+        f"{row.mean_distance_delta:+.1f} miles; 90th-percentile change "
+        f"{row.p90_distance_delta:+.1f} miles."
+    )
+
+
+def _access_limit_line(uses_travel_time: bool) -> str:
+    if uses_travel_time:
+        return "- Travel times depend on the routing backend, network vintage, and profile."
+    return "- Great-circle distance is a screening metric, not a road travel-time estimate."
 
 
 def generate_policy_brief_html(markdown_text: str) -> str:

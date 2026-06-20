@@ -21,6 +21,42 @@ Recommended protected actions:
 - require review before accepting finalized facility snapshots or route matrices
 - require a source-review owner before resolving readiness-audit blockers
 
+The repository now includes `.github/CODEOWNERS`, with `@krishna2006sai` as the default owner
+because the README points at `krishna2006sai/radiology-access-shock-tracker`. Update that file if
+the repository owner or source-review team changes.
+
+## GitHub Governance Setup
+
+GitHub branch protection and repository secrets must be applied in GitHub by an authenticated repo
+admin or owner. This checkout currently has no configured git remote and no authenticated GitHub CLI,
+so the settings cannot be applied locally without adding those credentials.
+
+After installing and authenticating the GitHub CLI, run a dry run:
+
+```powershell
+$env:GITHUB_REPOSITORY = "krishna2006sai/radiology-access-shock-tracker"
+.\scripts\configure_github_governance.ps1
+```
+
+If Windows blocks local PowerShell scripts, run the same command with a process-scoped execution
+policy bypass:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\configure_github_governance.ps1
+```
+
+Then set the required secret values in the current shell and apply:
+
+```powershell
+$env:CENSUS_API_KEY = "<your-census-key>"
+$env:OPENROUTESERVICE_API_KEY = "<your-openrouteservice-key>"
+.\scripts\configure_github_governance.ps1 -Apply
+```
+
+The script sets repository secrets from environment variables and applies
+`.github/branch-protection.master.json`, which requires the `test` status check, code-owner review,
+stale-review dismissal, conversation resolution, and blocks force pushes and branch deletion.
+
 ## External Credentials
 
 Do not commit production credentials. Configure them as GitHub repository or organization secrets
