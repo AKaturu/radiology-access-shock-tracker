@@ -22,6 +22,9 @@
 - Added Census-backed NC tract population-point generation with source metadata and checksums.
 - Added candidate-site review template/finalization commands, stricter candidate validation, and
   analysis guards against unapproved candidate review sheets.
+- Added GitHub-ready dashboard screenshots, walkthrough footage, and a compiled local validation
+  report.
+- Hardened the dashboard overview visualization so screenshots do not depend on external map tiles.
 - Added demo readiness-audit outputs and a dashboard readiness view.
 - Added analysis-run manifests and automatic readiness reports for `radshock analyze`.
 - Added a guarded GitHub Actions workflow for FDA MQSA source-refresh review artifacts.

@@ -33,6 +33,8 @@ earlier county-centroid smoke-test points, though travel-time matrices must be r
 reviewed against the tract points before publication.
 Candidate-site assumptions now have a review-template and finalization gate so intervention
 rankings can be kept separate from unreviewed placeholder locations.
+GitHub-ready screenshots, walkthrough footage, and a compiled validation report now document the
+synthetic demo workflow for the project front page.
 
 ## Completed Features
 
@@ -243,6 +245,19 @@ Tests cover candidate review-template generation, unapproved-row blocking, analy
 finalization, stricter candidate validation, direct analysis rejection of unapproved review sheets,
 and CLI prepare/finalize behavior.
 
+### GitHub Media and Compiled Validation Bundle
+
+#### Validation
+
+The dashboard overview chart no longer depends on external map tiles for screenshot rendering.
+GitHub-page screenshots and walkthrough footage were captured from the Streamlit synthetic demo.
+The README links to the media guide and compiled local validation report.
+
+#### Tests Added
+
+No new unit tests were required for static media. The capture script was exercised against the
+local Streamlit app, and the full validation gate passed after the dashboard changes.
+
 ## Current Work
 
 ### Active Feature
@@ -321,6 +336,16 @@ Latest validation gate completed:
   placeholder rows, all still marked `needs_review`.
 - Candidate review metadata was written to
   `work/source-refresh-smoke/candidates/2026-06-19_county_centroid_candidate_review.metadata.json`.
+- GitHub-page assets were generated under `docs/assets/github/`, including desktop screenshots,
+  a mobile overview screenshot, and `dashboard-walkthrough.webm`.
+- `docs/GITHUB_PAGE_ASSETS.md` documents how to use/regenerate the media assets.
+- `docs/validation/COMPILED_TEST_REPORT.md` records the latest local validation run, including
+  pytest, ruff, mypy, wheel build, demo smoke generation, Streamlit health check, and the wheel
+  SHA-256.
+- Latest validation for the media/test bundle: `python -m pytest --junitxml
+  work/validation/pytest-junit.xml` passed with 66 tests, `python -m ruff check .` passed,
+  `python -m mypy src/radshock` passed, `python -m pip wheel . -w work/dist` built
+  `radiology_access_shock_tracker-0.1.0-py3-none-any.whl`, and Streamlit health returned HTTP 200.
 - The Census API key and OpenRouteService key were used only as process environment variables for
   local pulls; secret scans found no committed key values in project files.
 - A Census county-centroid route review was prepared with 17,779 route pairs, filled through hosted

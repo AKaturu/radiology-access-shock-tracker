@@ -25,6 +25,14 @@ as a real facility, county, screening, or utilization assessment. The default de
 great-circle distance; production road-time analysis requires reviewed travel-time matrix inputs.
 The toolkit does not infer that facility events caused utilization changes.
 
+## Dashboard preview
+
+![Dashboard overview](docs/assets/github/dashboard-overview.png)
+
+More screenshots and walkthrough footage are in [`docs/GITHUB_PAGE_ASSETS.md`](docs/GITHUB_PAGE_ASSETS.md).
+The latest compiled local validation summary is in
+[`docs/validation/COMPILED_TEST_REPORT.md`](docs/validation/COMPILED_TEST_REPORT.md).
+
 ## Quick start
 
 ```bash

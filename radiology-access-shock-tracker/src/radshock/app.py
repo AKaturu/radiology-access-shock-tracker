@@ -107,19 +107,28 @@ with overview:
     }
     if "population_newly_over_30_miles" in shocks.columns:
         hover_data["population_newly_over_30_miles"] = ":,.0f"
-    fig = px.scatter_map(
-        shocks,
-        lat="centroid_lat",
-        lon="centroid_lon",
-        size="shock_score",
+    map_shocks = shocks.copy()
+    map_shocks["plot_size"] = map_shocks["shock_score"].clip(lower=4)
+    hover_data["plot_size"] = False
+    fig = px.scatter(
+        map_shocks,
+        x="centroid_lon",
+        y="centroid_lat",
+        size="plot_size",
         color="alert_level",
         hover_name="county_name",
         hover_data=hover_data,
-        zoom=5.7,
-        center={"lat": 35.5, "lon": -79.2},
         height=560,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    fig.update_traces(marker={"line": {"color": "white", "width": 1.25}})
+    fig.update_layout(
+        xaxis_title="Longitude",
+        yaxis_title="Latitude",
+        plot_bgcolor="#f8fafc",
+        yaxis={"scaleanchor": "x", "scaleratio": 1},
+        margin={"l": 0, "r": 0, "t": 20, "b": 0},
+    )
+    st.plotly_chart(fig, width="stretch")
     st.info("Facility events are surveillance signals requiring source verification.")
 
 with event_tab:
@@ -134,7 +143,7 @@ with event_tab:
             event_display = events
     else:
         event_display = events
-    st.dataframe(event_display, use_container_width=True, hide_index=True)
+    st.dataframe(event_display, width="stretch", hide_index=True)
     st.download_button(
         "Download facility events",
         event_display.to_csv(index=False),
@@ -168,7 +177,7 @@ with county_tab:
         "utilization_delta_per_1000",
     ]
     display_columns = [column for column in display_columns if column in filtered_shocks.columns]
-    st.dataframe(filtered_shocks[display_columns], use_container_width=True, hide_index=True)
+    st.dataframe(filtered_shocks[display_columns], width="stretch", hide_index=True)
     st.download_button(
         "Download county shocks",
         filtered_shocks.to_csv(index=False),
@@ -185,8 +194,8 @@ with intervention_tab:
         hover_data=["person_miles_reduced", "population_brought_within_threshold"],
     )
     fig.update_layout(yaxis={"categoryorder": "total ascending"})
-    st.plotly_chart(fig, use_container_width=True)
-    st.dataframe(interventions, use_container_width=True, hide_index=True)
+    st.plotly_chart(fig, width="stretch")
+    st.dataframe(interventions, width="stretch", hide_index=True)
     st.download_button(
         "Download intervention rankings",
         interventions.to_csv(index=False),
@@ -198,7 +207,7 @@ with utilization_tab:
     if utilization.empty:
         st.info("No utilization signal output found.")
     else:
-        st.dataframe(utilization, use_container_width=True, hide_index=True)
+        st.dataframe(utilization, width="stretch", hide_index=True)
         st.download_button(
             "Download utilization signals",
             utilization.to_csv(index=False),
@@ -226,7 +235,7 @@ with sensitivity_tab:
             "rank_delta_from_baseline",
         ]
         display_columns = [column for column in display_columns if column in scenario_rows.columns]
-        st.dataframe(scenario_rows[display_columns], use_container_width=True, hide_index=True)
+        st.dataframe(scenario_rows[display_columns], width="stretch", hide_index=True)
         st.download_button(
             "Download sensitivity analysis",
             sensitivity.to_csv(index=False),
@@ -266,7 +275,7 @@ with readiness_tab:
                 "recommendation",
             ]
             display_columns = [column for column in display_columns if column in checks.columns]
-            st.dataframe(checks[display_columns], use_container_width=True, hide_index=True)
+            st.dataframe(checks[display_columns], width="stretch", hide_index=True)
         st.download_button(
             "Download readiness JSON",
             readiness_json_path.read_text(encoding="utf-8"),
