@@ -4,15 +4,23 @@ import { mkdirSync, readdirSync, rmSync, renameSync } from "node:fs";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { chromium } = require("playwright");
+let chromium;
+try {
+  ({ chromium } = require("playwright"));
+} catch {
+  ({ chromium } = require("playwright-core"));
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, "..");
 const baseUrl = process.env.RADSHOCK_CAPTURE_URL || "http://127.0.0.1:8765";
+const allowSynthetic = process.env.RADSHOCK_CAPTURE_ALLOW_SYNTHETIC === "1";
+const chromiumExecutable = process.env.RADSHOCK_CHROMIUM_EXECUTABLE;
 const outputDir = path.resolve(
   projectRoot,
   process.env.RADSHOCK_CAPTURE_OUTPUT || "docs/assets/github",
 );
+const syntheticWarningText = "Synthetic demonstration data are loaded";
 
 const screenshots = [
   { name: "dashboard-overview.png", tab: "Overview" },
@@ -27,6 +35,12 @@ async function waitForDashboard(page) {
   await page.getByText("Radiology Access Shock Tracker").first().waitFor({ timeout: 30000 });
   await page.waitForLoadState("networkidle", { timeout: 30000 }).catch(() => {});
   await page.waitForTimeout(2500);
+  if (!allowSynthetic && (await page.getByText(syntheticWarningText).count()) > 0) {
+    throw new Error(
+      "Capture target is synthetic. Set RADSHOCK_ANALYSIS_DIR to a reviewed real analysis " +
+        "package, or set RADSHOCK_CAPTURE_ALLOW_SYNTHETIC=1 for intentional demo captures.",
+    );
+  }
 }
 
 async function clickTab(page, tabName) {
@@ -45,7 +59,10 @@ async function main() {
       rmSync(path.join(outputDir, fileName), { force: true });
     }
   }
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+    headless: true,
+    ...(chromiumExecutable ? { executablePath: chromiumExecutable } : {}),
+  });
   const context = await browser.newContext({
     viewport: { width: 1440, height: 980 },
     deviceScaleFactor: 1,

@@ -8,7 +8,7 @@ Status: PASS
 
 ## Checks
 
-- `python -m pytest`: 79 passed in 4.19s.
+- `python -m pytest`: 79 passed in 7.36s.
 - `python -m ruff check .`: passed.
 - `python -m mypy src/radshock`: passed with no issues in 24 source files.
 - `python -m pip wheel . -w work/dist`: built the project wheel.
@@ -29,6 +29,8 @@ Status: PASS
 - `scripts/package_release.ps1` generated the GitHub source ZIP, journal evidence bundle, and
   release manifest; ZIP inspection found no ignored work/cache/build directories, and required
   journal evidence files were present.
+- `scripts/capture_github_assets.mjs` recaptured the GitHub screenshots and walkthrough from the
+  reviewed real self-hosted OSRM package with synthetic captures disallowed.
 
 ## Built Wheel
 
@@ -58,11 +60,12 @@ Status: PASS
 
 ## Media Evidence
 
-- Screenshots: `docs/assets/github/*.png`
-- Walkthrough footage: `docs/assets/github/dashboard-walkthrough.webm`
+- Real-data screenshots: `docs/assets/github/*.png`
+- Real-data walkthrough footage: `docs/assets/github/dashboard-walkthrough.webm`
 - Capture script: `scripts/capture_github_assets.mjs`
 
 ## Boundary
 
-The screenshots and walkthrough use synthetic demo data. They prove the application workflow and
-publication-readiness gates render correctly; they are not real North Carolina findings.
+The screenshots and walkthrough use the reviewed real North Carolina self-hosted OSRM package, not
+the synthetic demo. They show a no-observed-change validation run for the reviewed `2026-06-19` to
+`2026-06-20` snapshots; they do not support trend, deterioration, or causal utilization claims.

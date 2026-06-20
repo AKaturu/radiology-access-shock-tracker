@@ -34,7 +34,7 @@ reviewed against the tract points before publication.
 Candidate-site assumptions now have a review-template and finalization gate so intervention
 rankings can be kept separate from unreviewed placeholder locations.
 GitHub-ready screenshots, walkthrough footage, and a compiled validation report now document the
-synthetic demo workflow for the project front page.
+reviewed real-data self-hosted OSRM workflow for the project front page.
 
 ## Completed Features
 
@@ -250,7 +250,8 @@ and CLI prepare/finalize behavior.
 #### Validation
 
 The dashboard overview chart no longer depends on external map tiles for screenshot rendering.
-GitHub-page screenshots and walkthrough footage were captured from the Streamlit synthetic demo.
+GitHub-page screenshots and walkthrough footage were recaptured from the reviewed real-data
+self-hosted OSRM package after the original synthetic demo media was retired.
 The README links to the media guide and compiled local validation report.
 
 #### Tests Added
@@ -429,6 +430,14 @@ Latest validation gate completed:
   work/validation/pytest-junit.xml` passed with 66 tests, `python -m ruff check .` passed,
   `python -m mypy src/radshock` passed, `python -m pip wheel . -w work/dist` built
   `radiology_access_shock_tracker-0.1.0-py3-none-any.whl`, and Streamlit health returned HTTP 200.
+- The GitHub-page assets were later recaptured from
+  `work/self-hosted-osrm/analysis-tract-self-hosted-osrm` with the dashboard synthetic-warning
+  guard enabled. The media now shows the reviewed real-data no-observed-change validation package,
+  readiness `READY`, 0 blockers, and 0 warnings.
+- Latest validation after the real-data media refresh: `python -m pytest` passed with 79 tests,
+  `python -m ruff check .` passed, `python -m mypy src/radshock` passed, the capture script
+  completed with synthetic captures disallowed, and visual inspection confirmed the overview,
+  readiness, and mobile screenshots have no synthetic warning.
 - The Census API key and OpenRouteService key were used only as process environment variables for
   local pulls; secret scans found no committed key values in project files.
 - A Census county-centroid route review was prepared with 17,779 route pairs, filled through hosted

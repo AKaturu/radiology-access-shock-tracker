@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -13,7 +14,8 @@ st.set_page_config(page_title="Radiology Access Shock Tracker", layout="wide")
 st.title("Radiology Access Shock Tracker")
 st.caption("Surveillance for changes in mammography access and potential community impact")
 
-analysis_dir = Path(st.sidebar.text_input("Analysis directory", value="outputs/demo/analysis"))
+default_analysis_dir = os.environ.get("RADSHOCK_ANALYSIS_DIR", "outputs/demo/analysis")
+analysis_dir = Path(st.sidebar.text_input("Analysis directory", value=default_analysis_dir))
 manifest_path = find_manifest_path(analysis_dir)
 brief_candidates = [
     analysis_dir.parent / "briefs" / "policy_brief.md",
@@ -61,6 +63,11 @@ manifest = (
     json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path is not None else {}
 )
 
+
+def available_columns(columns: list[str], frame: pd.DataFrame) -> list[str]:
+    return [column for column in columns if column in frame.columns]
+
+
 if bool(manifest.get("synthetic_data")):
     st.warning(
         "Synthetic demonstration data are loaded. Do not interpret these outputs as real "
@@ -98,18 +105,27 @@ col4.metric("Best intervention score", f"{interventions['intervention_score'].ma
 
 with overview:
     st.subheader("County shock surveillance")
-    hover_data: dict[str, str | bool] = {
-        "shock_score": ":.1f",
-        "mean_distance_delta": ":+.1f",
-        "p90_distance_delta": ":+.1f",
-        "centroid_lat": False,
-        "centroid_lon": False,
-    }
-    if "population_newly_over_30_miles" in shocks.columns:
-        hover_data["population_newly_over_30_miles"] = ":,.0f"
+    hover_data: dict[str, str | bool] = {"shock_score": ":.1f"}
+    for column in [
+        "mean_distance_delta",
+        "p90_distance_delta",
+        "mean_travel_time_delta",
+        "p90_travel_time_delta",
+    ]:
+        if column in shocks.columns:
+            hover_data[column] = ":+.1f"
+    for column in [
+        "population_newly_over_30_miles",
+        "population_newly_over_30_minutes",
+        "population_newly_over_45_minutes",
+        "population_nearest_facility_changed",
+    ]:
+        if column in shocks.columns:
+            hover_data[column] = ":,.0f"
+    for column in ["centroid_lat", "centroid_lon", "plot_size"]:
+        hover_data[column] = False
     map_shocks = shocks.copy()
     map_shocks["plot_size"] = map_shocks["shock_score"].clip(lower=4)
-    hover_data["plot_size"] = False
     fig = px.scatter(
         map_shocks,
         x="centroid_lon",
@@ -165,18 +181,34 @@ with county_tab:
         "vulnerability_component",
         "shock_mean_distance_component",
         "shock_p90_distance_component",
+        "shock_mean_travel_time_component",
+        "shock_p90_travel_time_component",
         "shock_threshold_component",
         "mean_distance_miles_before",
         "mean_distance_miles_after",
         "mean_distance_delta",
         "p90_distance_delta",
+        "mean_travel_time_minutes_before",
+        "mean_travel_time_minutes_after",
+        "mean_travel_time_delta",
+        "p90_travel_time_minutes_before",
+        "p90_travel_time_minutes_after",
+        "p90_travel_time_delta",
+        "pct_over_45_minutes_before",
+        "pct_over_45_minutes_after",
+        "pct_over_threshold_delta",
+        "travel_time_coverage_before",
+        "travel_time_coverage_after",
         "population_newly_over_30_miles",
+        "population_newly_over_30_minutes",
         "population_newly_over_45_miles",
+        "population_newly_over_45_minutes",
         "population_newly_over_60_miles",
+        "population_newly_over_60_minutes",
         "population_nearest_facility_changed",
         "utilization_delta_per_1000",
     ]
-    display_columns = [column for column in display_columns if column in filtered_shocks.columns]
+    display_columns = available_columns(display_columns, filtered_shocks)
     st.dataframe(filtered_shocks[display_columns], width="stretch", hide_index=True)
     st.download_button(
         "Download county shocks",
@@ -234,7 +266,7 @@ with sensitivity_tab:
             "sensitivity_rank",
             "rank_delta_from_baseline",
         ]
-        display_columns = [column for column in display_columns if column in scenario_rows.columns]
+        display_columns = available_columns(display_columns, scenario_rows)
         st.dataframe(scenario_rows[display_columns], width="stretch", hide_index=True)
         st.download_button(
             "Download sensitivity analysis",
@@ -274,7 +306,7 @@ with readiness_tab:
                 "details",
                 "recommendation",
             ]
-            display_columns = [column for column in display_columns if column in checks.columns]
+            display_columns = available_columns(display_columns, checks)
             st.dataframe(checks[display_columns], width="stretch", hide_index=True)
         st.download_button(
             "Download readiness JSON",

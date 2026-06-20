@@ -20,10 +20,11 @@ An open-source surveillance toolkit for detecting changes in mammography access,
 
 ## Important status
 
-The included demonstration uses **synthetic North Carolina-like data**. It must not be interpreted
-as a real facility, county, screening, or utilization assessment. The default demo uses
-great-circle distance; production road-time analysis requires reviewed travel-time matrix inputs.
-The toolkit does not infer that facility events caused utilization changes.
+The `radshock demo` command still creates **synthetic North Carolina-like data** and must not be
+interpreted as a real facility, county, screening, or utilization assessment. The published
+dashboard preview assets below use the reviewed real North Carolina self-hosted OSRM package
+described in the validation report. The current real comparison is a no-observed-change validation
+run, so it does not support trend, deterioration, or causal utilization claims.
 
 ## Dashboard preview
 
