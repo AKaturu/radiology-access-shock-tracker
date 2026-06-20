@@ -148,12 +148,14 @@ generation.
 and facility files, with optional straight-line prefiltering. `finalize-travel-time-review` blocks
 unapproved rows, invalid route statuses, duplicate point/facility pairs, and routed rows without
 minutes before emitting the minimal travel-time matrix accepted by
-`compare-travel-time-access`.
+`compare-travel-time-access`. Route-review templates can also be capped to the nearest N facilities
+per population point after distance filtering and can emit metadata sidecars with input/output
+checksums, filter settings, and row counts.
 
 #### Tests Added
 
 Tests cover active-only pairing, straight-line filtering, routed versus unreachable finalization,
-incomplete review rejection, and CLI prepare/finalize behavior.
+nearest-facility route pruning, incomplete review rejection, and CLI prepare/finalize behavior.
 
 ### Demo Readiness Audit and Dashboard View
 
@@ -289,6 +291,13 @@ Latest validation gate completed:
   `data/census_tract_context_2024.csv`, and `data/census_tract_context_2024.metadata.json`.
 - The tract point file has 2,634 nonzero-weight tract points across all 100 NC counties. Its
   eligible-population weight total is 1,660,365, matching `data/counties.csv`.
+- A tract-based blank route-review worklist was prepared at
+  `work/source-refresh-smoke/travel-time/2026-06-19_tract_nearest20_travel_time_review.csv`
+  using a 150-mile straight-line cap and nearest 20 facilities per tract. It has 52,680 route
+  pairs, covers all 2,634 tract points, and remains entirely `needs_route` / `needs_review`.
+- Route-worklist metadata was written to
+  `work/source-refresh-smoke/travel-time/2026-06-19_tract_nearest20_travel_time_review.metadata.json`
+  with input/output checksums and the pruning settings.
 - The Census API key and OpenRouteService key were used only as process environment variables for
   local pulls; secret scans found no committed key values in project files.
 - A Census county-centroid route review was prepared with 17,779 route pairs, filled through hosted

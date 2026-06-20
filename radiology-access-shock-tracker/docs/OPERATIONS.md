@@ -66,7 +66,21 @@ radshock fetch-census-population-points `
 ```
 
 Use `data/population_points_tracts.csv` when preparing production travel-time worklists, then
-regenerate and review route matrices against that same population file.
+regenerate and review route matrices against that same population file. For tract-level worklists,
+use a reviewed distance cap and nearest-facility cap to keep the routing set practical:
+
+```powershell
+radshock prepare-travel-time-review `
+  --population-csv data/population_points_tracts.csv `
+  --facilities-csv data/snapshots/2026-07-01/facilities.csv `
+  --output-csv work/2026-07-01_tract_travel_time_review.csv `
+  --metadata-json work/2026-07-01_tract_travel_time_review.metadata.json `
+  --max-distance-miles 150 `
+  --max-facilities-per-point 20
+```
+
+The nearest-facility cap is a pruning assumption, not a routing result. Keep it with the route
+metadata and review whether it is broad enough for the selected provider and geography.
 
 ## Travel-Time Provider Options
 

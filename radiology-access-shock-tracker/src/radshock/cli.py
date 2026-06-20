@@ -455,9 +455,21 @@ def prepare_travel_time_review_command(
     population_csv: Annotated[Path, typer.Option(exists=True, readable=True)],
     facilities_csv: Annotated[Path, typer.Option(exists=True, readable=True)],
     output_csv: Annotated[Path, typer.Option()],
+    metadata_json: Annotated[
+        Path | None,
+        typer.Option(help="Optional route-review template metadata JSON path."),
+    ] = None,
     max_distance_miles: Annotated[
         float | None,
         typer.Option(help="Optional straight-line prefilter for route pairs."),
+    ] = None,
+    max_facilities_per_point: Annotated[
+        int | None,
+        typer.Option(
+            help=(
+                "Optional nearest-facility cap per population point after distance filtering."
+            )
+        ),
     ] = None,
     include_inactive: Annotated[
         bool, typer.Option(help="Include inactive facilities in the routing worklist.")
@@ -467,16 +479,32 @@ def prepare_travel_time_review_command(
     """Create a point-to-facility routing worklist for external route review."""
     if output_csv.exists() and not force:
         raise typer.BadParameter(f"output already exists: {output_csv}")
+    if metadata_json is not None and metadata_json.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {metadata_json}")
     review = build_travel_time_review_template(
         pd.read_csv(population_csv, dtype={"point_id": str, "county_fips": str}),
         pd.read_csv(facilities_csv, dtype={"facility_id": str}),
         active_only=not include_inactive,
         max_distance_miles=max_distance_miles,
+        max_facilities_per_point=max_facilities_per_point,
     )
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     review.to_csv(output_csv, index=False)
     typer.echo(f"Travel-time review template written: {output_csv.resolve()}")
     typer.echo(f"Route pairs: {len(review)}")
+    if metadata_json is not None:
+        _write_travel_time_review_metadata(
+            metadata_json,
+            force=force,
+            output_csv=output_csv,
+            population_csv=population_csv,
+            facilities_csv=facilities_csv,
+            review=review,
+            active_only=not include_inactive,
+            max_distance_miles=max_distance_miles,
+            max_facilities_per_point=max_facilities_per_point,
+        )
+        typer.echo(f"Travel-time review metadata written: {metadata_json.resolve()}")
     typer.echo(
         "Fill travel_time_minutes, route_status, route provider metadata, and review_status "
         "before finalizing."
@@ -714,6 +742,56 @@ def _write_census_metadata(
         "source_urls": source_urls,
         "eligible_population_definition": "ACS B01001 female age 50-74 estimate",
         "notes": notes,
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _write_travel_time_review_metadata(
+    path: Path,
+    *,
+    force: bool,
+    output_csv: Path,
+    population_csv: Path,
+    facilities_csv: Path,
+    review: pd.DataFrame,
+    active_only: bool,
+    max_distance_miles: float | None,
+    max_facilities_per_point: int | None,
+) -> None:
+    if path.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {path}")
+    metadata = {
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "source_name": "radshock-prepare-travel-time-review",
+        "output": {
+            "path": str(output_csv),
+            "sha256": file_sha256(output_csv),
+        },
+        "inputs": {
+            "population_csv": {
+                "path": str(population_csv),
+                "sha256": file_sha256(population_csv),
+            },
+            "facilities_csv": {
+                "path": str(facilities_csv),
+                "sha256": file_sha256(facilities_csv),
+            },
+        },
+        "filters": {
+            "active_only": active_only,
+            "max_distance_miles": max_distance_miles,
+            "max_facilities_per_point": max_facilities_per_point,
+        },
+        "row_counts": {
+            "route_pairs": int(len(review)),
+            "population_points": int(review["point_id"].nunique()) if len(review) else 0,
+            "facilities": int(review["facility_id"].nunique()) if len(review) else 0,
+        },
+        "notes": [
+            "travel_time_minutes are blank route-review inputs, not route results.",
+            "route provider metadata and review_status must be completed before finalization.",
+        ],
     }
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")

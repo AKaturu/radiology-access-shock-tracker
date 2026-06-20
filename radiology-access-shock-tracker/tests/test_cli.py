@@ -282,6 +282,7 @@ def test_prepare_and_finalize_travel_time_review_commands(tmp_path: Path) -> Non
     population = tmp_path / "population.csv"
     facilities = tmp_path / "facilities.csv"
     review = tmp_path / "travel_time_review.csv"
+    metadata = tmp_path / "travel_time_review.metadata.json"
     matrix = tmp_path / "travel_time_matrix.csv"
     pd.DataFrame(
         [["P1", "37001", 35.0, -78.0, 100]],
@@ -298,9 +299,17 @@ def test_prepare_and_finalize_travel_time_review_commands(tmp_path: Path) -> Non
             str(facilities),
             "--output-csv",
             str(review),
+            "--metadata-json",
+            str(metadata),
+            "--max-facilities-per-point",
+            "1",
         ],
     )
     assert prepared.exit_code == 0
+    payload = json.loads(metadata.read_text())
+    assert payload["row_counts"]["route_pairs"] == 1
+    assert payload["filters"]["max_facilities_per_point"] == 1
+    assert payload["output"]["sha256"]
     route_review = pd.read_csv(review, dtype=str)
     route_review.loc[0, "travel_time_minutes"] = "18.5"
     route_review.loc[0, "route_status"] = "routed"

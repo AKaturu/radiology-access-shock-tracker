@@ -56,8 +56,11 @@ def build_travel_time_review_template(
     facilities: pd.DataFrame,
     active_only: bool = True,
     max_distance_miles: float | None = None,
+    max_facilities_per_point: int | None = None,
 ) -> pd.DataFrame:
     """Build a point-to-facility routing worklist without inventing travel times."""
+    if max_facilities_per_point is not None and max_facilities_per_point <= 0:
+        raise ValueError("max_facilities_per_point must be positive")
     points = validate_population_points(population_points).rename(
         columns={
             "latitude": "point_latitude",
@@ -93,6 +96,13 @@ def build_travel_time_review_template(
         if max_distance_miles <= 0:
             raise ValueError("max_distance_miles must be positive")
         pairs = pairs[pairs["straight_line_miles"] <= max_distance_miles].reset_index(drop=True)
+    if max_facilities_per_point is not None and not pairs.empty:
+        pairs = (
+            pairs.sort_values(["point_id", "straight_line_miles", "facility_id"])
+            .groupby("point_id", sort=False)
+            .head(max_facilities_per_point)
+            .reset_index(drop=True)
+        )
 
     pairs["travel_time_minutes"] = ""
     pairs["route_status"] = "needs_route"

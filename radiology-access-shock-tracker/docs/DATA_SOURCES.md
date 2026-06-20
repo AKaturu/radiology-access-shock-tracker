@@ -98,7 +98,9 @@ Official dataset family: <https://data.cms.gov/provider-summary-by-type-of-servi
 from reviewed population points and facility snapshots. It includes point coordinates, facility
 coordinates, active status, straight-line miles, blank `travel_time_minutes`, route provenance
 columns, and review status. The optional straight-line distance filter can reduce the route set
-before sending it to a routing engine.
+before sending it to a routing engine. The optional nearest-facility cap keeps only the nearest N
+facilities per population point after distance filtering; if used, record that pruning assumption
+with the route metadata before publication review.
 
 Route reviewers should fill `travel_time_minutes`, set `route_status` to `routed`, `unreachable`,
 or `excluded`, record the provider/source metadata, and set `review_status` to `reviewed`,

@@ -14,6 +14,7 @@
 - Added shock-score sensitivity analysis scenarios, CLI export, demo output, and dashboard view.
 - Added production readiness auditing with JSON and Markdown reports.
 - Added travel-time review template and finalization gates for external routing workflows.
+- Added nearest-facility caps and metadata sidecars for travel-time review templates.
 - Added OSRM-compatible travel-time review draft filling with route provenance.
 - Added hosted OpenRouteService Matrix draft filling through `OPENROUTESERVICE_API_KEY`.
 - Added Census-backed NC county context CSV generation and a live county-centroid ORS travel-time

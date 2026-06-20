@@ -189,7 +189,9 @@ radshock prepare-travel-time-review \
   --population-csv data/population_points_tracts.csv \
   --facilities-csv data/snapshots/2026-07-01/facilities.csv \
   --output-csv work/2026-07-01_travel_time_review.csv \
-  --max-distance-miles 150
+  --metadata-json work/2026-07-01_travel_time_review.metadata.json \
+  --max-distance-miles 150 \
+  --max-facilities-per-point 20
 ```
 
 Fill the routing worklist with results from your reviewed routing process, set `route_status` to
@@ -241,6 +243,8 @@ radshock compare-travel-time-access \
 
 Travel-time matrices must contain `point_id`, `facility_id`, and `travel_time_minutes`.
 Duplicate point/facility pairs and negative travel times are rejected.
+If `--max-facilities-per-point` is used to limit routing volume, record and review that pruning
+assumption with the route provider metadata before publication.
 
 Run shock-score sensitivity analysis:
 

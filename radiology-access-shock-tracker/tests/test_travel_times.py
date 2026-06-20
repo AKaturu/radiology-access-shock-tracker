@@ -28,6 +28,28 @@ def test_build_travel_time_review_template_can_filter_by_distance() -> None:
     assert review.loc[0, "point_id"] == "P1"
 
 
+def test_build_travel_time_review_template_can_cap_nearest_facilities() -> None:
+    review = build_travel_time_review_template(
+        _population(),
+        _many_active_facilities(),
+        max_facilities_per_point=2,
+    )
+
+    assert len(review) == 4
+    assert set(review.groupby("point_id")["facility_id"].count()) == {2}
+    first_point = review[review["point_id"] == "P1"]
+    assert list(first_point["facility_id"]) == ["F1", "F2"]
+
+
+def test_build_travel_time_review_template_rejects_invalid_nearest_cap() -> None:
+    with pytest.raises(ValueError, match="max_facilities_per_point"):
+        build_travel_time_review_template(
+            _population(),
+            _many_active_facilities(),
+            max_facilities_per_point=0,
+        )
+
+
 def test_finalize_travel_time_review_emits_only_routed_pairs() -> None:
     matrix = finalize_travel_time_review(
         pd.DataFrame(
@@ -222,6 +244,24 @@ def _facilities() -> pd.DataFrame:
         [
             ["F1", "Active Facility", 35.0, -78.0, 1000, True],
             ["F2", "Inactive Facility", 35.1, -78.1, 1000, False],
+        ],
+        columns=[
+            "facility_id",
+            "facility_name",
+            "latitude",
+            "longitude",
+            "annual_capacity",
+            "active",
+        ],
+    )
+
+
+def _many_active_facilities() -> pd.DataFrame:
+    return pd.DataFrame(
+        [
+            ["F1", "Near Facility", 35.0, -78.0, 1000, True],
+            ["F2", "Second Facility", 35.1, -78.1, 1000, True],
+            ["F3", "Far Facility", 37.0, -80.0, 1000, True],
         ],
         columns=[
             "facility_id",
