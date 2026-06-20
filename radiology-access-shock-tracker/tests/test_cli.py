@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 from typer.testing import CliRunner
 
-from radshock.cli import app
+from radshock.cli import _merge_filled_route_rows, app
 from radshock.travel_times import TRAVEL_TIME_REVIEW_COLUMNS
 
 
@@ -314,6 +314,26 @@ def test_fill_travel_time_review_openrouteservice_requires_env(
 
     assert result.exit_code != 0
     assert "OPENROUTESERVICE_API_KEY is not set" in result.output
+
+
+def test_merge_filled_route_rows_updates_only_subset_with_numeric_minutes() -> None:
+    input_frame = pd.DataFrame(
+        [
+            {"point_id": "P1", "travel_time_minutes": "", "route_status": "needs_route"},
+            {"point_id": "P2", "travel_time_minutes": "12.0", "route_status": "routed"},
+        ],
+        dtype="string",
+    )
+    filled = pd.DataFrame(
+        [{"point_id": "P1", "travel_time_minutes": 10.5, "route_status": "routed"}],
+        index=[0],
+    )
+
+    result = _merge_filled_route_rows(input_frame, filled)
+
+    assert result.loc[0, "travel_time_minutes"] == 10.5
+    assert result.loc[0, "route_status"] == "routed"
+    assert result.loc[1, "travel_time_minutes"] == "12.0"
 
 
 def test_sensitivity_analysis_command_writes_scenario_rows(tmp_path: Path) -> None:

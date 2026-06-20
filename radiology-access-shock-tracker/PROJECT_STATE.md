@@ -264,32 +264,42 @@ Latest validation gate completed:
 - `fill-travel-time-review` also supports hosted OpenRouteService Matrix drafts through
   `--provider openrouteservice` / `--provider ors` and `OPENROUTESERVICE_API_KEY`; the key is not
   stored in tracked files and outputs remain `needs_review` by default.
-- The Census API key signup path is documented in `docs/OPERATIONS.md`; no `CENSUS_API_KEY` is
-  configured in this local environment.
-- Latest validation after OpenRouteService route-fill support: `python -m pytest` passed with 54
+- `fetch-census-county-context` was added and run against the 2024 ACS 5-year API plus 2024 Census
+  county Gazetteer. It wrote `data/counties.csv`, `data/census_county_context_2024.csv`,
+  `data/population_points.csv`, and `data/census_county_context_2024.metadata.json`.
+- The Census API key and OpenRouteService key were used only as process environment variables for
+  local pulls; secret scans found no committed key values in project files.
+- A Census county-centroid route review was prepared with 17,779 route pairs, filled through hosted
+  OpenRouteService Matrix API using request pacing, and finalized for testing at
+  `data/travel_times/2026-06-19_county_centroid_openrouteservice_matrix.csv`.
+- Row-level ORS route minutes/provider metadata were retained at
+  `data/travel_times/2026-06-19_county_centroid_openrouteservice_review.csv`; matrix provenance was
+  written to `data/travel_times/2026-06-19_county_centroid_openrouteservice_matrix.metadata.json`.
+- A same-snapshot travel-time smoke comparison wrote 100 county records to
+  `work/source-refresh-smoke/analysis-census-ors-travel-time-smoke/county_travel_time_shocks.csv`
+  with zero warning/critical records, as expected for a no-change smoke run.
+- Latest validation after Census/ORS data generation support: `python -m pytest` passed with 56
   tests, `python -m ruff check .` passed, and `python -m mypy src/radshock` passed.
 - The quarterly MQSA source-refresh workflow is now enabled on its cron schedule, and
   `docs/OPERATIONS.md` records the required external review-owner and credential setup.
 
 ### Remaining Work
 
-- Obtain/configure a Census API key or reviewed alternate county-context source for real ACS
-  production inputs.
-- Replace the demo population/county/candidate context with reviewed real population points,
-  county context, and candidate-site assumptions before publishing analysis outputs.
-- Review the OSRM draft route-time file or rerun `fill-travel-time-review` against OpenRouteService
-  or another approved self-hosted/commercial provider, then approve rows and run
-  `finalize-travel-time-review` before using road-time analysis.
+- Replace county-centroid testing population points with finer reviewed population points before
+  publishing analysis outputs.
+- Review hosted ORS/free-plan route outputs, provider terms, traffic assumptions, and unreachable
+  rows before treating the finalized matrix as publication-grade.
+- Add reviewed candidate-site assumptions before publishing intervention rankings.
 - Configure GitHub branch protection or required reviewers in the GitHub UI for source-review
   ownership; local files cannot assign organization teams without admin access.
 - Add or obtain a second real reviewed snapshot date before publishing change claims.
 
 ## Next Actions
 
-1. Configure `CENSUS_API_KEY` or provide a reviewed alternate county-context file.
-2. Replace demo context inputs with reviewed real population/county/candidate inputs.
-3. Fill and finalize the travel-time review worklist with an approved routing provider.
-4. Run analysis on two reviewed real snapshot dates and resolve readiness-audit blockers.
+1. Replace county-centroid testing points with finer reviewed population points.
+2. Add reviewed candidate-site assumptions for intervention ranking.
+3. Obtain a second reviewed snapshot date and rerun real change analysis.
+4. Resolve readiness-audit blockers with the real outputs and explicit snapshot/source metadata.
 5. Configure GitHub branch protection or required source-review owners in the GitHub UI.
 
 ## Risks
@@ -297,7 +307,8 @@ Latest validation gate completed:
 ### Open Questions
 
 - Which reviewed FDA/MQSA export format will be used for the first real snapshot?
-- Which road-time engine or source should be approved to generate the matrix inputs?
+- Should hosted OpenRouteService be approved for publication use, or should the project use a
+  self-hosted routing engine/commercial provider?
 - Who should be assigned as GitHub source-review owners for branch protection?
 - What prior reviewed snapshot date should be used for the first real change analysis?
 
@@ -306,8 +317,8 @@ Latest validation gate completed:
 - Live FDA, CDC, Census geocoding, and CMS integrations were not all end-to-end verified against
   live endpoints in CI.
 - Great-circle distance remains the default demo method.
-- The current real-facility analysis output is a smoke artifact using demo context and must not be
-  published as real-world findings.
+- The current county-centroid ORS travel-time matrix is a testing artifact with real provider
+  output, but it still needs production review and finer population geography before publication.
 
 ### Technical Concerns
 

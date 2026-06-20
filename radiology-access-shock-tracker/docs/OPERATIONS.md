@@ -43,6 +43,20 @@ The Census Bureau states that all Census Data API queries now require an API key
 After the key is issued and activated, store it locally as `CENSUS_API_KEY` or configure it as a
 GitHub repository/organization secret with the same name. Do not commit the key.
 
+Build the NC Census context CSVs:
+
+```powershell
+$env:CENSUS_API_KEY = "<your-census-key>"
+radshock fetch-census-county-context `
+  --output-csv data/counties.csv `
+  --raw-context-csv data/census_county_context_2024.csv `
+  --population-points-csv data/population_points.csv `
+  --year 2024
+```
+
+The command writes county-centroid population points for testing. Replace those with finer reviewed
+population points before publication.
+
 ## Travel-Time Provider Options
 
 For draft route review, the project supports OSRM-compatible Table API servers:
@@ -72,13 +86,17 @@ radshock fill-travel-time-review \
   work/source-refresh-smoke/travel-time/travel_time_review_real_facility_smoke.csv \
   --output-csv work/source-refresh-smoke/travel-time/travel_time_review_real_facility_smoke_ors_draft.csv \
   --provider openrouteservice \
-  --ors-profile driving-car
+  --ors-profile driving-car \
+  --request-delay-seconds 3
 ```
 
 OpenRouteService Matrix results are returned as durations in seconds and converted to minutes by
 the fill command. Hosted OpenRouteService has request restrictions, including a Matrix limit based
 on origin-destination pairs per request; check the provider dashboard and restrictions page before
 running large batches.
+
+If a hosted routing provider throttles a long run, rerun against the partially filled review CSV
+with `--only-missing` and a higher `--request-delay-seconds` value.
 
 Before finalization, reviewers must record or verify:
 

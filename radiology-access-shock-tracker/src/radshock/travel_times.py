@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from datetime import UTC, datetime
 from typing import Any
 from urllib.parse import quote
@@ -160,6 +161,7 @@ def fill_travel_time_review_from_osrm(
     timeout: int = 60,
     user_agent: str = DEFAULT_ROUTE_USER_AGENT,
     review_status: str = "needs_review",
+    request_delay_seconds: float = 0,
     session: Any | None = None,
 ) -> pd.DataFrame:
     """Fill a route-review worklist from an OSRM-compatible table endpoint.
@@ -171,6 +173,8 @@ def fill_travel_time_review_from_osrm(
     require_columns(frame, set(TRAVEL_TIME_REVIEW_COLUMNS), "travel time review")
     if timeout <= 0:
         raise ValueError("timeout must be positive")
+    if request_delay_seconds < 0:
+        raise ValueError("request_delay_seconds must be nonnegative")
     cleaned_profile = profile.strip("/")
     if not cleaned_profile:
         raise ValueError("profile must not be blank")
@@ -247,6 +251,8 @@ def fill_travel_time_review_from_osrm(
                 )
                 result.at[row_index, "route_status"] = "routed"
                 result.at[row_index, "route_error"] = ""
+        if request_delay_seconds:
+            time.sleep(request_delay_seconds)
     return result[TRAVEL_TIME_REVIEW_COLUMNS]
 
 
@@ -259,6 +265,7 @@ def fill_travel_time_review_from_openrouteservice(
     timeout: int = 60,
     user_agent: str = DEFAULT_ROUTE_USER_AGENT,
     review_status: str = "needs_review",
+    request_delay_seconds: float = 0,
     session: Any | None = None,
 ) -> pd.DataFrame:
     """Fill a route-review worklist from the OpenRouteService Matrix endpoint.
@@ -273,6 +280,8 @@ def fill_travel_time_review_from_openrouteservice(
         raise ValueError("api_key must not be blank")
     if timeout <= 0:
         raise ValueError("timeout must be positive")
+    if request_delay_seconds < 0:
+        raise ValueError("request_delay_seconds must be nonnegative")
     cleaned_profile = profile.strip("/")
     if not cleaned_profile:
         raise ValueError("profile must not be blank")
@@ -358,6 +367,8 @@ def fill_travel_time_review_from_openrouteservice(
                 )
                 result.at[row_index, "route_status"] = "routed"
                 result.at[row_index, "route_error"] = ""
+        if request_delay_seconds:
+            time.sleep(request_delay_seconds)
     return result[TRAVEL_TIME_REVIEW_COLUMNS]
 
 

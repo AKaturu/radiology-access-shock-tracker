@@ -10,6 +10,11 @@ import pandas as pd
 import typer
 
 from radshock.access import compare_county_access, compare_county_travel_time_access
+from radshock.adapters.acs import (
+    build_nc_county_analysis_context,
+    to_analysis_counties,
+    to_county_centroid_population_points,
+)
 from radshock.adapters.facilities import (
     FDA_MQSA_PUBLIC_ZIP_URL,
     build_mqsa_review_template,
@@ -32,6 +37,7 @@ from radshock.sensitivity import run_sensitivity_analysis
 from radshock.snapshots import store_snapshot
 from radshock.sources import archive_local_source, fetch_url_source
 from radshock.travel_times import (
+    TRAVEL_TIME_ROUTE_STATUSES,
     build_travel_time_review_template,
     fill_travel_time_review_from_openrouteservice,
     fill_travel_time_review_from_osrm,
@@ -280,6 +286,56 @@ def compare_travel_time_access_command(
         typer.echo(shocks.to_csv(index=False))
 
 
+@app.command("fetch-census-county-context")
+def fetch_census_county_context_command(
+    output_csv: Annotated[Path, typer.Option(help="Analysis-ready counties CSV path.")] = Path(
+        "data/counties.csv"
+    ),
+    raw_context_csv: Annotated[
+        Path | None,
+        typer.Option(help="Optional raw/source-rich Census county context CSV path."),
+    ] = Path("data/census_county_context_2024.csv"),
+    population_points_csv: Annotated[
+        Path | None,
+        typer.Option(help="Optional county-centroid population points CSV path."),
+    ] = Path("data/population_points.csv"),
+    year: Annotated[int, typer.Option(help="ACS/Gazetteer release year.")] = 2024,
+    api_key_env: Annotated[
+        str,
+        typer.Option(help="Environment variable containing the Census API key."),
+    ] = "CENSUS_API_KEY",
+    timeout: Annotated[int, typer.Option(help="HTTP timeout in seconds.")] = 30,
+    force: Annotated[bool, typer.Option(help="Overwrite existing output CSVs.")] = False,
+) -> None:
+    """Fetch Census county context and write analysis-ready CSV inputs."""
+    for path in [output_csv, raw_context_csv, population_points_csv]:
+        if path is not None and path.exists() and not force:
+            raise typer.BadParameter(f"output already exists: {path}")
+    api_key = os.getenv(api_key_env)
+    if api_key is None or not api_key.strip():
+        raise typer.BadParameter(f"{api_key_env} is not set")
+    context = build_nc_county_analysis_context(year=year, api_key=api_key, timeout=timeout)
+    counties = to_analysis_counties(context)
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    counties.to_csv(output_csv, index=False)
+    typer.echo(f"Census county context written: {output_csv.resolve()}")
+    eligible_population = int(counties["eligible_population"].sum())
+    typer.echo(f"Counties: {len(counties)}; eligible population: {eligible_population}")
+    if raw_context_csv is not None:
+        raw_context_csv.parent.mkdir(parents=True, exist_ok=True)
+        context.to_csv(raw_context_csv, index=False)
+        typer.echo(f"Raw Census context written: {raw_context_csv.resolve()}")
+    if population_points_csv is not None:
+        population_points = to_county_centroid_population_points(context)
+        population_points_csv.parent.mkdir(parents=True, exist_ok=True)
+        population_points.to_csv(population_points_csv, index=False)
+        typer.echo(f"County-centroid population points written: {population_points_csv.resolve()}")
+        typer.echo(
+            "Population points are county-centroid testing inputs; "
+            "use finer reviewed points before publication."
+        )
+
+
 @app.command("prepare-travel-time-review")
 def prepare_travel_time_review_command(
     population_csv: Annotated[Path, typer.Option(exists=True, readable=True)],
@@ -362,10 +418,18 @@ def fill_travel_time_review_command(
         str,
         typer.Option(help="User-Agent sent to the routing provider."),
     ] = "radshock-route-review/0.1",
+    request_delay_seconds: Annotated[
+        float,
+        typer.Option(help="Pause between per-origin routing requests."),
+    ] = 0,
     review_status: Annotated[
         str,
         typer.Option(help="Review status to write to routed rows; default keeps rows unapproved."),
     ] = "needs_review",
+    only_missing: Annotated[
+        bool,
+        typer.Option(help="Only fill rows that are not already routed, unreachable, or excluded."),
+    ] = False,
     force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
 ) -> None:
     """Fill travel-time review rows with routing provider minutes and provenance."""
@@ -373,30 +437,40 @@ def fill_travel_time_review_command(
         raise typer.BadParameter(f"output already exists: {output_csv}")
     normalized_provider = provider.strip().lower()
     input_frame = pd.read_csv(input_csv, dtype=str, keep_default_na=False)
+    fill_frame = input_frame
+    if only_missing:
+        route_status = input_frame["route_status"].astype(str).str.strip().str.lower()
+        fill_frame = input_frame.loc[~route_status.isin(TRAVEL_TIME_ROUTE_STATUSES)].copy()
     if normalized_provider == "osrm":
-        result = fill_travel_time_review_from_osrm(
-            input_frame,
+        filled = fill_travel_time_review_from_osrm(
+            fill_frame,
             base_url=osrm_base_url,
             profile=osrm_profile,
             timeout=timeout,
             user_agent=user_agent,
             review_status=review_status,
+            request_delay_seconds=request_delay_seconds,
         )
     elif normalized_provider in {"openrouteservice", "ors"}:
         api_key = os.getenv(ors_api_key_env)
         if api_key is None or not api_key.strip():
             raise typer.BadParameter(f"{ors_api_key_env} is not set")
-        result = fill_travel_time_review_from_openrouteservice(
-            input_frame,
+        filled = fill_travel_time_review_from_openrouteservice(
+            fill_frame,
             api_key=api_key,
             base_url=ors_base_url,
             profile=ors_profile,
             timeout=timeout,
             user_agent=user_agent,
             review_status=review_status,
+            request_delay_seconds=request_delay_seconds,
         )
     else:
         raise typer.BadParameter("provider must be one of: osrm, openrouteservice, ors")
+    if only_missing:
+        result = _merge_filled_route_rows(input_frame, filled)
+    else:
+        result = filled
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(output_csv, index=False)
     routed_count = int((result["route_status"] == "routed").sum())
@@ -482,6 +556,14 @@ def _build_geocode_provider(
             raise typer.BadParameter("--static-csv is required when --provider static")
         return StaticGeocoder.from_csv(static_csv)
     raise typer.BadParameter("provider must be one of: census, static")
+
+
+def _merge_filled_route_rows(input_frame: pd.DataFrame, filled: pd.DataFrame) -> pd.DataFrame:
+    result = input_frame.copy()
+    for column in filled.columns:
+        result[column] = result[column].astype("object")
+    result.loc[filled.index, filled.columns] = filled.astype("object")
+    return result
 
 
 def _write_report(path: Path, content: str, force: bool) -> None:
