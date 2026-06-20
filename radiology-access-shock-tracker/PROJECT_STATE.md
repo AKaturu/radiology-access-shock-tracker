@@ -326,9 +326,9 @@ Production readiness hardening.
 - Latest validation after this pass: `python -m pytest` passed with 79 tests,
   `python -m ruff check .` passed, `python -m mypy src/radshock` passed, and the real tract
   travel-time readiness audit correctly reports `BLOCKED` for the testing-grade OSRM route
-  provider. A public-OSRM finalizer smoke run completed and correctly remained blocked. The
-  self-hosted Docker OSRM workflow was not executed locally because Docker, WSL, and native OSRM are
-  not installed in this Windows environment.
+  provider. A public-OSRM finalizer smoke run completed and correctly remained blocked. Docker
+  Desktop, WSL, and Git Bash are now installed/configured locally, but Windows reported a required
+  reboot before the WSL-backed Docker Linux engine can start and run the self-hosted OSRM workflow.
 
 Latest validation gate completed:
 
@@ -428,9 +428,9 @@ Latest validation gate completed:
 
 ### Remaining Work
 
-- Run the manual `self-hosted OSRM travel-time package` GitHub Actions workflow or run
-  `scripts/run_self_hosted_osrm_matrix.sh` on a Linux host with Docker, then review/download the
-  artifact before publishing route-time findings.
+- After rebooting the local Windows host, run `scripts/run_self_hosted_osrm_matrix.sh` with Docker
+  Desktop's WSL-backed Linux engine, or run the manual `self-hosted OSRM travel-time package` GitHub
+  Actions workflow, then review/download the artifact before publishing route-time findings.
 - Apply GitHub branch protection, repository secrets, and code-owner review in GitHub itself after
   installing/authenticating `gh` with repo admin access.
 - Obtain a later real reviewed snapshot before making any trend or deterioration claim beyond
@@ -440,8 +440,9 @@ Latest validation gate completed:
 
 1. Run the GitHub governance setup from an authenticated admin shell:
    `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\configure_github_governance.ps1 -Apply`.
-2. Run the manual self-hosted OSRM workflow with the current Geofabrik North Carolina OSM data
-   timestamp and confirm the artifact readiness audit is `READY`.
+2. Reboot the local Windows host, start Docker Desktop, run the self-hosted OSRM workflow with the
+   current Geofabrik North Carolina OSM data timestamp, and confirm the artifact readiness audit is
+   `READY`.
 3. Pull and review a later MQSA source snapshot before making actual change claims.
 
 ## Risks
@@ -459,7 +460,8 @@ Latest validation gate completed:
 - Great-circle distance remains the default demo method.
 - The complete tract OSRM travel-time matrix is a testing artifact with real provider output from
   the public OSRM-compatible endpoint. The repository now includes a self-hosted OSRM generation
-  workflow, but the workflow artifact has not been generated locally.
+  workflow, but the local workflow artifact is still waiting on the post-install Windows reboot
+  needed for Docker Desktop's WSL-backed Linux engine.
 
 ### Technical Concerns
 
