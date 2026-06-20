@@ -22,6 +22,8 @@
 - Added Census-backed NC tract population-point generation with source metadata and checksums.
 - Added candidate-site review template/finalization commands, stricter candidate validation, and
   analysis guards against unapproved candidate review sheets.
+- Added HRSA health-center service-delivery candidate review generation and replaced NC
+  county-centroid candidate placeholders with reviewed HRSA planning assumptions.
 - Added GitHub-ready dashboard screenshots, walkthrough footage, and a compiled local validation
   report.
 - Hardened the dashboard overview visualization so screenshots do not depend on external map tiles.

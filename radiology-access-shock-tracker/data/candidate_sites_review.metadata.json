@@ -1,0 +1,38 @@
+{
+  "filters": {
+    "active_only": true,
+    "service_delivery_only": true,
+    "state": "NC"
+  },
+  "generated_at_utc": "2026-06-20T11:08:39.397930+00:00",
+  "inputs": {
+    "hrsa_health_center_sites_csv": {
+      "path": "work\\source-refresh-smoke\\raw\\hrsa-health-center-service-delivery-sites\\2026-06-20\\Health_Center_Service_Delivery_and_LookAlike_Sites.csv",
+      "sha256": "ec337fb0283780b30f5ec93e863f1f5cd7044a3e062c85c61e7cacd2977042b3"
+    }
+  },
+  "notes": [
+    "HRSA rows are real health-center service delivery and look-alike sites.",
+    "Candidate rows are planning assumptions, not claims that sites provide mammography.",
+    "candidate_type maps HRSA location descriptions to fixed, seasonal, or mobile assumptions.",
+    "review_status must be reviewed, verified, or approved before finalization."
+  ],
+  "output": {
+    "path": "data\\candidate_sites_review.csv",
+    "sha256": "af3e27f35f08a9d2c9bb8b16f6f3a97d5e633b9b9feaa28c3947864a99dfe35f"
+  },
+  "row_counts": {
+    "candidate_rows": 771,
+    "candidate_types": {
+      "fixed_site_assumption": 592,
+      "mobile_stop_assumption": 61,
+      "seasonal_fixed_site_assumption": 118
+    },
+    "counties": 92
+  },
+  "source_name": "radshock-prepare-hrsa-candidate-review",
+  "source_urls": [
+    "https://data.hrsa.gov/data/download",
+    "https://data.hrsa.gov/DataDownload/DD_Files/Health_Center_Service_Delivery_and_LookAlike_Sites.csv"
+  ]
+}

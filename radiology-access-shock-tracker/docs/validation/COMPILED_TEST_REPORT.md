@@ -1,6 +1,6 @@
 # Compiled Test Report
 
-Generated from the local validation run on 2026-06-20 at 00:00 America/New_York.
+Generated from the local validation run on 2026-06-20.
 
 ## Result
 
@@ -8,21 +8,20 @@ Status: PASS
 
 ## Checks
 
-- `python -m pytest`: 74 passed in 3.72s.
+- `python -m pytest`: 76 passed in 3.57s.
 - `python -m ruff check .`: passed.
-- `python -m mypy src/radshock`: passed with no issues in 23 source files.
+- `python -m mypy src/radshock`: passed with no issues in 24 source files.
 - `python -m pip wheel . -w work/dist`: built the project wheel.
 - `radshock readiness-audit --require-travel-time` on
-  `work/source-refresh-smoke/analysis-tract-osrm-travel-time`: BLOCKED, 1 blocker, 1 warning.
-  This is expected because the package uses the public OSRM endpoint and county-centroid
-  placeholder candidate assumptions.
+  `work/source-refresh-smoke/analysis-tract-osrm-travel-time`: BLOCKED, 1 blocker, 0 warnings.
+  This is expected because the package uses the public OSRM endpoint; the county-centroid
+  candidate-placeholder warning has been resolved.
 - Secret scan for the supplied Census and OpenRouteService key literals: no matches.
-- Streamlit health check at `http://127.0.0.1:8781/_stcore/health`: HTTP 200.
 
 ## Built Wheel
 
 - File: `work/dist/radiology_access_shock_tracker-0.1.0-py3-none-any.whl`
-- SHA-256: `E52518E116D34FDA2F51CD1AF8E68A2BACA20BA242A946F5BFE3AFF11E530B61`
+- SHA-256: `44E4BD5FE1B1327D668AF0313427DC33130A68A8C25BCE581E4C3B6A7EA431BA`
 
 ## Real Artifact Evidence
 
@@ -32,9 +31,12 @@ Status: PASS
   `data/travel_times/2026-06-20_tract_nearest20_osrm_review.csv` with 52,680 routed rows.
 - Final tract travel-time matrix:
   `data/travel_times/2026-06-20_tract_nearest20_osrm_matrix.csv` with 52,680 rows.
+- HRSA service-delivery candidate assumptions:
+  `data/candidate_sites_review.csv` and `data/candidate_sites.csv` with 771 rows across 92
+  counties; no county-centroid placeholders remain.
 - Real travel-time package:
   `work/source-refresh-smoke/analysis-tract-osrm-travel-time`, readiness BLOCKED until route
-  provider provenance and candidate assumptions are production-approved.
+  provider provenance is production-approved.
 
 ## Media Evidence
 

@@ -375,6 +375,73 @@ def test_prepare_and_finalize_candidate_review_commands(tmp_path: Path) -> None:
     assert finalized_payload["output"]["sha256"]
 
 
+def test_prepare_hrsa_candidate_review_command_writes_metadata(tmp_path: Path) -> None:
+    source = tmp_path / "hrsa_sites.csv"
+    review = tmp_path / "hrsa_candidate_review.csv"
+    metadata = tmp_path / "hrsa_candidate_review.metadata.json"
+    pd.DataFrame(
+        [
+            {
+                "BPHC Assigned Number": "BPS-H80-000001",
+                "Site Name": "Demo Health Center",
+                "Site Address": "100 Main St",
+                "Site City": "Raleigh",
+                "Site State Abbreviation": "NC",
+                "Site Postal Code": "27601",
+                "Health Center Location Type Description": "Permanent",
+                "Health Center Type Description": "Service Delivery Site",
+                "Site Status Description": "Active",
+                "Geocoding Artifact Address Primary X Coordinate": "-78.6382",
+                "Geocoding Artifact Address Primary Y Coordinate": "35.7796",
+                "State and County Federal Information Processing Standard Code": "37001",
+            },
+            {
+                "BPHC Assigned Number": "BPS-H80-000002",
+                "Site Name": "Demo Mobile Unit",
+                "Site Address": "200 Main St",
+                "Site City": "Raleigh",
+                "Site State Abbreviation": "NC",
+                "Site Postal Code": "27601",
+                "Health Center Location Type Description": "Mobile Van",
+                "Health Center Type Description": "Service Delivery Site",
+                "Site Status Description": "Active",
+                "Geocoding Artifact Address Primary X Coordinate": "-78.7",
+                "Geocoding Artifact Address Primary Y Coordinate": "35.8",
+                "State and County Federal Information Processing Standard Code": "37003",
+            },
+        ]
+    ).to_csv(source, index=False)
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "prepare-hrsa-candidate-review",
+            str(source),
+            "--output-csv",
+            str(review),
+            "--metadata-json",
+            str(metadata),
+            "--review-status",
+            "reviewed",
+        ],
+    )
+
+    assert result.exit_code == 0
+    review_frame = pd.read_csv(review, dtype=str)
+    payload = json.loads(metadata.read_text())
+    assert len(review_frame) == 2
+    assert set(review_frame["candidate_type"]) == {
+        "fixed_site_assumption",
+        "mobile_stop_assumption",
+    }
+    assert set(review_frame["review_status"]) == {"reviewed"}
+    assert payload["row_counts"]["candidate_rows"] == 2
+    assert payload["row_counts"]["candidate_types"]["mobile_stop_assumption"] == 1
+    assert payload["filters"]["active_only"] is True
+    assert payload["filters"]["service_delivery_only"] is True
+    assert "data.hrsa.gov/data/download" in payload["source_urls"][0]
+
+
 def test_compare_travel_time_access_command_writes_county_shocks(tmp_path: Path) -> None:
     before = tmp_path / "before.csv"
     after = tmp_path / "after.csv"

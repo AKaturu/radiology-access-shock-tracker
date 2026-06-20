@@ -1,9 +1,9 @@
 {
-  "generated_at_utc": "2026-06-20T02:14:58.365656+00:00",
+  "generated_at_utc": "2026-06-20T11:08:44.786846+00:00",
   "inputs": {
     "candidate_review_csv": {
-      "path": "work\\source-refresh-smoke\\candidates\\2026-06-19_county_centroid_candidate_review.csv",
-      "sha256": "6a232ede4b363a0a73cbe450399ebf30c7a9ecf0b208e8636d2227d4cf225602"
+      "path": "data\\candidate_sites_review.csv",
+      "sha256": "af3e27f35f08a9d2c9bb8b16f6f3a97d5e633b9b9feaa28c3947864a99dfe35f"
     }
   },
   "notes": [
@@ -12,11 +12,11 @@
   ],
   "output": {
     "path": "data\\candidate_sites.csv",
-    "sha256": "e4d7e9553e04147cdcca9af799bbe30ca81459f7ab79ff54fc61922afda32c46"
+    "sha256": "582fc1ccf90a7fe4c00606b0556c698d9c1a41062e75f7f4bfdc6dca737f1d4e"
   },
   "row_counts": {
-    "candidate_rows": 100,
-    "counties": 100
+    "candidate_rows": 771,
+    "counties": 92
   },
   "source_name": "radshock-finalize-candidate-review"
 }

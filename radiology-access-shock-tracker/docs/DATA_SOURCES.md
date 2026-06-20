@@ -143,10 +143,27 @@ Official Google Routes Compute Route Matrix documentation:
 
 `radshock prepare-candidate-review` can create a starter review CSV from county centroids in
 `data/counties.csv`. Those rows are placeholders for planning review, not recommended mobile stops
-or fixed sites. Reviewers should replace or annotate candidates with the real assumption source,
-candidate type, and notes, then set `review_status` to `reviewed`, `verified`, or `approved`.
-`radshock finalize-candidate-review` blocks unapproved rows and emits the minimal
-`data/candidate_sites.csv` columns consumed by `radshock analyze`.
+or fixed sites.
+
+For a documented real-source alternative, `radshock prepare-hrsa-candidate-review` converts the
+HRSA Health Center Program Service Delivery and Look-Alike Sites CSV into candidate review rows.
+The default filter keeps active state-matched rows whose `Health Center Type Description` includes
+service delivery, excluding administrative-only rows. HRSA `Permanent` rows become
+`fixed_site_assumption`, `Seasonal` rows become `seasonal_fixed_site_assumption`, and `Mobile Van`
+rows become `mobile_stop_assumption`.
+
+Official HRSA download page:
+<https://data.hrsa.gov/data/download>
+
+Direct HRSA CSV:
+<https://data.hrsa.gov/DataDownload/DD_Files/Health_Center_Service_Delivery_and_LookAlike_Sites.csv>
+
+These HRSA candidates are real health-center service delivery locations, but they remain planning
+assumptions. They are not claims that a location currently provides mammography or has available
+mobile-unit capacity. Reviewers should keep the source, candidate type, and notes, then set
+`review_status` to `reviewed`, `verified`, or `approved`. `radshock finalize-candidate-review`
+blocks unapproved rows and emits the minimal `data/candidate_sites.csv` columns consumed by
+`radshock analyze`.
 
 ## Geocoding
 

@@ -183,11 +183,34 @@ radshock prepare-candidate-review `
 ```
 
 County-centroid candidates are placeholders. Review or replace candidate rows with documented
-mobile-stop or fixed-site assumptions, then finalize only after setting `review_status` to
-`reviewed`, `verified`, or `approved`:
+mobile-stop or fixed-site assumptions.
+
+To generate the reviewed HRSA service-delivery assumption sheet used by the current NC package,
+archive the HRSA source and prepare the candidate review CSV:
+
+```powershell
+radshock fetch-source `
+  --url "https://data.hrsa.gov/DataDownload/DD_Files/Health_Center_Service_Delivery_and_LookAlike_Sites.csv" `
+  --source-name hrsa-health-center-service-delivery-sites `
+  --output-dir work/source-refresh-smoke/raw `
+  --retrieved-on 2026-06-20
+
+radshock prepare-hrsa-candidate-review `
+  work/source-refresh-smoke/raw/hrsa-health-center-service-delivery-sites/2026-06-20/Health_Center_Service_Delivery_and_LookAlike_Sites.csv `
+  --output-csv data/candidate_sites_review.csv `
+  --metadata-json data/candidate_sites_review.metadata.json `
+  --state NC
+```
+
+By default the HRSA command keeps active service-delivery rows and excludes administrative-only
+rows. It writes fixed-site, seasonal fixed-site, and mobile-stop planning assumptions; it does not
+claim mammography capability.
+
+Finalize only after setting `review_status` to `reviewed`, `verified`, or `approved`:
 
 ```powershell
 radshock finalize-candidate-review `
-  work/candidate_review.csv `
-  --output-csv data/candidate_sites.csv
+  data/candidate_sites_review.csv `
+  --output-csv data/candidate_sites.csv `
+  --metadata-json data/candidate_sites.metadata.json
 ```

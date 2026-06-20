@@ -281,14 +281,31 @@ radshock prepare-candidate-review \
   --metadata-json work/candidate_review.metadata.json
 ```
 
-The generated county-centroid candidates are placeholders. Review or replace them with real mobile
-stop or fixed-site assumptions, set `review_status` to `reviewed`, `verified`, or `approved`, then
-finalize:
+The generated county-centroid candidates are placeholders. Prefer a documented real-source
+candidate sheet before operational use. The current NC package uses HRSA Health Center Program
+Service Delivery and Look-Alike Sites as active service-delivery planning assumptions:
+
+```bash
+radshock fetch-source \
+  --url https://data.hrsa.gov/DataDownload/DD_Files/Health_Center_Service_Delivery_and_LookAlike_Sites.csv \
+  --source-name hrsa-health-center-service-delivery-sites \
+  --output-dir data/raw
+
+radshock prepare-hrsa-candidate-review \
+  data/raw/hrsa-health-center-service-delivery-sites/2026-06-20/Health_Center_Service_Delivery_and_LookAlike_Sites.csv \
+  --output-csv work/hrsa_candidate_review.csv \
+  --metadata-json work/hrsa_candidate_review.metadata.json
+```
+
+HRSA rows are real health-center service delivery sites, but candidate rows are still planning
+assumptions and are not claims that the sites provide mammography. Review the assumptions, set
+`review_status` to `reviewed`, `verified`, or `approved`, then finalize:
 
 ```bash
 radshock finalize-candidate-review \
-  work/candidate_review.csv \
-  --output-csv data/candidate_sites.csv
+  work/hrsa_candidate_review.csv \
+  --output-csv data/candidate_sites.csv \
+  --metadata-json data/candidate_sites.metadata.json
 ```
 
 Run shock-score sensitivity analysis:

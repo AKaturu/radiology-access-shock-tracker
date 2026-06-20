@@ -26,6 +26,11 @@ from radshock.adapters.facilities import (
     finalize_mqsa_review,
     read_fda_mqsa_fixed_width,
 )
+from radshock.adapters.hrsa import (
+    HRSA_HEALTH_CENTER_SITES_CSV_URL,
+    HRSA_HEALTH_CENTER_SITES_DOWNLOAD_PAGE,
+    build_hrsa_candidate_review_template,
+)
 from radshock.briefs import generate_policy_brief, generate_policy_brief_html
 from radshock.candidates import build_county_candidate_review_template, finalize_candidate_review
 from radshock.changes import detect_changes
@@ -625,6 +630,66 @@ def prepare_candidate_review_command(
     )
 
 
+@app.command("prepare-hrsa-candidate-review")
+def prepare_hrsa_candidate_review_command(
+    input_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    output_csv: Annotated[Path, typer.Option()],
+    metadata_json: Annotated[
+        Path | None,
+        typer.Option(help="Optional HRSA candidate-review metadata JSON path."),
+    ] = None,
+    state: Annotated[str, typer.Option(help="Two-letter state filter.")] = "NC",
+    include_inactive: Annotated[
+        bool,
+        typer.Option(help="Include inactive HRSA sites in the review CSV."),
+    ] = False,
+    include_administrative: Annotated[
+        bool,
+        typer.Option(help="Include administrative-only HRSA rows in the review CSV."),
+    ] = False,
+    review_status: Annotated[
+        str,
+        typer.Option(help="Initial review_status to assign to generated candidate rows."),
+    ] = "needs_review",
+    force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
+) -> None:
+    """Create a candidate-site review CSV from HRSA health-center service sites."""
+    if output_csv.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    if metadata_json is not None and metadata_json.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {metadata_json}")
+    review = build_hrsa_candidate_review_template(
+        pd.read_csv(input_csv, dtype=str, keep_default_na=False),
+        state=state,
+        active_only=not include_inactive,
+        service_delivery_only=not include_administrative,
+        review_status=review_status,
+    )
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    review.to_csv(output_csv, index=False)
+    typer.echo(f"HRSA candidate review template written: {output_csv.resolve()}")
+    typer.echo(
+        f"Candidate rows: {len(review)}; counties: "
+        f"{int(review['county_fips'].nunique()) if len(review) else 0}"
+    )
+    typer.echo(
+        "HRSA sites are real health-center service locations, but remain planning "
+        "assumptions here and are not mammography-capability claims."
+    )
+    if metadata_json is not None:
+        _write_hrsa_candidate_review_metadata(
+            metadata_json,
+            force=force,
+            input_csv=input_csv,
+            output_csv=output_csv,
+            review=review,
+            state=state,
+            active_only=not include_inactive,
+            service_delivery_only=not include_administrative,
+        )
+        typer.echo(f"HRSA candidate review metadata written: {metadata_json.resolve()}")
+
+
 @app.command("finalize-candidate-review")
 def finalize_candidate_review_command(
     input_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
@@ -1140,6 +1205,62 @@ def _write_candidate_review_metadata(
         },
         "notes": [
             "county-centroid candidates are placeholder response locations.",
+            "review_status must be reviewed, verified, or approved before finalization.",
+        ],
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _write_hrsa_candidate_review_metadata(
+    path: Path,
+    *,
+    force: bool,
+    input_csv: Path,
+    output_csv: Path,
+    review: pd.DataFrame,
+    state: str,
+    active_only: bool,
+    service_delivery_only: bool,
+) -> None:
+    if path.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {path}")
+    candidate_type_counts = {
+        candidate_type: int(count)
+        for candidate_type, count in review["candidate_type"].value_counts().sort_index().items()
+    }
+    metadata = {
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "source_name": "radshock-prepare-hrsa-candidate-review",
+        "output": {
+            "path": str(output_csv),
+            "sha256": file_sha256(output_csv),
+        },
+        "inputs": {
+            "hrsa_health_center_sites_csv": {
+                "path": str(input_csv),
+                "sha256": file_sha256(input_csv),
+            }
+        },
+        "filters": {
+            "state": state.strip().upper(),
+            "active_only": active_only,
+            "service_delivery_only": service_delivery_only,
+        },
+        "row_counts": {
+            "candidate_rows": int(len(review)),
+            "counties": int(review["county_fips"].nunique()) if len(review) else 0,
+            "candidate_types": candidate_type_counts,
+        },
+        "source_urls": [
+            HRSA_HEALTH_CENTER_SITES_DOWNLOAD_PAGE,
+            HRSA_HEALTH_CENTER_SITES_CSV_URL,
+        ],
+        "notes": [
+            "HRSA rows are real health-center service delivery and look-alike sites.",
+            "Candidate rows are planning assumptions, not claims that sites provide mammography.",
+            "candidate_type maps HRSA location descriptions to fixed, seasonal, "
+            "or mobile assumptions.",
             "review_status must be reviewed, verified, or approved before finalization.",
         ],
     }

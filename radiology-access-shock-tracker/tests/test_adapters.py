@@ -19,6 +19,7 @@ from radshock.adapters.facilities import (
     normalize_manual_facility_export,
     read_fda_mqsa_fixed_width,
 )
+from radshock.adapters.hrsa import build_hrsa_candidate_review_template
 from radshock.adapters.places import fetch_nc_mammography
 
 
@@ -291,6 +292,65 @@ def test_fda_mqsa_fixed_width_zip_builds_review_template(tmp_path: Path) -> None
     assert review.loc[0, "facility_name"] == "Demo Mobile Mammography"
 
 
+def test_hrsa_sites_build_real_candidate_assumptions() -> None:
+    sites = pd.DataFrame(
+        [
+            _hrsa_site(
+                assigned_number="BPS-H80-000001",
+                site_name="Demo Health Center",
+                location_type="Permanent",
+                county_fips="37001",
+            ),
+            _hrsa_site(
+                assigned_number="BPS-H80-000002",
+                site_name="Demo Mobile Unit",
+                location_type="Mobile Van",
+                county_fips="37003",
+            ),
+            _hrsa_site(
+                assigned_number="BPS-H80-000003",
+                site_name="Inactive Site",
+                location_type="Permanent",
+                county_fips="37005",
+                status="Inactive",
+            ),
+            _hrsa_site(
+                assigned_number="BPS-H80-000004",
+                site_name="Other State Site",
+                location_type="Permanent",
+                state="SC",
+                county_fips="45001",
+            ),
+            _hrsa_site(
+                assigned_number="BPS-H80-000005",
+                site_name="Administrative Office",
+                location_type="Permanent",
+                county_fips="37007",
+                health_center_type="Administrative",
+            ),
+        ]
+    )
+
+    review = build_hrsa_candidate_review_template(
+        sites,
+        state="NC",
+        review_status="reviewed",
+    )
+
+    assert list(review["candidate_id"]) == [
+        "HRSA-HCSD-BPS-H80-000001",
+        "HRSA-HCSD-BPS-H80-000002",
+    ]
+    assert list(review["candidate_type"]) == [
+        "fixed_site_assumption",
+        "mobile_stop_assumption",
+    ]
+    assert set(review["county_fips"]) == {"37001", "37003"}
+    assert set(review["review_status"]) == {"reviewed"}
+    assert "not a claim" in review.loc[0, "review_notes"]
+    assert "Administrative Office" not in set(review["candidate_name"])
+
+
 def test_fda_mqsa_pipe_delimited_source_is_supported(tmp_path: Path) -> None:
     source = tmp_path / "public.txt"
     source.write_text(
@@ -390,3 +450,29 @@ def _mqsa_line(
         f"{phone:<50}"
         f"{fax:<50}"
     )
+
+
+def _hrsa_site(
+    *,
+    assigned_number: str,
+    site_name: str,
+    location_type: str,
+    county_fips: str,
+    state: str = "NC",
+    status: str = "Active",
+    health_center_type: str = "Service Delivery Site",
+) -> dict[str, str]:
+    return {
+        "BPHC Assigned Number": assigned_number,
+        "Site Name": site_name,
+        "Site Address": "100 Main St",
+        "Site City": "Raleigh",
+        "Site State Abbreviation": state,
+        "Site Postal Code": "27601",
+        "Health Center Location Type Description": location_type,
+        "Health Center Type Description": health_center_type,
+        "Site Status Description": status,
+        "Geocoding Artifact Address Primary X Coordinate": "-78.6382",
+        "Geocoding Artifact Address Primary Y Coordinate": "35.7796",
+        "State and County Federal Information Processing Standard Code": county_fips,
+    }

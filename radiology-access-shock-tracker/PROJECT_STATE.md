@@ -268,9 +268,14 @@ Production readiness hardening.
 
 #### Latest Production-Readiness Pass
 
-- `finalize-candidate-review` now supports finalized metadata output. The county-centroid
-  candidate assumptions were marked reviewed as transparent planning placeholders and finalized to
-  `data/candidate_sites.csv` with provenance at `data/candidate_sites.metadata.json`.
+- `prepare-hrsa-candidate-review` was added. It converts the HRSA Health Center Program Service
+  Delivery and Look-Alike Sites CSV into reviewed candidate assumptions, keeping active NC
+  service-delivery rows by default and excluding administrative-only rows.
+- `finalize-candidate-review` now supports finalized metadata output. The former county-centroid
+  candidate placeholders were replaced with 771 HRSA service-delivery candidate assumptions across
+  92 NC counties: 592 fixed-site, 118 seasonal fixed-site, and 61 mobile-stop assumptions.
+  Provenance is tracked in `data/candidate_sites_review.metadata.json` and
+  `data/candidate_sites.metadata.json`.
 - Source archive commands now expose `--retrieved-on` so dated raw-source archives can be created
   deterministically from the CLI.
 - `carry-forward-mqsa-review` was added. It copies reviewed MQSA fields only when
@@ -298,16 +303,16 @@ Production readiness hardening.
   finalized OSRM tract matrix for both periods. It produced 100 county records with zero
   warning/critical alerts, as expected for unchanged facility snapshots.
 - `readiness-audit --require-travel-time` was tightened to block public OSRM route-provider
-  provenance and warn on county-centroid placeholder candidates. The real tract package now returns
-  `BLOCKED` with 1 blocker and 1 warning until routing is regenerated with an approved provider and
-  candidate assumptions are replaced.
+  provenance and warn on county-centroid placeholder candidates. After replacing placeholders with
+  HRSA service-delivery assumptions, the real tract package now returns `BLOCKED` with 1 blocker
+  and 0 warnings; the remaining blocker is the testing-grade public OSRM route provider.
 - The policy brief generator now describes travel-time shocks in minutes when road-time outputs are
   supplied.
 - `.github/CODEOWNERS`, `.github/branch-protection.master.json`, and
   `scripts/configure_github_governance.ps1` were added. Local execution confirmed GitHub settings
   cannot be applied from this machine because PowerShell script execution is restricted by default
   and the GitHub CLI is not installed/on PATH.
-- Latest validation after this pass: `python -m pytest` passed with 74 tests,
+- Latest validation after this pass: `python -m pytest` passed with 76 tests,
   `python -m ruff check .` passed, `python -m mypy src/radshock` passed, and the real tract
   travel-time readiness audit correctly reports `BLOCKED` for the testing-grade OSRM route
   provider.
@@ -413,8 +418,6 @@ Latest validation gate completed:
 - Decide whether the complete OSRM public-endpoint tract matrix is acceptable only for testing or
   should be regenerated with a production-approved provider such as self-hosted OSRM, Valhalla, a
   paid OpenRouteService quota, or another reviewed matrix provider.
-- Replace county-centroid candidate placeholders with real mobile-stop or fixed-site assumptions
-  before using intervention rankings for operational planning.
 - Apply GitHub branch protection, repository secrets, and code-owner review in GitHub itself after
   installing/authenticating `gh` with repo admin access.
 - Obtain a later real reviewed snapshot before making any trend or deterioration claim beyond
@@ -426,8 +429,7 @@ Latest validation gate completed:
    `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\configure_github_governance.ps1 -Apply`.
 2. Choose the production routing provider and, if needed, regenerate
    `data/travel_times/2026-06-20_tract_nearest20_osrm_matrix.csv` with that provider.
-3. Replace reviewed county-centroid candidate placeholders with real candidate-site assumptions.
-4. Pull and review a later MQSA source snapshot before making actual change claims.
+3. Pull and review a later MQSA source snapshot before making actual change claims.
 
 ## Risks
 
