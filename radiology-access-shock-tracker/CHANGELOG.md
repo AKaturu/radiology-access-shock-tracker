@@ -20,7 +20,8 @@
 - Added Census-backed NC county context CSV generation and a live county-centroid ORS travel-time
   test matrix.
 - Added Census-backed NC tract population-point generation with source metadata and checksums.
-- Added candidate-site review template/finalization commands and stricter candidate validation.
+- Added candidate-site review template/finalization commands, stricter candidate validation, and
+  analysis guards against unapproved candidate review sheets.
 - Added demo readiness-audit outputs and a dashboard readiness view.
 - Added analysis-run manifests and automatic readiness reports for `radshock analyze`.
 - Added a guarded GitHub Actions workflow for FDA MQSA source-refresh review artifacts.

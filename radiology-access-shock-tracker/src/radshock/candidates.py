@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import pandas as pd
 
-from radshock.schemas import require_columns, validate_candidates, validate_counties
+from radshock.schemas import (
+    CANDIDATE_REVIEW_APPROVED_STATUSES,
+    require_columns,
+    validate_candidates,
+    validate_counties,
+)
 
-CANDIDATE_REVIEW_APPROVED_STATUSES = {"reviewed", "verified", "approved"}
 CANDIDATE_OUTPUT_COLUMNS = [
     "candidate_id",
     "candidate_name",

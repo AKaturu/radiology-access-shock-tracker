@@ -42,6 +42,7 @@ CANDIDATE_COLUMNS = {
     "latitude",
     "longitude",
 }
+CANDIDATE_REVIEW_APPROVED_STATUSES = {"reviewed", "verified", "approved"}
 
 UTILIZATION_COLUMNS = {
     "period",
@@ -117,6 +118,18 @@ def validate_population_points(frame: pd.DataFrame) -> pd.DataFrame:
 def validate_candidates(frame: pd.DataFrame) -> pd.DataFrame:
     require_columns(frame, CANDIDATE_COLUMNS, "candidates")
     result = frame.copy()
+    if "review_status" in result.columns:
+        review_status = result["review_status"].astype(str).str.strip().str.lower()
+        invalid_review = ~review_status.isin(CANDIDATE_REVIEW_APPROVED_STATUSES)
+        if invalid_review.any():
+            examples = result.loc[
+                invalid_review,
+                ["candidate_id", "candidate_name", "review_status"],
+            ].head(5)
+            raise ValueError(
+                "candidate review_status contains unapproved rows: "
+                + examples.to_dict(orient="records").__repr__()
+            )
     result["candidate_id"] = result["candidate_id"].astype(str).str.strip()
     result["candidate_name"] = result["candidate_name"].astype(str).str.strip()
     result["county_fips"] = result["county_fips"].astype(str).str.zfill(5)

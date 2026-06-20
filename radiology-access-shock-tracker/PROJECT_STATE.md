@@ -234,12 +234,14 @@ checksum generation.
 `prepare-candidate-review` creates a county-centroid candidate review CSV from `data/counties.csv`
 with `review_status=needs_review`. `finalize-candidate-review` blocks unapproved rows and emits the
 minimal candidate schema accepted by `radshock analyze`. Candidate IDs, coordinates, and duplicate
-rows are now validated before intervention ranking.
+rows are now validated before intervention ranking. If a candidate review sheet is passed directly
+to analysis, unapproved `review_status` rows are rejected.
 
 #### Tests Added
 
 Tests cover candidate review-template generation, unapproved-row blocking, analysis-ready
-finalization, stricter candidate validation, and CLI prepare/finalize behavior.
+finalization, stricter candidate validation, direct analysis rejection of unapproved review sheets,
+and CLI prepare/finalize behavior.
 
 ## Current Work
 
