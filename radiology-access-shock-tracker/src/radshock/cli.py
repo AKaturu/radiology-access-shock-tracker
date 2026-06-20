@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Annotated
@@ -32,6 +33,7 @@ from radshock.snapshots import store_snapshot
 from radshock.sources import archive_local_source, fetch_url_source
 from radshock.travel_times import (
     build_travel_time_review_template,
+    fill_travel_time_review_from_openrouteservice,
     fill_travel_time_review_from_osrm,
     finalize_travel_time_review,
 )
@@ -343,6 +345,18 @@ def fill_travel_time_review_command(
         typer.Option(help="Base URL for an OSRM-compatible routing server."),
     ] = "https://router.project-osrm.org",
     osrm_profile: Annotated[str, typer.Option(help="OSRM routing profile.")] = "driving",
+    ors_base_url: Annotated[
+        str,
+        typer.Option(help="Base URL for the OpenRouteService API."),
+    ] = "https://api.openrouteservice.org",
+    ors_profile: Annotated[
+        str,
+        typer.Option(help="OpenRouteService routing profile."),
+    ] = "driving-car",
+    ors_api_key_env: Annotated[
+        str,
+        typer.Option(help="Environment variable that contains the OpenRouteService API key."),
+    ] = "OPENROUTESERVICE_API_KEY",
     timeout: Annotated[int, typer.Option(help="HTTP timeout in seconds.")] = 60,
     user_agent: Annotated[
         str,
@@ -358,16 +372,31 @@ def fill_travel_time_review_command(
     if output_csv.exists() and not force:
         raise typer.BadParameter(f"output already exists: {output_csv}")
     normalized_provider = provider.strip().lower()
-    if normalized_provider != "osrm":
-        raise typer.BadParameter("provider must be osrm")
-    result = fill_travel_time_review_from_osrm(
-        pd.read_csv(input_csv, dtype=str, keep_default_na=False),
-        base_url=osrm_base_url,
-        profile=osrm_profile,
-        timeout=timeout,
-        user_agent=user_agent,
-        review_status=review_status,
-    )
+    input_frame = pd.read_csv(input_csv, dtype=str, keep_default_na=False)
+    if normalized_provider == "osrm":
+        result = fill_travel_time_review_from_osrm(
+            input_frame,
+            base_url=osrm_base_url,
+            profile=osrm_profile,
+            timeout=timeout,
+            user_agent=user_agent,
+            review_status=review_status,
+        )
+    elif normalized_provider in {"openrouteservice", "ors"}:
+        api_key = os.getenv(ors_api_key_env)
+        if api_key is None or not api_key.strip():
+            raise typer.BadParameter(f"{ors_api_key_env} is not set")
+        result = fill_travel_time_review_from_openrouteservice(
+            input_frame,
+            api_key=api_key,
+            base_url=ors_base_url,
+            profile=ors_profile,
+            timeout=timeout,
+            user_agent=user_agent,
+            review_status=review_status,
+        )
+    else:
+        raise typer.BadParameter("provider must be one of: osrm, openrouteservice, ors")
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(output_csv, index=False)
     routed_count = int((result["route_status"] == "routed").sum())

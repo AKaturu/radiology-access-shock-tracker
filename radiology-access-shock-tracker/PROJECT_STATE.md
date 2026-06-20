@@ -261,10 +261,13 @@ Latest validation gate completed:
   with 9,133 routed rows, zero unreachable rows, and `review_status=needs_review` on every row.
 - OSRM draft route metadata was written to
   `work/source-refresh-smoke/travel-time/travel_time_review_real_facility_smoke_osrm_draft.metadata.json`.
+- `fill-travel-time-review` also supports hosted OpenRouteService Matrix drafts through
+  `--provider openrouteservice` / `--provider ors` and `OPENROUTESERVICE_API_KEY`; the key is not
+  stored in tracked files and outputs remain `needs_review` by default.
 - The Census API key signup path is documented in `docs/OPERATIONS.md`; no `CENSUS_API_KEY` is
   configured in this local environment.
-- Latest validation after the route-fill command: `python -m pytest` passed with 51 tests,
-  `python -m ruff check .` passed, and `python -m mypy src/radshock` passed.
+- Latest validation after OpenRouteService route-fill support: `python -m pytest` passed with 54
+  tests, `python -m ruff check .` passed, and `python -m mypy src/radshock` passed.
 - The quarterly MQSA source-refresh workflow is now enabled on its cron schedule, and
   `docs/OPERATIONS.md` records the required external review-owner and credential setup.
 
@@ -274,9 +277,9 @@ Latest validation gate completed:
   production inputs.
 - Replace the demo population/county/candidate context with reviewed real population points,
   county context, and candidate-site assumptions before publishing analysis outputs.
-- Review the OSRM draft route-time file or rerun `fill-travel-time-review` against an approved
-  self-hosted/commercial provider, then approve rows and run `finalize-travel-time-review` before
-  using road-time analysis.
+- Review the OSRM draft route-time file or rerun `fill-travel-time-review` against OpenRouteService
+  or another approved self-hosted/commercial provider, then approve rows and run
+  `finalize-travel-time-review` before using road-time analysis.
 - Configure GitHub branch protection or required reviewers in the GitHub UI for source-review
   ownership; local files cannot assign organization teams without admin access.
 - Add or obtain a second real reviewed snapshot date before publishing change claims.

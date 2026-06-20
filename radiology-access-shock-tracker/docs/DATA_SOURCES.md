@@ -78,17 +78,24 @@ any excluded routes with the source archive. The toolkit validates matrix shape 
 but it does not validate the upstream road network or routing assumptions.
 
 `radshock fill-travel-time-review` can populate a route-review CSV from an OSRM-compatible Table
-service. The output remains a draft by default: route rows keep `review_status=needs_review` until
-the routing source and row-level outputs are approved. The public OSRM demo server is useful for
-drafting and smoke tests, but production route matrices should use an approved routing provider or
-self-hosted OSRM instance with documented OpenStreetMap/network vintage, profile, traffic
-assumption, and license attribution.
+service or the OpenRouteService Matrix API. The output remains a draft by default: route rows keep
+`review_status=needs_review` until the routing source and row-level outputs are approved. The
+public OSRM demo server and hosted OpenRouteService free plan are useful for drafting and smoke
+tests, but production route matrices should use an approved routing provider or self-hosted routing
+instance with documented OpenStreetMap/network vintage, profile, traffic assumption, quota/terms,
+and license attribution.
 
 Official OSRM Table API documentation:
 <https://project-osrm.org/docs/v5.23.0/api/#table-service>
 
 OSRM public demo server policy:
 <https://github.com/Project-OSRM/osrm-backend/wiki/Api-usage-policy>
+
+Official OpenRouteService Matrix documentation:
+<https://giscience.github.io/openrouteservice/api-reference/endpoints/matrix/>
+
+OpenRouteService API restrictions:
+<https://openrouteservice.org/restrictions/>
 
 Google Routes API Compute Route Matrix is an alternative production provider. It returns distance
 and duration route elements and requires a Google Maps Platform API key with billing enabled.

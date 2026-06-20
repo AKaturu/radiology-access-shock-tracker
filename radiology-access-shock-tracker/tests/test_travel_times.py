@@ -3,6 +3,7 @@ import pytest
 
 from radshock.travel_times import (
     build_travel_time_review_template,
+    fill_travel_time_review_from_openrouteservice,
     fill_travel_time_review_from_osrm,
     finalize_travel_time_review,
 )
@@ -128,6 +129,47 @@ def test_fill_travel_time_review_from_osrm_allows_explicit_review_status() -> No
     assert set(result["review_status"]) == {"reviewed"}
 
 
+def test_fill_travel_time_review_from_openrouteservice_writes_minutes_and_metadata() -> None:
+    review = build_travel_time_review_template(_population(), _facilities())
+    session = _FakePostSession(
+        [
+            [900.0],
+            [None],
+        ]
+    )
+    result = fill_travel_time_review_from_openrouteservice(
+        review,
+        api_key="test-key",
+        base_url="https://ors.example.test",
+        timeout=10,
+        user_agent="radshock-test",
+        session=session,
+    )
+
+    assert result.loc[0, "travel_time_minutes"] == 15.0
+    assert result.loc[0, "route_status"] == "routed"
+    assert result.loc[0, "route_provider"] == "openrouteservice:driving-car"
+    assert result.loc[0, "route_source_url"] == "https://ors.example.test/v2/matrix/driving-car"
+    assert result.loc[0, "review_status"] == "needs_review"
+    assert result.loc[1, "travel_time_minutes"] == ""
+    assert result.loc[1, "route_status"] == "unreachable"
+    assert result.loc[1, "route_error"] == "OpenRouteService returned no route."
+    assert session.calls[0]["json"] == {
+        "locations": [[-78.0, 35.0], [-78.0, 35.0]],
+        "sources": ["0"],
+        "destinations": ["1"],
+        "metrics": ["duration"],
+    }
+    assert session.calls[0]["headers"]["Authorization"] == "test-key"
+
+
+def test_fill_travel_time_review_from_openrouteservice_blocks_blank_key() -> None:
+    review = build_travel_time_review_template(_population(), _facilities())
+
+    with pytest.raises(ValueError, match="api_key"):
+        fill_travel_time_review_from_openrouteservice(review, api_key="  ")
+
+
 class _FakeSession:
     def __init__(self, duration_rows: list[list[float | None]]) -> None:
         self.duration_rows = duration_rows
@@ -147,6 +189,22 @@ class _FakeResponse:
 
     def json(self) -> dict[str, object]:
         return {"code": "Ok", "durations": [self.durations]}
+
+
+class _FakePostSession:
+    def __init__(self, duration_rows: list[list[float | None]]) -> None:
+        self.duration_rows = duration_rows
+        self.calls: list[dict[str, object]] = []
+
+    def post(
+        self,
+        url: str,
+        json: dict[str, object],
+        timeout: int,
+        headers: dict[str, str],
+    ) -> "_FakeResponse":
+        self.calls.append({"url": url, "json": json, "timeout": timeout, "headers": headers})
+        return _FakeResponse(self.duration_rows.pop(0))
 
 
 def _population() -> pd.DataFrame:

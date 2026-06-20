@@ -29,7 +29,8 @@ when workflows start using those integrations.
 Expected external credentials:
 
 - `CENSUS_API_KEY`: required for ACS API pulls in environments where the Census API rejects keyless requests.
-- Routing provider credentials: required only after an approved road-time provider is selected and wired into a workflow.
+- `OPENROUTESERVICE_API_KEY`: required only when using hosted OpenRouteService for route-time drafts.
+- Other routing provider credentials: required only after an approved road-time provider is selected and wired into a workflow.
 
 The current quarterly FDA review-artifact workflow does not use these secrets.
 
@@ -59,6 +60,25 @@ should not be treated as a production provider. For publication workflows, prefe
 OSRM instance with documented OSM extract date/profile or an approved commercial provider such as
 Google Routes Compute Route Matrix. Google Routes requires a Google Maps Platform project, billing,
 and an API key; matrix requests are billed per origin-destination element.
+
+For hosted OpenRouteService testing, store the key as `OPENROUTESERVICE_API_KEY` and call:
+
+```powershell
+$env:OPENROUTESERVICE_API_KEY = "<your-openrouteservice-key>"
+```
+
+```bash
+radshock fill-travel-time-review \
+  work/source-refresh-smoke/travel-time/travel_time_review_real_facility_smoke.csv \
+  --output-csv work/source-refresh-smoke/travel-time/travel_time_review_real_facility_smoke_ors_draft.csv \
+  --provider openrouteservice \
+  --ors-profile driving-car
+```
+
+OpenRouteService Matrix results are returned as durations in seconds and converted to minutes by
+the fill command. Hosted OpenRouteService has request restrictions, including a Matrix limit based
+on origin-destination pairs per request; check the provider dashboard and restrictions page before
+running large batches.
 
 Before finalization, reviewers must record or verify:
 

@@ -45,6 +45,8 @@ TRAVEL_TIME_REVIEW_COLUMNS = [
 ]
 
 DEFAULT_OSRM_BASE_URL = "https://router.project-osrm.org"
+DEFAULT_ORS_BASE_URL = "https://api.openrouteservice.org"
+DEFAULT_ORS_PROFILE = "driving-car"
 DEFAULT_ROUTE_USER_AGENT = "radshock-route-review/0.1"
 
 
@@ -248,6 +250,117 @@ def fill_travel_time_review_from_osrm(
     return result[TRAVEL_TIME_REVIEW_COLUMNS]
 
 
+def fill_travel_time_review_from_openrouteservice(
+    frame: pd.DataFrame,
+    *,
+    api_key: str,
+    base_url: str = DEFAULT_ORS_BASE_URL,
+    profile: str = DEFAULT_ORS_PROFILE,
+    timeout: int = 60,
+    user_agent: str = DEFAULT_ROUTE_USER_AGENT,
+    review_status: str = "needs_review",
+    session: Any | None = None,
+) -> pd.DataFrame:
+    """Fill a route-review worklist from the OpenRouteService Matrix endpoint.
+
+    OpenRouteService returns matrix durations in seconds. The resulting rows remain draft routing
+    candidates until provider terms, quota limits, network vintage, profile, and row-level outputs
+    are reviewed.
+    """
+    require_columns(frame, set(TRAVEL_TIME_REVIEW_COLUMNS), "travel time review")
+    cleaned_key = api_key.strip()
+    if not cleaned_key:
+        raise ValueError("api_key must not be blank")
+    if timeout <= 0:
+        raise ValueError("timeout must be positive")
+    cleaned_profile = profile.strip("/")
+    if not cleaned_profile:
+        raise ValueError("profile must not be blank")
+
+    result = frame.copy()
+    for column in [
+        "travel_time_minutes",
+        "route_status",
+        "route_provider",
+        "route_source_url",
+        "route_retrieved_at_utc",
+        "route_error",
+        "review_status",
+    ]:
+        result[column] = result[column].astype("object")
+    for column in ["point_id", "facility_id", "route_status", "review_status"]:
+        result[column] = result[column].astype(str).str.strip()
+    _require_unique_pairs(result)
+
+    provider = f"openrouteservice:{cleaned_profile}"
+    endpoint_base = base_url.rstrip("/")
+    source_url = f"{endpoint_base}/v2/matrix/{quote(cleaned_profile)}"
+    http = session or requests.Session()
+    headers = {
+        "Authorization": cleaned_key,
+        "Content-Type": "application/json",
+    }
+    if user_agent:
+        headers["User-Agent"] = user_agent
+    retrieved_at = datetime.now(UTC).isoformat()
+
+    for _, group in result.groupby("point_id", sort=False):
+        index = group.index
+        origin = group.iloc[0]
+        coordinates = [
+            _format_ors_coordinate(origin["point_longitude"], origin["point_latitude"])
+        ]
+        coordinates.extend(
+            _format_ors_coordinate(row.facility_longitude, row.facility_latitude)
+            for row in group.itertuples(index=False)
+        )
+        payload: dict[str, Any] = {
+            "locations": coordinates,
+            "sources": ["0"],
+            "destinations": [str(i) for i in range(1, len(coordinates))],
+            "metrics": ["duration"],
+        }
+        try:
+            response = http.post(source_url, json=payload, timeout=timeout, headers=headers)
+            response.raise_for_status()
+            route_payload = response.json()
+        except Exception as exc:  # pragma: no cover - exact requests exceptions vary by version
+            result.loc[index, "route_error"] = f"OpenRouteService request failed: {exc}"
+            continue
+
+        if "error" in route_payload:
+            result.loc[index, "route_error"] = (
+                f"OpenRouteService response error: {route_payload['error']}"
+            )
+            continue
+        durations = route_payload.get("durations") or [[]]
+        row_durations = durations[0] if durations else []
+        if len(row_durations) != len(index):
+            result.loc[index, "route_error"] = (
+                "OpenRouteService duration count mismatch: "
+                f"expected {len(index)}, got {len(row_durations)}"
+            )
+            continue
+
+        for row_index, duration_seconds in zip(index, row_durations, strict=True):
+            result.at[row_index, "route_provider"] = provider
+            result.at[row_index, "route_source_url"] = source_url
+            result.at[row_index, "route_retrieved_at_utc"] = retrieved_at
+            result.at[row_index, "review_status"] = review_status
+            if duration_seconds is None:
+                result.at[row_index, "travel_time_minutes"] = ""
+                result.at[row_index, "route_status"] = "unreachable"
+                result.at[row_index, "route_error"] = "OpenRouteService returned no route."
+            else:
+                result.at[row_index, "travel_time_minutes"] = round(
+                    float(duration_seconds) / 60,
+                    2,
+                )
+                result.at[row_index, "route_status"] = "routed"
+                result.at[row_index, "route_error"] = ""
+    return result[TRAVEL_TIME_REVIEW_COLUMNS]
+
+
 def _require_unique_pairs(frame: pd.DataFrame) -> None:
     duplicate_mask = frame.duplicated(["point_id", "facility_id"])
     if duplicate_mask.any():
@@ -260,3 +373,7 @@ def _require_unique_pairs(frame: pd.DataFrame) -> None:
 
 def _format_osrm_coordinate(longitude: object, latitude: object) -> str:
     return f"{float(str(longitude)):.8f},{float(str(latitude)):.8f}"
+
+
+def _format_ors_coordinate(longitude: object, latitude: object) -> list[float]:
+    return [float(str(longitude)), float(str(latitude))]

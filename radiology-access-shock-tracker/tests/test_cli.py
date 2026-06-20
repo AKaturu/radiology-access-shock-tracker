@@ -5,6 +5,7 @@ import pandas as pd
 from typer.testing import CliRunner
 
 from radshock.cli import app
+from radshock.travel_times import TRAVEL_TIME_REVIEW_COLUMNS
 
 
 def _snapshot(path: Path, rows: list[list[object]]) -> None:
@@ -264,6 +265,55 @@ def test_prepare_and_finalize_travel_time_review_commands(tmp_path: Path) -> Non
     assert finalized.exit_code == 0
     output = pd.read_csv(matrix)
     assert output.loc[0, "travel_time_minutes"] == 18.5
+
+
+def test_fill_travel_time_review_openrouteservice_requires_env(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    monkeypatch.delenv("OPENROUTESERVICE_API_KEY", raising=False)
+    review = tmp_path / "travel_time_review.csv"
+    output = tmp_path / "travel_time_review_ors.csv"
+    pd.DataFrame(
+        [
+            {
+                "point_id": "P1",
+                "county_fips": "37001",
+                "point_latitude": "35.0",
+                "point_longitude": "-78.0",
+                "point_weight": "100",
+                "facility_id": "F1",
+                "facility_name": "Facility",
+                "facility_latitude": "35.0",
+                "facility_longitude": "-78.0",
+                "active": "true",
+                "straight_line_miles": "0",
+                "travel_time_minutes": "",
+                "route_status": "needs_route",
+                "route_provider": "",
+                "route_source_url": "",
+                "route_retrieved_at_utc": "",
+                "route_error": "",
+                "review_status": "needs_review",
+            }
+        ],
+        columns=TRAVEL_TIME_REVIEW_COLUMNS,
+    ).to_csv(review, index=False)
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "fill-travel-time-review",
+            str(review),
+            "--output-csv",
+            str(output),
+            "--provider",
+            "openrouteservice",
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "OPENROUTESERVICE_API_KEY is not set" in result.output
 
 
 def test_sensitivity_analysis_command_writes_scenario_rows(tmp_path: Path) -> None:

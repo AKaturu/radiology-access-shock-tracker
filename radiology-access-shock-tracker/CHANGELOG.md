@@ -15,6 +15,7 @@
 - Added production readiness auditing with JSON and Markdown reports.
 - Added travel-time review template and finalization gates for external routing workflows.
 - Added OSRM-compatible travel-time review draft filling with route provenance.
+- Added hosted OpenRouteService Matrix draft filling through `OPENROUTESERVICE_API_KEY`.
 - Added demo readiness-audit outputs and a dashboard readiness view.
 - Added analysis-run manifests and automatic readiness reports for `radshock analyze`.
 - Added a guarded GitHub Actions workflow for FDA MQSA source-refresh review artifacts.
