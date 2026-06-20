@@ -32,6 +32,9 @@ The toolkit does not infer that facility events caused utilization changes.
 More screenshots and walkthrough footage are in [`docs/GITHUB_PAGE_ASSETS.md`](docs/GITHUB_PAGE_ASSETS.md).
 The latest compiled local validation summary is in
 [`docs/validation/COMPILED_TEST_REPORT.md`](docs/validation/COMPILED_TEST_REPORT.md).
+Publishing instructions are in [`docs/GITHUB_PUBLISHING.md`](docs/GITHUB_PUBLISHING.md). Journal
+write-up packaging notes and a ChatGPT drafting prompt are in
+[`docs/JOURNAL_REPORT_PACKAGE.md`](docs/JOURNAL_REPORT_PACKAGE.md).
 
 ## Quick start
 
@@ -379,7 +382,7 @@ runs are enabled on the quarterly cron in `.github/workflows/quarterly-snapshot.
 The workflow stops at the review artifact. It does not approve rows, finalize a snapshot, run a
 public analysis, or publish findings.
 
-Repository governance lives in `.github/CODEOWNERS`,
+Repository governance lives in `.github/CODEOWNERS`, `.github/branch-protection.main.json`,
 `.github/branch-protection.master.json`, and `scripts/configure_github_governance.ps1`. A GitHub
 repo admin can run the script with authenticated `gh` to set `CENSUS_API_KEY`,
 `OPENROUTESERVICE_API_KEY`, required code-owner review, branch protection, and the `test` status

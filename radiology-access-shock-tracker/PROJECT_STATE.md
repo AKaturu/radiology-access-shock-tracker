@@ -319,10 +319,10 @@ Production readiness hardening.
   the real package on GitHub's Ubuntu runner without ignored `work/` files.
 - The policy brief generator now describes travel-time shocks in minutes when road-time outputs are
   supplied.
-- `.github/CODEOWNERS`, `.github/branch-protection.master.json`, and
-  `scripts/configure_github_governance.ps1` were added. Local execution confirmed GitHub settings
-  cannot be applied from this machine because PowerShell script execution is restricted by default
-  and the GitHub CLI is not installed/on PATH.
+- `.github/CODEOWNERS`, `.github/branch-protection.main.json`,
+  `.github/branch-protection.master.json`, and `scripts/configure_github_governance.ps1` were
+  added. Local execution confirmed GitHub settings cannot be applied from this machine because
+  PowerShell script execution is restricted by default and the GitHub CLI is not installed/on PATH.
 - Latest validation after this pass: `python -m pytest` passed with 79 tests,
   `python -m ruff check .` passed, `python -m mypy src/radshock` passed, and the real tract
   travel-time readiness audit correctly reports `BLOCKED` for the testing-grade OSRM route
@@ -338,6 +338,16 @@ Production readiness hardening.
   finalized a work-only snapshot that is byte-for-byte identical to `data/snapshots/2026-06-20`.
   Snapshot comparison produced 0 event rows, so this confirms no same-day source delta but does not
   create a later-date snapshot for trend claims.
+- GitHub and journal handoff packaging was added. `docs/GITHUB_PUBLISHING.md` documents a clean
+  GitHub push, Pages setup from `/docs`, and governance setup. `docs/index.md` provides a GitHub
+  Pages landing page. `docs/JOURNAL_REPORT_PACKAGE.md` and `docs/CHATGPT_JOURNAL_PROMPT.md`
+  package the analysis for a conservative software/methods manuscript draft. `scripts/package_release.ps1`
+  builds a clean source ZIP and a journal evidence bundle while excluding ignored local build files
+  and OSRM graph artifacts.
+- Release packaging was validated locally. The packager generated the GitHub source ZIP, journal
+  evidence bundle, and release manifest under `dist/`; ZIP inspection found no ignored
+  work/cache/build directories, and the journal bundle contained the required manuscript prompt,
+  manifest, route metadata, readiness audit, policy brief, figure, and validation files.
 
 Latest validation gate completed:
 
@@ -437,9 +447,9 @@ Latest validation gate completed:
 
 ### Remaining Work
 
-- Review/archive the local self-hosted OSRM package under `work/self-hosted-osrm` or rerun the
-  manual `self-hosted OSRM travel-time package` GitHub Actions workflow to produce a CI artifact
-  before publishing route-time findings.
+- Publish the generated source ZIP from `dist/github/` to GitHub, enable GitHub Pages from `/docs`,
+  and optionally rerun the manual `self-hosted OSRM travel-time package` GitHub Actions workflow to
+  produce a CI-hosted route-time artifact.
 - Apply GitHub branch protection, repository secrets, and code-owner review in GitHub itself after
   installing/authenticating `gh` with repo admin access.
 - Obtain a later real reviewed snapshot after a future FDA MQSA source update before making any
@@ -449,10 +459,11 @@ Latest validation gate completed:
 
 1. Run the GitHub governance setup from an authenticated admin shell:
    `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\configure_github_governance.ps1 -Apply`.
-2. Review/archive the local self-hosted OSRM artifact or rerun the manual GitHub Actions workflow
-   with the current Geofabrik North Carolina OSM data timestamp before publishing route-time
-   findings.
-3. Pull and review a later MQSA source snapshot after the next FDA source update before making
+2. Publish the source ZIP from `dist/github/` to a new GitHub repository and enable Pages from
+   `/docs`.
+3. Use the journal bundle from `dist/journal/` with `docs/CHATGPT_JOURNAL_PROMPT.md` to draft a
+   conservative software/methods manuscript.
+4. Pull and review a later MQSA source snapshot after the next FDA source update before making
    actual change claims.
 
 ## Risks

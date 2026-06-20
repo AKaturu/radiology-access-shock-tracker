@@ -54,8 +54,10 @@ $env:OPENROUTESERVICE_API_KEY = "<your-openrouteservice-key>"
 ```
 
 The script sets repository secrets from environment variables and applies
-`.github/branch-protection.master.json`, which requires the `test` status check, code-owner review,
-stale-review dismissal, conversation resolution, and blocks force pushes and branch deletion.
+`.github/branch-protection.main.json` by default. Use
+`.github/branch-protection.master.json` only if you publish the local `master` branch unchanged.
+The protection template requires the `test` status check, code-owner review, stale-review
+dismissal, conversation resolution, and blocks force pushes and branch deletion.
 
 ## External Credentials
 

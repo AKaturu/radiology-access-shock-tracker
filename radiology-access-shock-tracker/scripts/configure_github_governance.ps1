@@ -1,7 +1,7 @@
 param(
     [string]$Repository = $env:GITHUB_REPOSITORY,
-    [string]$Branch = "master",
-    [string]$ProtectionJson = ".github/branch-protection.master.json",
+    [string]$Branch = "main",
+    [string]$ProtectionJson = ".github/branch-protection.main.json",
     [string[]]$SecretNames = @("CENSUS_API_KEY", "OPENROUTESERVICE_API_KEY"),
     [switch]$Apply
 )

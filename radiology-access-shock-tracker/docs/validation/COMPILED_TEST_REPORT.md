@@ -8,7 +8,7 @@ Status: PASS
 
 ## Checks
 
-- `python -m pytest`: 79 passed in 4.12s.
+- `python -m pytest`: 79 passed in 4.19s.
 - `python -m ruff check .`: passed.
 - `python -m mypy src/radshock`: passed with no issues in 24 source files.
 - `python -m pip wheel . -w work/dist`: built the project wheel.
@@ -24,6 +24,11 @@ Status: PASS
   `2026-06-19T20:21:41Z`: routed 52,680 of 52,680 tract-nearest facility pairs through local
   self-hosted OSRM, finalized the matrix, and produced readiness READY with 0 blockers and 0
   warnings.
+- PowerShell parse checks passed for `scripts/package_release.ps1` and
+  `scripts/configure_github_governance.ps1`.
+- `scripts/package_release.ps1` generated the GitHub source ZIP, journal evidence bundle, and
+  release manifest; ZIP inspection found no ignored work/cache/build directories, and required
+  journal evidence files were present.
 
 ## Built Wheel
 
