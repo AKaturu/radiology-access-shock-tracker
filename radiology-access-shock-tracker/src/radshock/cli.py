@@ -32,6 +32,7 @@ from radshock.snapshots import store_snapshot
 from radshock.sources import archive_local_source, fetch_url_source
 from radshock.travel_times import (
     build_travel_time_review_template,
+    fill_travel_time_review_from_osrm,
     finalize_travel_time_review,
 )
 from radshock.utilization import summarize_utilization_change
@@ -330,6 +331,55 @@ def finalize_travel_time_review_command(
     matrix.to_csv(output_csv, index=False)
     typer.echo(f"Travel-time matrix written: {output_csv.resolve()}")
     typer.echo(f"Routed pairs: {len(matrix)}")
+
+
+@app.command("fill-travel-time-review")
+def fill_travel_time_review_command(
+    input_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    output_csv: Annotated[Path, typer.Option()],
+    provider: Annotated[str, typer.Option(help="Routing provider to use.")] = "osrm",
+    osrm_base_url: Annotated[
+        str,
+        typer.Option(help="Base URL for an OSRM-compatible routing server."),
+    ] = "https://router.project-osrm.org",
+    osrm_profile: Annotated[str, typer.Option(help="OSRM routing profile.")] = "driving",
+    timeout: Annotated[int, typer.Option(help="HTTP timeout in seconds.")] = 60,
+    user_agent: Annotated[
+        str,
+        typer.Option(help="User-Agent sent to the routing provider."),
+    ] = "radshock-route-review/0.1",
+    review_status: Annotated[
+        str,
+        typer.Option(help="Review status to write to routed rows; default keeps rows unapproved."),
+    ] = "needs_review",
+    force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
+) -> None:
+    """Fill travel-time review rows with routing provider minutes and provenance."""
+    if output_csv.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    normalized_provider = provider.strip().lower()
+    if normalized_provider != "osrm":
+        raise typer.BadParameter("provider must be osrm")
+    result = fill_travel_time_review_from_osrm(
+        pd.read_csv(input_csv, dtype=str, keep_default_na=False),
+        base_url=osrm_base_url,
+        profile=osrm_profile,
+        timeout=timeout,
+        user_agent=user_agent,
+        review_status=review_status,
+    )
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    result.to_csv(output_csv, index=False)
+    routed_count = int((result["route_status"] == "routed").sum())
+    unreachable_count = int((result["route_status"] == "unreachable").sum())
+    error_count = int(result["route_error"].astype(str).str.len().gt(0).sum())
+    typer.echo(f"Travel-time review draft written: {output_csv.resolve()}")
+    typer.echo(
+        f"Rows: {len(result)}; routed: {routed_count}; "
+        f"unreachable: {unreachable_count}; errors: {error_count}"
+    )
+    if review_status == "needs_review":
+        typer.echo("Review status remains needs_review; finalize-travel-time-review will block.")
 
 
 @app.command("sensitivity-analysis")

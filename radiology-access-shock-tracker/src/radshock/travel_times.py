@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
+from typing import Any
+from urllib.parse import quote
+
 import pandas as pd
+import requests
 
 from radshock.geo import haversine_miles
 from radshock.schemas import (
     TRAVEL_TIME_MATRIX_COLUMNS,
+    require_columns,
     validate_facilities,
     validate_population_points,
     validate_travel_time_matrix,
@@ -37,6 +43,9 @@ TRAVEL_TIME_REVIEW_COLUMNS = [
     "route_error",
     "review_status",
 ]
+
+DEFAULT_OSRM_BASE_URL = "https://router.project-osrm.org"
+DEFAULT_ROUTE_USER_AGENT = "radshock-route-review/0.1"
 
 
 def build_travel_time_review_template(
@@ -141,6 +150,104 @@ def finalize_travel_time_review(frame: pd.DataFrame) -> pd.DataFrame:
     return validate_travel_time_matrix(matrix)
 
 
+def fill_travel_time_review_from_osrm(
+    frame: pd.DataFrame,
+    *,
+    base_url: str = DEFAULT_OSRM_BASE_URL,
+    profile: str = "driving",
+    timeout: int = 60,
+    user_agent: str = DEFAULT_ROUTE_USER_AGENT,
+    review_status: str = "needs_review",
+    session: Any | None = None,
+) -> pd.DataFrame:
+    """Fill a route-review worklist from an OSRM-compatible table endpoint.
+
+    The function populates candidate route minutes and provider metadata. It does not make the
+    result publication-ready by itself; callers should leave ``review_status`` as ``needs_review``
+    until the route provider, network vintage, traffic assumptions, and output rows are reviewed.
+    """
+    require_columns(frame, set(TRAVEL_TIME_REVIEW_COLUMNS), "travel time review")
+    if timeout <= 0:
+        raise ValueError("timeout must be positive")
+    cleaned_profile = profile.strip("/")
+    if not cleaned_profile:
+        raise ValueError("profile must not be blank")
+
+    result = frame.copy()
+    for column in [
+        "travel_time_minutes",
+        "route_status",
+        "route_provider",
+        "route_source_url",
+        "route_retrieved_at_utc",
+        "route_error",
+        "review_status",
+    ]:
+        result[column] = result[column].astype("object")
+    for column in ["point_id", "facility_id", "route_status", "review_status"]:
+        result[column] = result[column].astype(str).str.strip()
+    _require_unique_pairs(result)
+
+    provider = f"osrm:{cleaned_profile}"
+    endpoint_base = base_url.rstrip("/")
+    source_url = f"{endpoint_base}/table/v1/{quote(cleaned_profile)}"
+    http = session or requests.Session()
+    headers = {"User-Agent": user_agent} if user_agent else {}
+    retrieved_at = datetime.now(UTC).isoformat()
+
+    for _, group in result.groupby("point_id", sort=False):
+        index = group.index
+        origin = group.iloc[0]
+        coordinates = [
+            _format_osrm_coordinate(origin["point_longitude"], origin["point_latitude"])
+        ]
+        coordinates.extend(
+            _format_osrm_coordinate(row.facility_longitude, row.facility_latitude)
+            for row in group.itertuples(index=False)
+        )
+        destinations = ";".join(str(i) for i in range(1, len(coordinates)))
+        url = (
+            f"{source_url}/{';'.join(coordinates)}"
+            f"?sources=0&destinations={destinations}&annotations=duration&skip_waypoints=true"
+        )
+        try:
+            response = http.get(url, timeout=timeout, headers=headers)
+            response.raise_for_status()
+            payload = response.json()
+        except Exception as exc:  # pragma: no cover - exact requests exceptions vary by version
+            result.loc[index, "route_error"] = f"OSRM request failed: {exc}"
+            continue
+
+        if payload.get("code") != "Ok":
+            result.loc[index, "route_error"] = f"OSRM response code: {payload.get('code')}"
+            continue
+        durations = payload.get("durations") or [[]]
+        row_durations = durations[0] if durations else []
+        if len(row_durations) != len(index):
+            result.loc[index, "route_error"] = (
+                f"OSRM duration count mismatch: expected {len(index)}, got {len(row_durations)}"
+            )
+            continue
+
+        for row_index, duration_seconds in zip(index, row_durations, strict=True):
+            result.at[row_index, "route_provider"] = provider
+            result.at[row_index, "route_source_url"] = source_url
+            result.at[row_index, "route_retrieved_at_utc"] = retrieved_at
+            result.at[row_index, "review_status"] = review_status
+            if duration_seconds is None:
+                result.at[row_index, "travel_time_minutes"] = ""
+                result.at[row_index, "route_status"] = "unreachable"
+                result.at[row_index, "route_error"] = "OSRM returned no route."
+            else:
+                result.at[row_index, "travel_time_minutes"] = round(
+                    float(duration_seconds) / 60,
+                    2,
+                )
+                result.at[row_index, "route_status"] = "routed"
+                result.at[row_index, "route_error"] = ""
+    return result[TRAVEL_TIME_REVIEW_COLUMNS]
+
+
 def _require_unique_pairs(frame: pd.DataFrame) -> None:
     duplicate_mask = frame.duplicated(["point_id", "facility_id"])
     if duplicate_mask.any():
@@ -149,3 +256,7 @@ def _require_unique_pairs(frame: pd.DataFrame) -> None:
             "travel time review contains duplicate point/facility pairs: "
             + examples.to_dict(orient="records").__repr__()
         )
+
+
+def _format_osrm_coordinate(longitude: object, latitude: object) -> str:
+    return f"{float(str(longitude)):.8f},{float(str(latitude)):.8f}"

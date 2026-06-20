@@ -176,6 +176,20 @@ radshock finalize-travel-time-review \
   --output-csv data/travel_times/2026-07-01_point_facility.csv
 ```
 
+For an OSRM-compatible routing server, you can draft route minutes before review:
+
+```bash
+radshock fill-travel-time-review \
+  work/2026-07-01_travel_time_review.csv \
+  --output-csv work/2026-07-01_travel_time_review_osrm_draft.csv \
+  --provider osrm \
+  --osrm-base-url https://router.project-osrm.org
+```
+
+The fill command keeps `review_status=needs_review` by default. Do not finalize the matrix until
+the routing provider, network vintage, traffic assumptions, provider terms, and row-level outputs
+have been reviewed.
+
 ```bash
 radshock compare-travel-time-access \
   --before-csv data/snapshots/2026-04-01/facilities.csv \
