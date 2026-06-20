@@ -35,7 +35,8 @@ The latest compiled local validation summary is in
 [`docs/validation/COMPILED_TEST_REPORT.md`](docs/validation/COMPILED_TEST_REPORT.md).
 Publishing instructions are in [`docs/GITHUB_PUBLISHING.md`](docs/GITHUB_PUBLISHING.md). Journal
 write-up packaging notes and a ChatGPT drafting prompt are in
-[`docs/JOURNAL_REPORT_PACKAGE.md`](docs/JOURNAL_REPORT_PACKAGE.md).
+[`docs/JOURNAL_REPORT_PACKAGE.md`](docs/JOURNAL_REPORT_PACKAGE.md). Desktop download build
+instructions are in [`docs/DESKTOP_RELEASES.md`](docs/DESKTOP_RELEASES.md).
 
 ## Quick start
 

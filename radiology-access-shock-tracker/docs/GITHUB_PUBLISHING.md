@@ -118,6 +118,8 @@ Official GitHub branch-protection reference:
 ## Manual Workflows To Run After Publication
 
 - **tests**: runs automatically on pushes and pull requests.
+- **desktop release**: manually dispatch to build Windows, macOS, and Linux desktop dashboard
+  downloads from the bundled reviewed analysis package.
 - **quarterly MQSA source refresh**: manually dispatch once to verify artifact generation in
   GitHub Actions, then leave the quarterly schedule enabled.
 - **self-hosted OSRM travel-time package**: run manually when you want a CI-hosted artifact for

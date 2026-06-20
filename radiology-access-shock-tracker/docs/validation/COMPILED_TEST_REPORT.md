@@ -8,9 +8,9 @@ Status: PASS
 
 ## Checks
 
-- `python -m pytest`: 79 passed in 7.36s.
+- `python -m pytest`: 80 passed in 6.59s.
 - `python -m ruff check .`: passed.
-- `python -m mypy src/radshock`: passed with no issues in 24 source files.
+- `python -m mypy src/radshock`: passed with no issues in 25 source files.
 - `python -m pip wheel . -w work/dist`: built the project wheel.
 - `radshock readiness-audit --require-travel-time` on
   `work/source-refresh-smoke/analysis-tract-osrm-travel-time`: BLOCKED, 1 blocker, 0 warnings.
@@ -31,6 +31,9 @@ Status: PASS
   journal evidence files were present.
 - `scripts/capture_github_assets.mjs` recaptured the GitHub screenshots and walkthrough from the
   reviewed real self-hosted OSRM package with synthetic captures disallowed.
+- `python -m radshock.desktop --check`: validated the bundled reviewed desktop payload.
+- `scripts/build_desktop.py`: built a local Windows PyInstaller bundle, and the frozen
+  `RadiologyAccessShockTracker.exe --check` validated its bundled payload.
 
 ## Built Wheel
 
@@ -69,3 +72,11 @@ Status: PASS
 The screenshots and walkthrough use the reviewed real North Carolina self-hosted OSRM package, not
 the synthetic demo. They show a no-observed-change validation run for the reviewed `2026-06-19` to
 `2026-06-20` snapshots; they do not support trend, deterioration, or causal utilization claims.
+
+## Desktop Evidence
+
+- Desktop payload: `desktop_payload/analysis`
+- Local Windows ZIP: `dist/RadiologyAccessShockTracker-windows-x64.zip`
+- Local Windows ZIP SHA-256:
+  `0C9934B14581883B6A41EB7CCDD2D92B3A445272AACD02259C7C81BB472CF479`
+- GitHub workflow for cross-platform artifacts: `.github/workflows/desktop-release.yml`

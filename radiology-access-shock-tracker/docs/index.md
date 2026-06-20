@@ -42,6 +42,7 @@ Key references:
 - [Operations](OPERATIONS.md)
 - [Compiled validation report](validation/COMPILED_TEST_REPORT.md)
 - [GitHub publishing guide](GITHUB_PUBLISHING.md)
+- [Desktop downloads](DESKTOP_RELEASES.md)
 - [Journal report package guide](JOURNAL_REPORT_PACKAGE.md)
 
 Core validation:

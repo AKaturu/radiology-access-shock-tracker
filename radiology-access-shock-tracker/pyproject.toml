@@ -28,9 +28,13 @@ dev = [
   "pytest>=8.2",
   "ruff>=0.5",
 ]
+desktop = [
+  "pyinstaller>=6.0",
+]
 
 [project.scripts]
 radshock = "radshock.cli:app"
+radshock-desktop = "radshock.desktop:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/radshock"]

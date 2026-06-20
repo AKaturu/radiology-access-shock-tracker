@@ -438,6 +438,16 @@ Latest validation gate completed:
   `python -m ruff check .` passed, `python -m mypy src/radshock` passed, the capture script
   completed with synthetic captures disallowed, and visual inspection confirmed the overview,
   readiness, and mobile screenshots have no synthetic warning.
+- Desktop packaging support was added. `desktop_payload/analysis` tracks the compact reviewed
+  self-hosted OSRM analysis package for offline dashboard use, `radshock.desktop` launches the
+  bundled Streamlit dashboard, `scripts/build_desktop.py` builds a PyInstaller bundle, and
+  `.github/workflows/desktop-release.yml` builds Windows ZIP, macOS DMG, and Linux tar.gz
+  downloads on native GitHub runners. A local Windows PyInstaller bundle was built and
+  `RadiologyAccessShockTracker.exe --check` validated its bundled payload.
+- Latest validation after desktop packaging: `python -m pytest` passed with 80 tests,
+  `python -m ruff check .` passed, `python -m mypy src/radshock` passed,
+  `python -m radshock.desktop --check` passed, and the local Windows desktop ZIP was generated at
+  `dist/RadiologyAccessShockTracker-windows-x64.zip`.
 - The Census API key and OpenRouteService key were used only as process environment variables for
   local pulls; secret scans found no committed key values in project files.
 - A Census county-centroid route review was prepared with 17,779 route pairs, filled through hosted
@@ -457,7 +467,9 @@ Latest validation gate completed:
 ### Remaining Work
 
 - Publish the generated source ZIP from `dist/github/` to GitHub, enable GitHub Pages from `/docs`,
-  and optionally rerun the manual `self-hosted OSRM travel-time package` GitHub Actions workflow to
+  and manually run the `desktop release` GitHub Actions workflow to produce GitHub-hosted Windows,
+  macOS, and Linux downloads.
+- Optionally rerun the manual `self-hosted OSRM travel-time package` GitHub Actions workflow to
   produce a CI-hosted route-time artifact.
 - Apply GitHub branch protection, repository secrets, and code-owner review in GitHub itself after
   installing/authenticating `gh` with repo admin access.
@@ -470,9 +482,11 @@ Latest validation gate completed:
    `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\configure_github_governance.ps1 -Apply`.
 2. Publish the source ZIP from `dist/github/` to a new GitHub repository and enable Pages from
    `/docs`.
-3. Use the journal bundle from `dist/journal/` with `docs/CHATGPT_JOURNAL_PROMPT.md` to draft a
+3. Run the `desktop release` workflow on GitHub and attach/download the generated Windows, macOS,
+   and Linux artifacts.
+4. Use the journal bundle from `dist/journal/` with `docs/CHATGPT_JOURNAL_PROMPT.md` to draft a
    conservative software/methods manuscript.
-4. Pull and review a later MQSA source snapshot after the next FDA source update before making
+5. Pull and review a later MQSA source snapshot after the next FDA source update before making
    actual change claims.
 
 ## Risks
@@ -498,6 +512,8 @@ Latest validation gate completed:
 - CMS and public-data schemas can change by release, so fixture tests must be maintained.
 - Geocoder matches can be ambiguous and must remain subject to manual review.
 - Travel-time matrix validity depends on upstream routing assumptions and network vintage.
+- Desktop artifacts are currently unsigned; public releases may trigger Windows SmartScreen or
+  macOS Gatekeeper warnings until code signing/notarization is configured.
 - Sensitivity scenarios test score robustness but do not clinically validate the score.
 
 ## Resume Instructions
