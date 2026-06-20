@@ -139,6 +139,15 @@ and duration route elements and requires a Google Maps Platform API key with bil
 Official Google Routes Compute Route Matrix documentation:
 <https://developers.google.com/maps/documentation/routes/compute-route-matrix-over>
 
+## Candidate response sites
+
+`radshock prepare-candidate-review` can create a starter review CSV from county centroids in
+`data/counties.csv`. Those rows are placeholders for planning review, not recommended mobile stops
+or fixed sites. Reviewers should replace or annotate candidates with the real assumption source,
+candidate type, and notes, then set `review_status` to `reviewed`, `verified`, or `approved`.
+`radshock finalize-candidate-review` blocks unapproved rows and emits the minimal
+`data/candidate_sites.csv` columns consumed by `radshock analyze`.
+
 ## Geocoding
 
 `radshock geocode-mqsa-review` can fill candidate coordinates in an MQSA review CSV before human

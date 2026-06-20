@@ -31,6 +31,8 @@ authoritative per-facility capacity; any capacity proxy must be explicitly revie
 Census-backed tract population points now provide a finer built-in public-data input than the
 earlier county-centroid smoke-test points, though travel-time matrices must be regenerated and
 reviewed against the tract points before publication.
+Candidate-site assumptions now have a review-template and finalization gate so intervention
+rankings can be kept separate from unreviewed placeholder locations.
 
 ## Completed Features
 
@@ -225,6 +227,20 @@ row counts, derivation notes, and output checksums.
 Tests cover tract ACS/Gazetteer merging, zero-weight tract filtering, CLI export, and metadata
 checksum generation.
 
+### Candidate-Site Review Workflow
+
+#### Validation
+
+`prepare-candidate-review` creates a county-centroid candidate review CSV from `data/counties.csv`
+with `review_status=needs_review`. `finalize-candidate-review` blocks unapproved rows and emits the
+minimal candidate schema accepted by `radshock analyze`. Candidate IDs, coordinates, and duplicate
+rows are now validated before intervention ranking.
+
+#### Tests Added
+
+Tests cover candidate review-template generation, unapproved-row blocking, analysis-ready
+finalization, stricter candidate validation, and CLI prepare/finalize behavior.
+
 ## Current Work
 
 ### Active Feature
@@ -298,6 +314,11 @@ Latest validation gate completed:
 - Route-worklist metadata was written to
   `work/source-refresh-smoke/travel-time/2026-06-19_tract_nearest20_travel_time_review.metadata.json`
   with input/output checksums and the pruning settings.
+- A county-centroid candidate review template was prepared at
+  `work/source-refresh-smoke/candidates/2026-06-19_county_centroid_candidate_review.csv` with 100
+  placeholder rows, all still marked `needs_review`.
+- Candidate review metadata was written to
+  `work/source-refresh-smoke/candidates/2026-06-19_county_centroid_candidate_review.metadata.json`.
 - The Census API key and OpenRouteService key were used only as process environment variables for
   local pulls; secret scans found no committed key values in project files.
 - A Census county-centroid route review was prepared with 17,779 route pairs, filled through hosted
@@ -320,7 +341,8 @@ Latest validation gate completed:
   current finalized ORS matrix still uses county-centroid testing points.
 - Review hosted ORS/free-plan route outputs, provider terms, traffic assumptions, and unreachable
   rows before treating the finalized matrix as publication-grade.
-- Add reviewed candidate-site assumptions before publishing intervention rankings.
+- Review or replace the generated county-centroid candidate placeholders before publishing
+  intervention rankings.
 - Configure GitHub branch protection or required reviewers in the GitHub UI for source-review
   ownership; local files cannot assign organization teams without admin access.
 - Add or obtain a second real reviewed snapshot date before publishing change claims.
@@ -328,7 +350,7 @@ Latest validation gate completed:
 ## Next Actions
 
 1. Generate and review tract-based travel-time matrices using `data/population_points_tracts.csv`.
-2. Add reviewed candidate-site assumptions for intervention ranking.
+2. Review or replace candidate-site placeholders and run `finalize-candidate-review`.
 3. Obtain a second reviewed snapshot date and rerun real change analysis.
 4. Resolve readiness-audit blockers with the real outputs and explicit snapshot/source metadata.
 5. Configure GitHub branch protection or required source-review owners in the GitHub UI.

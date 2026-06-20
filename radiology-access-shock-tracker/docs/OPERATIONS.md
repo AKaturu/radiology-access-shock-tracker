@@ -134,3 +134,24 @@ Before finalization, reviewers must record or verify:
 
 Only after that review should `review_status` be changed from `needs_review` to `reviewed`,
 `verified`, or `approved`, followed by `radshock finalize-travel-time-review`.
+
+## Candidate-Site Review
+
+Generate a starter candidate review sheet from county centroids:
+
+```powershell
+radshock prepare-candidate-review `
+  --counties-csv data/counties.csv `
+  --output-csv work/candidate_review.csv `
+  --metadata-json work/candidate_review.metadata.json
+```
+
+County-centroid candidates are placeholders. Review or replace candidate rows with documented
+mobile-stop or fixed-site assumptions, then finalize only after setting `review_status` to
+`reviewed`, `verified`, or `approved`:
+
+```powershell
+radshock finalize-candidate-review `
+  work/candidate_review.csv `
+  --output-csv data/candidate_sites.csv
+```

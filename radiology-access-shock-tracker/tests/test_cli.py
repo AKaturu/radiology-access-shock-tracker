@@ -216,6 +216,65 @@ def test_fetch_census_population_points_command_writes_metadata(
     assert payload["outputs"]["population_points"]["sha256"]
 
 
+def test_prepare_and_finalize_candidate_review_commands(tmp_path: Path) -> None:
+    counties = tmp_path / "counties.csv"
+    review = tmp_path / "candidate_review.csv"
+    metadata = tmp_path / "candidate_review.metadata.json"
+    output = tmp_path / "candidate_sites.csv"
+    pd.DataFrame(
+        [["37001", "Alamance", "NC", 36.04, -79.39, 1000, 10.0, 0.2, 0.3]],
+        columns=[
+            "county_fips",
+            "county_name",
+            "state",
+            "centroid_lat",
+            "centroid_lon",
+            "eligible_population",
+            "poverty_pct",
+            "rurality_index",
+            "high_risk_index",
+        ],
+    ).to_csv(counties, index=False)
+
+    prepared = CliRunner().invoke(
+        app,
+        [
+            "prepare-candidate-review",
+            "--counties-csv",
+            str(counties),
+            "--output-csv",
+            str(review),
+            "--metadata-json",
+            str(metadata),
+        ],
+    )
+
+    assert prepared.exit_code == 0
+    review_frame = pd.read_csv(review, dtype=str)
+    payload = json.loads(metadata.read_text())
+    assert review_frame.loc[0, "review_status"] == "needs_review"
+    assert payload["row_counts"]["candidate_rows"] == 1
+
+    blocked = CliRunner().invoke(
+        app,
+        ["finalize-candidate-review", str(review), "--output-csv", str(output)],
+    )
+    assert blocked.exit_code != 0
+    assert blocked.exception is not None
+    assert "not approved" in str(blocked.exception)
+
+    review_frame.loc[0, "review_status"] = "reviewed"
+    review_frame.to_csv(review, index=False)
+    finalized = CliRunner().invoke(
+        app,
+        ["finalize-candidate-review", str(review), "--output-csv", str(output)],
+    )
+
+    assert finalized.exit_code == 0
+    candidates = pd.read_csv(output, dtype={"candidate_id": str, "county_fips": str})
+    assert candidates.loc[0, "candidate_id"] == "COUNTY-CENTROID-37001"
+
+
 def test_compare_travel_time_access_command_writes_county_shocks(tmp_path: Path) -> None:
     before = tmp_path / "before.csv"
     after = tmp_path / "after.csv"

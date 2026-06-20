@@ -114,6 +114,28 @@ def validate_population_points(frame: pd.DataFrame) -> pd.DataFrame:
     return result.sort_values("point_id").reset_index(drop=True)
 
 
+def validate_candidates(frame: pd.DataFrame) -> pd.DataFrame:
+    require_columns(frame, CANDIDATE_COLUMNS, "candidates")
+    result = frame.copy()
+    result["candidate_id"] = result["candidate_id"].astype(str).str.strip()
+    result["candidate_name"] = result["candidate_name"].astype(str).str.strip()
+    result["county_fips"] = result["county_fips"].astype(str).str.zfill(5)
+    result["latitude"] = pd.to_numeric(result["latitude"], errors="raise")
+    result["longitude"] = pd.to_numeric(result["longitude"], errors="raise")
+    if result["candidate_id"].eq("").any():
+        raise ValueError("candidate_id must not be blank")
+    if result["candidate_name"].eq("").any():
+        raise ValueError("candidate_name must not be blank")
+    if result["candidate_id"].duplicated().any():
+        duplicates = result.loc[result["candidate_id"].duplicated(), "candidate_id"].tolist()
+        raise ValueError(f"candidates contains duplicate candidate_id values: {duplicates}")
+    if not result["latitude"].between(-90, 90).all():
+        raise ValueError("candidate latitude must be between -90 and 90")
+    if not result["longitude"].between(-180, 180).all():
+        raise ValueError("candidate longitude must be between -180 and 180")
+    return result.sort_values("candidate_id").reset_index(drop=True)
+
+
 def validate_travel_time_matrix(frame: pd.DataFrame) -> pd.DataFrame:
     require_columns(frame, TRAVEL_TIME_MATRIX_COLUMNS, "travel time matrix")
     result = frame.copy()

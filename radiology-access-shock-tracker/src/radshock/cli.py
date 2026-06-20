@@ -26,6 +26,7 @@ from radshock.adapters.facilities import (
     read_fda_mqsa_fixed_width,
 )
 from radshock.briefs import generate_policy_brief, generate_policy_brief_html
+from radshock.candidates import build_county_candidate_review_template, finalize_candidate_review
 from radshock.changes import detect_changes
 from radshock.demo import build_demo
 from radshock.geocoding import (
@@ -511,6 +512,65 @@ def prepare_travel_time_review_command(
     )
 
 
+@app.command("prepare-candidate-review")
+def prepare_candidate_review_command(
+    counties_csv: Annotated[Path, typer.Option(exists=True, readable=True)],
+    output_csv: Annotated[Path, typer.Option()],
+    metadata_json: Annotated[
+        Path | None,
+        typer.Option(help="Optional candidate-review template metadata JSON path."),
+    ] = None,
+    force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
+) -> None:
+    """Create a candidate-site review CSV from county centroids."""
+    if output_csv.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    if metadata_json is not None and metadata_json.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {metadata_json}")
+    review = build_county_candidate_review_template(
+        pd.read_csv(counties_csv, dtype={"county_fips": str})
+    )
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    review.to_csv(output_csv, index=False)
+    typer.echo(f"Candidate review template written: {output_csv.resolve()}")
+    typer.echo(f"Candidate rows: {len(review)}")
+    if metadata_json is not None:
+        _write_candidate_review_metadata(
+            metadata_json,
+            force=force,
+            output_csv=output_csv,
+            counties_csv=counties_csv,
+            review=review,
+        )
+        typer.echo(f"Candidate review metadata written: {metadata_json.resolve()}")
+    typer.echo(
+        "County-centroid candidates are placeholders. Review assumptions and set review_status "
+        "before running finalize-candidate-review."
+    )
+
+
+@app.command("finalize-candidate-review")
+def finalize_candidate_review_command(
+    input_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    output_csv: Annotated[Path, typer.Option()],
+    force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
+    dry_run: Annotated[bool, typer.Option(help="Validate without writing output.")] = False,
+) -> None:
+    """Validate reviewed candidate-site assumptions and write analysis-ready candidates."""
+    if output_csv.exists() and not force and not dry_run:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    candidates = finalize_candidate_review(
+        pd.read_csv(input_csv, dtype={"candidate_id": str, "county_fips": str})
+    )
+    if dry_run:
+        typer.echo(f"Candidate review complete: {len(candidates)} candidates")
+        return
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    candidates.to_csv(output_csv, index=False)
+    typer.echo(f"Analysis-ready candidates written: {output_csv.resolve()}")
+    typer.echo(f"Candidate rows: {len(candidates)}")
+
+
 @app.command("finalize-travel-time-review")
 def finalize_travel_time_review_command(
     input_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
@@ -791,6 +851,42 @@ def _write_travel_time_review_metadata(
         "notes": [
             "travel_time_minutes are blank route-review inputs, not route results.",
             "route provider metadata and review_status must be completed before finalization.",
+        ],
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _write_candidate_review_metadata(
+    path: Path,
+    *,
+    force: bool,
+    output_csv: Path,
+    counties_csv: Path,
+    review: pd.DataFrame,
+) -> None:
+    if path.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {path}")
+    metadata = {
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "source_name": "radshock-prepare-candidate-review",
+        "output": {
+            "path": str(output_csv),
+            "sha256": file_sha256(output_csv),
+        },
+        "inputs": {
+            "counties_csv": {
+                "path": str(counties_csv),
+                "sha256": file_sha256(counties_csv),
+            }
+        },
+        "row_counts": {
+            "candidate_rows": int(len(review)),
+            "counties": int(review["county_fips"].nunique()) if len(review) else 0,
+        },
+        "notes": [
+            "county-centroid candidates are placeholder response locations.",
+            "review_status must be reviewed, verified, or approved before finalization.",
         ],
     }
     path.parent.mkdir(parents=True, exist_ok=True)

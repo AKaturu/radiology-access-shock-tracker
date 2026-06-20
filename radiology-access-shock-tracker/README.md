@@ -246,6 +246,25 @@ Duplicate point/facility pairs and negative travel times are rejected.
 If `--max-facilities-per-point` is used to limit routing volume, record and review that pruning
 assumption with the route provider metadata before publication.
 
+Prepare candidate response sites through a review gate before using intervention rankings:
+
+```bash
+radshock prepare-candidate-review \
+  --counties-csv data/counties.csv \
+  --output-csv work/candidate_review.csv \
+  --metadata-json work/candidate_review.metadata.json
+```
+
+The generated county-centroid candidates are placeholders. Review or replace them with real mobile
+stop or fixed-site assumptions, set `review_status` to `reviewed`, `verified`, or `approved`, then
+finalize:
+
+```bash
+radshock finalize-candidate-review \
+  work/candidate_review.csv \
+  --output-csv data/candidate_sites.csv
+```
+
 Run shock-score sensitivity analysis:
 
 ```bash

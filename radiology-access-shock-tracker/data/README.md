@@ -7,7 +7,8 @@ Expected inputs:
 - `snapshots/YYYY-MM-DD/facilities.csv`: validated facility snapshot.
 - `population_points.csv`: small-area population points and weights.
 - `counties.csv`: county names, centroids, population, and vulnerability context.
-- `candidate_sites.csv`: hypothetical mobile or fixed response locations.
+- `candidate_sites.csv`: reviewed hypothetical mobile or fixed response locations from
+  `finalize-candidate-review`.
 - `utilization.csv`: period-by-county screening services and denominator.
 
 Use `radshock demo` to generate fully synthetic examples of every input and output schema.

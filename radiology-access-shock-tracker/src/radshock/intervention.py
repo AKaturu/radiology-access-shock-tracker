@@ -5,7 +5,7 @@ import pandas as pd
 
 from radshock.access import nearest_access
 from radshock.geo import haversine_miles
-from radshock.schemas import CANDIDATE_COLUMNS, require_columns, validate_facilities
+from radshock.schemas import validate_candidates, validate_facilities
 
 
 def simulate_candidates(
@@ -15,13 +15,13 @@ def simulate_candidates(
     threshold_miles: float = 30.0,
 ) -> pd.DataFrame:
     """Rank hypothetical mobile or fixed sites using unconstrained geographic benefit."""
-    require_columns(candidates, CANDIDATE_COLUMNS, "candidates")
+    candidate_rows = validate_candidates(candidates)
     current = nearest_access(population_points, validate_facilities(current_facilities))
     current_distance = current["distance_miles"].to_numpy(dtype=float)
     weights = current["weight"].to_numpy(dtype=float)
     rows: list[dict[str, object]] = []
 
-    for candidate in candidates.itertuples(index=False):
+    for candidate in candidate_rows.itertuples(index=False):
         candidate_distance = haversine_miles(
             current["latitude"].to_numpy(),
             current["longitude"].to_numpy(),
