@@ -106,6 +106,59 @@ def test_readiness_audit_blocks_public_osrm_travel_time_provider(tmp_path: Path)
     assert check_statuses["route_provider"] == "BLOCKER"
 
 
+def test_readiness_audit_accepts_self_hosted_osrm_provenance(tmp_path: Path) -> None:
+    analysis = tmp_path / "analysis"
+    analysis.mkdir()
+    (analysis / "manifest.json").write_text(
+        json.dumps(
+            {
+                "synthetic_data": False,
+                "routing": _self_hosted_routing_manifest(),
+            }
+        )
+        + "\n"
+    )
+    pd.DataFrame(columns=["event_type"]).to_csv(analysis / "facility_events.csv", index=False)
+    _travel_time_county_shocks(analysis / "county_shocks.csv")
+    _interventions(analysis / "intervention_rankings.csv")
+    _sensitivity(analysis / "sensitivity_analysis.csv")
+    (analysis / "policy_brief.md").write_text("# Brief\n")
+
+    audit = run_readiness_audit(analysis, require_travel_time=True)
+
+    check_statuses = {check.check_id: check.status for check in audit.checks}
+    assert check_statuses["route_provider"] == "PASS"
+
+
+def test_readiness_audit_blocks_incomplete_private_route_provenance(tmp_path: Path) -> None:
+    analysis = tmp_path / "analysis"
+    analysis.mkdir()
+    (analysis / "manifest.json").write_text(
+        json.dumps(
+            {
+                "synthetic_data": False,
+                "routing": {
+                    "provider": "osrm:driving",
+                    "route_source_url": "http://127.0.0.1:5000/table/v1/driving",
+                    "matrix_metadata_json": "data/travel_times/matrix.metadata.json",
+                },
+            }
+        )
+        + "\n"
+    )
+    pd.DataFrame(columns=["event_type"]).to_csv(analysis / "facility_events.csv", index=False)
+    _travel_time_county_shocks(analysis / "county_shocks.csv")
+    _interventions(analysis / "intervention_rankings.csv")
+    _sensitivity(analysis / "sensitivity_analysis.csv")
+    (analysis / "policy_brief.md").write_text("# Brief\n")
+
+    audit = run_readiness_audit(analysis, require_travel_time=True)
+
+    route_provider = {check.check_id: check for check in audit.checks}["route_provider"]
+    assert route_provider.status == "BLOCKER"
+    assert "routing.map_extract" in route_provider.details
+
+
 def test_readiness_audit_warns_on_county_centroid_placeholder_candidates(
     tmp_path: Path,
 ) -> None:
@@ -182,6 +235,27 @@ def _travel_time_county_shocks(path: Path) -> None:
             }
         ]
     ).to_csv(path, index=False)
+
+
+def _self_hosted_routing_manifest() -> dict[str, object]:
+    return {
+        "provider": "osrm:driving",
+        "profile": "driving",
+        "route_source_url": "http://127.0.0.1:5000/table/v1/driving",
+        "matrix_metadata_json": "data/travel_times/self_hosted_osrm_matrix.metadata.json",
+        "traffic_assumption": "free-flow travel time; no live traffic",
+        "engine": {
+            "name": "Project OSRM",
+            "version": "v6.0.0 container",
+            "deployment": "self-hosted GitHub Actions runner",
+        },
+        "map_extract": {
+            "name": "Geofabrik North Carolina",
+            "source_url": "https://download.geofabrik.de/north-america/us/north-carolina-latest.osm.pbf",
+            "osm_data_timestamp": "2026-06-17T20:21:14Z",
+            "sha256": "abc123",
+        },
+    }
 
 
 def _interventions(path: Path) -> None:

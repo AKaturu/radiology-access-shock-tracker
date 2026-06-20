@@ -136,6 +136,27 @@ OSRM instance with documented OSM extract date/profile or an approved commercial
 Google Routes Compute Route Matrix. Google Routes requires a Google Maps Platform project, billing,
 and an API key; matrix requests are billed per origin-destination element.
 
+For the publishable NC tract package, run the manual GitHub Actions workflow
+`self-hosted OSRM travel-time package`. It downloads the Geofabrik North Carolina OSM PBF extract,
+verifies the `.md5`, builds an OSRM MLD graph with the car profile, fills the tract nearest-20
+route review through `http://127.0.0.1:5000`, writes a new matrix, and emits an audited analysis
+package artifact.
+
+The workflow input `osm_data_timestamp` must match the Geofabrik page line "contains all OSM data
+up to ...". As of this project pass, the North Carolina page reported
+`2026-06-17T20:21:14Z`. If the page changes, update the workflow input rather than reusing the old
+timestamp.
+
+The same run can be executed on any Linux host with Docker:
+
+```bash
+export OSM_DATA_TIMESTAMP="2026-06-17T20:21:14Z"
+bash scripts/run_self_hosted_osrm_matrix.sh
+```
+
+The resulting package should report readiness `READY`. If it does not, do not publish the route-time
+findings until the blockers are resolved.
+
 For hosted OpenRouteService testing, store the key as `OPENROUTESERVICE_API_KEY` and call:
 
 ```powershell

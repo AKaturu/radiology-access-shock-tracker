@@ -306,16 +306,29 @@ Production readiness hardening.
   provenance and warn on county-centroid placeholder candidates. After replacing placeholders with
   HRSA service-delivery assumptions, the real tract package now returns `BLOCKED` with 1 blocker
   and 0 warnings; the remaining blocker is the testing-grade public OSRM route provider.
+- The route-provider readiness gate now requires provider, profile, traffic assumption, routing
+  engine deployment/version, and OSM map extract source/date/checksum provenance. Self-hosted OSRM
+  provenance passes; incomplete private routing provenance blocks publication.
+- `.github/workflows/self-hosted-osrm-travel-time.yml`,
+  `scripts/run_self_hosted_osrm_matrix.sh`, and `scripts/finalize_travel_time_package.py` were
+  added. The manual workflow builds an OSRM MLD graph from the Geofabrik North Carolina extract,
+  refills the tract nearest-20 route review through `127.0.0.1`, finalizes a self-hosted matrix,
+  and emits a readiness-audited analysis package artifact.
+- The reviewed 2026-06-19 and 2026-06-20 facility snapshots plus FDA source metadata were promoted
+  to `data/snapshots/` and `data/source_metadata/` so the self-hosted OSRM workflow can reproduce
+  the real package on GitHub's Ubuntu runner without ignored `work/` files.
 - The policy brief generator now describes travel-time shocks in minutes when road-time outputs are
   supplied.
 - `.github/CODEOWNERS`, `.github/branch-protection.master.json`, and
   `scripts/configure_github_governance.ps1` were added. Local execution confirmed GitHub settings
   cannot be applied from this machine because PowerShell script execution is restricted by default
   and the GitHub CLI is not installed/on PATH.
-- Latest validation after this pass: `python -m pytest` passed with 76 tests,
+- Latest validation after this pass: `python -m pytest` passed with 79 tests,
   `python -m ruff check .` passed, `python -m mypy src/radshock` passed, and the real tract
   travel-time readiness audit correctly reports `BLOCKED` for the testing-grade OSRM route
-  provider.
+  provider. A public-OSRM finalizer smoke run completed and correctly remained blocked. The
+  self-hosted Docker OSRM workflow was not executed locally because Docker, WSL, and native OSRM are
+  not installed in this Windows environment.
 
 Latest validation gate completed:
 
@@ -415,9 +428,9 @@ Latest validation gate completed:
 
 ### Remaining Work
 
-- Decide whether the complete OSRM public-endpoint tract matrix is acceptable only for testing or
-  should be regenerated with a production-approved provider such as self-hosted OSRM, Valhalla, a
-  paid OpenRouteService quota, or another reviewed matrix provider.
+- Run the manual `self-hosted OSRM travel-time package` GitHub Actions workflow or run
+  `scripts/run_self_hosted_osrm_matrix.sh` on a Linux host with Docker, then review/download the
+  artifact before publishing route-time findings.
 - Apply GitHub branch protection, repository secrets, and code-owner review in GitHub itself after
   installing/authenticating `gh` with repo admin access.
 - Obtain a later real reviewed snapshot before making any trend or deterioration claim beyond
@@ -427,8 +440,8 @@ Latest validation gate completed:
 
 1. Run the GitHub governance setup from an authenticated admin shell:
    `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\configure_github_governance.ps1 -Apply`.
-2. Choose the production routing provider and, if needed, regenerate
-   `data/travel_times/2026-06-20_tract_nearest20_osrm_matrix.csv` with that provider.
+2. Run the manual self-hosted OSRM workflow with the current Geofabrik North Carolina OSM data
+   timestamp and confirm the artifact readiness audit is `READY`.
 3. Pull and review a later MQSA source snapshot before making actual change claims.
 
 ## Risks
@@ -436,8 +449,6 @@ Latest validation gate completed:
 ### Open Questions
 
 - Which reviewed FDA/MQSA export format will be used for the first real snapshot?
-- Should hosted OpenRouteService be approved for publication use, or should the project use a
-  self-hosted routing engine/commercial provider?
 - Who should be assigned as GitHub source-review owners for branch protection?
 - Which later reviewed snapshot date should be used for the first real change analysis?
 
@@ -447,8 +458,8 @@ Latest validation gate completed:
   live endpoints in CI.
 - Great-circle distance remains the default demo method.
 - The complete tract OSRM travel-time matrix is a testing artifact with real provider output from
-  the public OSRM-compatible endpoint. It still needs production-provider approval or regeneration
-  before publication.
+  the public OSRM-compatible endpoint. The repository now includes a self-hosted OSRM generation
+  workflow, but the workflow artifact has not been generated locally.
 
 ### Technical Concerns
 

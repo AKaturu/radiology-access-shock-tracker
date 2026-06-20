@@ -160,6 +160,25 @@ def test_fill_travel_time_review_from_osrm_allows_explicit_review_status() -> No
     assert set(result["review_status"]) == {"reviewed"}
 
 
+def test_fill_travel_time_review_from_osrm_clears_stale_provider_rows_on_refill() -> None:
+    review = build_travel_time_review_template(_population(), _facilities())
+    review["travel_time_minutes"] = "99.0"
+    review["route_status"] = "routed"
+    review["route_provider"] = "osrm:old"
+    review["route_source_url"] = "https://router.project-osrm.org/table/v1/driving"
+    review["route_retrieved_at_utc"] = "2026-06-20T00:00:00+00:00"
+    review["review_status"] = "reviewed"
+
+    result = fill_travel_time_review_from_osrm(review, session=_FailingSession())
+
+    assert set(result["travel_time_minutes"]) == {""}
+    assert set(result["route_status"]) == {"needs_route"}
+    assert set(result["route_provider"]) == {""}
+    assert set(result["route_source_url"]) == {""}
+    assert set(result["review_status"]) == {"needs_review"}
+    assert result["route_error"].str.startswith("OSRM request failed").all()
+
+
 def test_fill_travel_time_review_from_openrouteservice_writes_minutes_and_metadata() -> None:
     review = build_travel_time_review_template(_population(), _facilities())
     session = _FakePostSession(
@@ -220,6 +239,11 @@ class _FakeResponse:
 
     def json(self) -> dict[str, object]:
         return {"code": "Ok", "durations": [self.durations]}
+
+
+class _FailingSession:
+    def get(self, url: str, timeout: int, headers: dict[str, str]) -> "_FakeResponse":
+        raise RuntimeError("local router unavailable")
 
 
 class _FakePostSession:

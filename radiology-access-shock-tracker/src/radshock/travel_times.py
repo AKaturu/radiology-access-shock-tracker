@@ -217,6 +217,7 @@ def fill_travel_time_review_from_osrm(
     for column in ["point_id", "facility_id", "route_status", "review_status"]:
         result[column] = result[column].astype(str).str.strip()
     _require_unique_pairs(result)
+    _reset_route_output_columns(result)
 
     provider = f"osrm:{cleaned_profile}"
     endpoint_base = base_url.rstrip("/")
@@ -324,6 +325,7 @@ def fill_travel_time_review_from_openrouteservice(
     for column in ["point_id", "facility_id", "route_status", "review_status"]:
         result[column] = result[column].astype(str).str.strip()
     _require_unique_pairs(result)
+    _reset_route_output_columns(result)
 
     provider = f"openrouteservice:{cleaned_profile}"
     endpoint_base = base_url.rstrip("/")
@@ -404,6 +406,20 @@ def _require_unique_pairs(frame: pd.DataFrame) -> None:
             "travel time review contains duplicate point/facility pairs: "
             + examples.to_dict(orient="records").__repr__()
         )
+
+
+def _reset_route_output_columns(frame: pd.DataFrame) -> None:
+    defaults = {
+        "travel_time_minutes": "",
+        "route_status": "needs_route",
+        "route_provider": "",
+        "route_source_url": "",
+        "route_retrieved_at_utc": "",
+        "route_error": "",
+        "review_status": "needs_review",
+    }
+    for column, value in defaults.items():
+        frame[column] = pd.Series([value] * len(frame), index=frame.index, dtype="object")
 
 
 def _format_osrm_coordinate(longitude: object, latitude: object) -> str:

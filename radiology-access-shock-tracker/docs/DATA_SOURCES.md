@@ -121,6 +121,17 @@ tests, but production route matrices should use an approved routing provider or 
 instance with documented OpenStreetMap/network vintage, profile, traffic assumption, quota/terms,
 and license attribution.
 
+The production NC route workflow is `.github/workflows/self-hosted-osrm-travel-time.yml`. It builds
+a self-hosted OSRM MLD graph from the Geofabrik North Carolina OSM PBF extract and records the OSM
+data timestamp, routing profile, container image, map extract URL, extract checksum, and
+free-flow/no-traffic assumption in the analysis manifest.
+
+Geofabrik North Carolina extract page:
+<https://download.geofabrik.de/north-america/us/north-carolina.html>
+
+Direct Geofabrik North Carolina OSM PBF:
+<https://download.geofabrik.de/north-america/us/north-carolina-latest.osm.pbf>
+
 Official OSRM Table API documentation:
 <https://project-osrm.org/docs/v5.23.0/api/#table-service>
 

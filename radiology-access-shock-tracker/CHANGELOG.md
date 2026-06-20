@@ -17,6 +17,8 @@
 - Added nearest-facility caps and metadata sidecars for travel-time review templates.
 - Added OSRM-compatible travel-time review draft filling with route provenance.
 - Added hosted OpenRouteService Matrix draft filling through `OPENROUTESERVICE_API_KEY`.
+- Added a manual self-hosted OSRM GitHub Actions workflow and finalizer for publication-grade
+  route-time packages with map extract/profile provenance.
 - Added Census-backed NC county context CSV generation and a live county-centroid ORS travel-time
   test matrix.
 - Added Census-backed NC tract population-point generation with source metadata and checksums.

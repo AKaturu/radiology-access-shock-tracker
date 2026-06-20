@@ -562,6 +562,20 @@ def _audit_route_provider(
             )
         )
         return
+    missing_fields = _missing_route_provenance_fields(routing)
+    if missing_fields:
+        checks.append(
+            AuditCheck(
+                "route_provider",
+                "Route provider provenance",
+                "BLOCKER" if require_travel_time else "WARN",
+                "Travel-time routing provenance is incomplete; missing: "
+                + ", ".join(missing_fields),
+                "Record provider, profile, self-hosted/commercial deployment, engine version, "
+                "map extract source/date/checksum, and traffic assumptions before publication.",
+            )
+        )
+        return
     checks.append(
         AuditCheck(
             "route_provider",
@@ -572,6 +586,44 @@ def _audit_route_provider(
             "publication.",
         )
     )
+
+
+def _missing_route_provenance_fields(routing: dict[str, object]) -> list[str]:
+    missing: list[str] = []
+    for field in ["provider", "profile", "route_source_url", "matrix_metadata_json"]:
+        if not str(routing.get(field, "")).strip():
+            missing.append(f"routing.{field}")
+    if not str(routing.get("traffic_assumption", "")).strip():
+        missing.append("routing.traffic_assumption")
+
+    engine = routing.get("engine")
+    if not isinstance(engine, dict):
+        missing.extend(
+            [
+                "routing.engine.name",
+                "routing.engine.version",
+                "routing.engine.deployment",
+            ]
+        )
+    else:
+        for field in ["name", "version", "deployment"]:
+            if not str(engine.get(field, "")).strip():
+                missing.append(f"routing.engine.{field}")
+
+    map_extract = routing.get("map_extract")
+    if not isinstance(map_extract, dict):
+        missing.extend(
+            [
+                "routing.map_extract.source_url",
+                "routing.map_extract.osm_data_timestamp",
+                "routing.map_extract.sha256",
+            ]
+        )
+    else:
+        for field in ["source_url", "osm_data_timestamp", "sha256"]:
+            if not str(map_extract.get(field, "")).strip():
+                missing.append(f"routing.map_extract.{field}")
+    return missing
 
 
 def _audit_events_against_shocks(

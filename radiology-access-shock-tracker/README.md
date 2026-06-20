@@ -238,6 +238,18 @@ radshock fill-travel-time-review \
   --max-origins 100
 ```
 
+For publication-grade NC road-time outputs, use the manual GitHub Actions workflow
+`self-hosted OSRM travel-time package` or run the same script on a Linux host with Docker:
+
+```bash
+export OSM_DATA_TIMESTAMP="2026-06-17T20:21:14Z"
+bash scripts/run_self_hosted_osrm_matrix.sh
+```
+
+That path builds a local OSRM graph from the Geofabrik North Carolina extract, routes through
+`127.0.0.1`, records map extract/profile/traffic-assumption provenance, and reruns the readiness
+audit. Do not publish road-time findings unless that package reports readiness `READY`.
+
 For OpenRouteService testing, set the API key in the environment and use the Matrix endpoint:
 
 ```bash

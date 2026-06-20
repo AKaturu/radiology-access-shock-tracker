@@ -8,7 +8,7 @@ Status: PASS
 
 ## Checks
 
-- `python -m pytest`: 76 passed in 3.57s.
+- `python -m pytest`: 79 passed in 3.74s.
 - `python -m ruff check .`: passed.
 - `python -m mypy src/radshock`: passed with no issues in 24 source files.
 - `python -m pip wheel . -w work/dist`: built the project wheel.
@@ -17,11 +17,13 @@ Status: PASS
   This is expected because the package uses the public OSRM endpoint; the county-centroid
   candidate-placeholder warning has been resolved.
 - Secret scan for the supplied Census and OpenRouteService key literals: no matches.
+- `scripts/finalize_travel_time_package.py` public-OSRM smoke run completed and correctly
+  remained BLOCKED for the public route provider.
 
 ## Built Wheel
 
 - File: `work/dist/radiology_access_shock_tracker-0.1.0-py3-none-any.whl`
-- SHA-256: `44E4BD5FE1B1327D668AF0313427DC33130A68A8C25BCE581E4C3B6A7EA431BA`
+- SHA-256: `EC287D06D4D3FCAF039CF435BDA459840D6BD3C205210016DDEBB106E36B289C`
 
 ## Real Artifact Evidence
 
@@ -37,6 +39,11 @@ Status: PASS
 - Real travel-time package:
   `work/source-refresh-smoke/analysis-tract-osrm-travel-time`, readiness BLOCKED until route
   provider provenance is production-approved.
+- Self-hosted OSRM production route workflow:
+  `.github/workflows/self-hosted-osrm-travel-time.yml`, backed by
+  `scripts/run_self_hosted_osrm_matrix.sh` and `scripts/finalize_travel_time_package.py`.
+  This was not executed locally because Docker/WSL are not installed in the current Windows
+  environment; it is designed for GitHub's Ubuntu runner or another Linux host with Docker.
 
 ## Media Evidence
 

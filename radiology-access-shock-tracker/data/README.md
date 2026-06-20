@@ -7,6 +7,8 @@ their provenance metadata is included.
 Expected inputs:
 
 - `snapshots/YYYY-MM-DD/facilities.csv`: validated facility snapshot.
+- `source_metadata/*.metadata.json`: source archive metadata needed by readiness audits when raw
+  source files are too large or unsuitable to commit.
 - `population_points.csv`: small-area population points and weights.
 - `counties.csv`: county names, centroids, population, and vulnerability context.
 - `candidate_sites.csv`: reviewed hypothetical mobile or fixed response locations from
