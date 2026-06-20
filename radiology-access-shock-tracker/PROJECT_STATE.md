@@ -331,6 +331,13 @@ Production readiness hardening.
   self-hosted OSRM workflow routed 52,680 of 52,680 tract-nearest pairs with zero unreachable/error
   rows and wrote a readiness `READY` package with 0 blockers and 0 warnings at
   `work/self-hosted-osrm/analysis-tract-self-hosted-osrm`.
+- A same-day FDA MQSA refresh was run on 2026-06-20 at `work/mqsa-review-2026-06-20-live`.
+  The fresh public ZIP SHA-256 matched the promoted 2026-06-20 source archive
+  (`9aa978827386629891acc4fed87e50964de10bd3d681b47b916c78ec39a4141c`). Carry-forward review
+  matched all 289 NC source-record hashes, approved all 289 rows, left 0 rows needing review, and
+  finalized a work-only snapshot that is byte-for-byte identical to `data/snapshots/2026-06-20`.
+  Snapshot comparison produced 0 event rows, so this confirms no same-day source delta but does not
+  create a later-date snapshot for trend claims.
 
 Latest validation gate completed:
 
@@ -435,8 +442,8 @@ Latest validation gate completed:
   before publishing route-time findings.
 - Apply GitHub branch protection, repository secrets, and code-owner review in GitHub itself after
   installing/authenticating `gh` with repo admin access.
-- Obtain a later real reviewed snapshot before making any trend or deterioration claim beyond
-  "no observed change between 2026-06-19 and 2026-06-20."
+- Obtain a later real reviewed snapshot after a future FDA MQSA source update before making any
+  trend or deterioration claim beyond "no observed change between 2026-06-19 and 2026-06-20."
 
 ## Next Actions
 
@@ -445,13 +452,13 @@ Latest validation gate completed:
 2. Review/archive the local self-hosted OSRM artifact or rerun the manual GitHub Actions workflow
    with the current Geofabrik North Carolina OSM data timestamp before publishing route-time
    findings.
-3. Pull and review a later MQSA source snapshot before making actual change claims.
+3. Pull and review a later MQSA source snapshot after the next FDA source update before making
+   actual change claims.
 
 ## Risks
 
 ### Open Questions
 
-- Which reviewed FDA/MQSA export format will be used for the first real snapshot?
 - Who should be assigned as GitHub source-review owners for branch protection?
 - Which later reviewed snapshot date should be used for the first real change analysis?
 
