@@ -8,12 +8,14 @@ Status: PASS
 
 ## Checks
 
-- `python -m pytest`: 72 passed in 5.37s.
+- `python -m pytest`: 74 passed in 3.72s.
 - `python -m ruff check .`: passed.
 - `python -m mypy src/radshock`: passed with no issues in 23 source files.
 - `python -m pip wheel . -w work/dist`: built the project wheel.
 - `radshock readiness-audit --require-travel-time` on
-  `work/source-refresh-smoke/analysis-tract-osrm-travel-time`: READY, 0 blockers, 0 warnings.
+  `work/source-refresh-smoke/analysis-tract-osrm-travel-time`: BLOCKED, 1 blocker, 1 warning.
+  This is expected because the package uses the public OSRM endpoint and county-centroid
+  placeholder candidate assumptions.
 - Secret scan for the supplied Census and OpenRouteService key literals: no matches.
 - Streamlit health check at `http://127.0.0.1:8781/_stcore/health`: HTTP 200.
 
@@ -31,7 +33,8 @@ Status: PASS
 - Final tract travel-time matrix:
   `data/travel_times/2026-06-20_tract_nearest20_osrm_matrix.csv` with 52,680 rows.
 - Real travel-time package:
-  `work/source-refresh-smoke/analysis-tract-osrm-travel-time`, readiness READY.
+  `work/source-refresh-smoke/analysis-tract-osrm-travel-time`, readiness BLOCKED until route
+  provider provenance and candidate assumptions are production-approved.
 
 ## Media Evidence
 

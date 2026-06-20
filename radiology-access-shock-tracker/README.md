@@ -318,6 +318,9 @@ radshock readiness-audit \
 
 The audit blocks synthetic manifests, unresolved facility-event verification, missing core outputs,
 bad snapshot checksums, and missing required production artifacts.
+When road-time outputs are required, it also blocks missing route-provider provenance and
+testing-grade public OSRM route matrices. Candidate rankings based on county-centroid placeholders
+are warned until replaced with reviewed mobile-stop or fixed-site assumptions.
 
 Run the full analysis:
 

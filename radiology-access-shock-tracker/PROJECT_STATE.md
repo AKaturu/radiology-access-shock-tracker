@@ -297,18 +297,20 @@ Production readiness hardening.
   `data/population_points_tracts.csv`, `data/counties.csv`, `data/candidate_sites.csv`, and the
   finalized OSRM tract matrix for both periods. It produced 100 county records with zero
   warning/critical alerts, as expected for unchanged facility snapshots.
-- `readiness-audit --require-travel-time` on that real package returned `READY` with 0 blockers
-  and 0 warnings.
+- `readiness-audit --require-travel-time` was tightened to block public OSRM route-provider
+  provenance and warn on county-centroid placeholder candidates. The real tract package now returns
+  `BLOCKED` with 1 blocker and 1 warning until routing is regenerated with an approved provider and
+  candidate assumptions are replaced.
 - The policy brief generator now describes travel-time shocks in minutes when road-time outputs are
   supplied.
 - `.github/CODEOWNERS`, `.github/branch-protection.master.json`, and
   `scripts/configure_github_governance.ps1` were added. Local execution confirmed GitHub settings
   cannot be applied from this machine because PowerShell script execution is restricted by default
   and the GitHub CLI is not installed/on PATH.
-- Latest validation after this pass: `python -m pytest` passed with 72 tests, `python -m ruff
-  check .` passed, `python -m mypy src/radshock` passed, `python -m pip wheel . -w work/dist`
-  built the project wheel, the real tract travel-time readiness audit was READY, the supplied-key
-  secret scan found no matches, and Streamlit health returned HTTP 200.
+- Latest validation after this pass: `python -m pytest` passed with 74 tests,
+  `python -m ruff check .` passed, `python -m mypy src/radshock` passed, and the real tract
+  travel-time readiness audit correctly reports `BLOCKED` for the testing-grade OSRM route
+  provider.
 
 Latest validation gate completed:
 

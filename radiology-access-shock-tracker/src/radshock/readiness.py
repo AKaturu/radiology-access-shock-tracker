@@ -74,7 +74,7 @@ def run_readiness_audit(
             "No action required.",
         )
     )
-    _audit_manifest(analysis_dir, checks)
+    manifest = _audit_manifest(analysis_dir, checks)
     events = _audit_events(analysis_dir / "facility_events.csv", checks)
     shocks = _audit_county_shocks(analysis_dir / "county_shocks.csv", checks)
     _audit_interventions(analysis_dir / "intervention_rankings.csv", checks)
@@ -82,6 +82,7 @@ def run_readiness_audit(
     _audit_brief(analysis_dir, checks)
     if shocks is not None:
         _audit_travel_time(shocks, checks, require_travel_time=require_travel_time)
+        _audit_route_provider(manifest, shocks, checks, require_travel_time=require_travel_time)
     if events is not None and shocks is not None:
         _audit_events_against_shocks(events, shocks, checks)
     _audit_snapshot("before", before_snapshot_dir, checks)
@@ -143,7 +144,7 @@ def _audit(analysis_dir: Path, checks: list[AuditCheck]) -> ReadinessAudit:
     )
 
 
-def _audit_manifest(analysis_dir: Path, checks: list[AuditCheck]) -> None:
+def _audit_manifest(analysis_dir: Path, checks: list[AuditCheck]) -> dict[str, object] | None:
     manifest_path = find_manifest_path(analysis_dir)
     if manifest_path is None:
         checked_paths = [analysis_dir / "manifest.json", analysis_dir.parent / "manifest.json"]
@@ -156,9 +157,9 @@ def _audit_manifest(analysis_dir: Path, checks: list[AuditCheck]) -> None:
                 "Store a manifest with synthetic_data and source provenance before publication.",
             )
         )
-        return
+        return None
     try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest_payload = json.loads(manifest_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         checks.append(
             AuditCheck(
@@ -169,7 +170,19 @@ def _audit_manifest(analysis_dir: Path, checks: list[AuditCheck]) -> None:
                 "Regenerate the manifest or repair the JSON before publication.",
             )
         )
-        return
+        return None
+    if not isinstance(manifest_payload, dict):
+        checks.append(
+            AuditCheck(
+                "manifest",
+                "Manifest provenance",
+                "BLOCKER",
+                "Manifest JSON must be an object.",
+                "Regenerate the manifest before publication.",
+            )
+        )
+        return None
+    manifest: dict[str, object] = manifest_payload
     if bool(manifest.get("synthetic_data")):
         checks.append(
             AuditCheck(
@@ -191,6 +204,7 @@ def _audit_manifest(analysis_dir: Path, checks: list[AuditCheck]) -> None:
                 "No action required.",
             )
         )
+    return manifest
 
 
 def _audit_events(path: Path, checks: list[AuditCheck]) -> pd.DataFrame | None:
@@ -344,7 +358,33 @@ def _audit_interventions(path: Path, checks: list[AuditCheck]) -> None:
             )
         )
         return
-    rows = len(pd.read_csv(path))
+    interventions = pd.read_csv(path)
+    rows = len(interventions)
+    placeholder_mask = pd.Series(False, index=interventions.index)
+    if "candidate_id" in interventions.columns:
+        placeholder_mask |= interventions["candidate_id"].astype(str).str.startswith(
+            "COUNTY-CENTROID-"
+        )
+    if "candidate_name" in interventions.columns:
+        placeholder_mask |= interventions["candidate_name"].astype(str).str.contains(
+            "County Centroid",
+            case=False,
+            na=False,
+        )
+    placeholder_count = int(placeholder_mask.sum())
+    if placeholder_count:
+        checks.append(
+            AuditCheck(
+                "interventions",
+                "Intervention rankings",
+                "WARN",
+                f"Intervention rankings include {placeholder_count} county-centroid "
+                "placeholder candidate(s).",
+                "Replace placeholders with reviewed mobile-stop or fixed-site assumptions "
+                "before using intervention rankings for operational planning.",
+            )
+        )
+        return
     checks.append(
         AuditCheck(
             "interventions",
@@ -472,6 +512,64 @@ def _audit_travel_time(
             "No action required."
             if minimum_coverage >= 0.95
             else "Review missing routes and routing assumptions.",
+        )
+    )
+
+
+def _audit_route_provider(
+    manifest: dict[str, object] | None,
+    shocks: pd.DataFrame,
+    checks: list[AuditCheck],
+    require_travel_time: bool,
+) -> None:
+    metric_values = set(shocks.get("access_metric", pd.Series(dtype=str)).astype(str))
+    has_travel_time = "travel_time_minutes" in metric_values or {
+        "mean_travel_time_minutes_before",
+        "mean_travel_time_minutes_after",
+    }.issubset(shocks.columns)
+    if not has_travel_time:
+        return
+    routing = manifest.get("routing") if manifest is not None else None
+    if not isinstance(routing, dict):
+        checks.append(
+            AuditCheck(
+                "route_provider",
+                "Route provider provenance",
+                "BLOCKER" if require_travel_time else "WARN",
+                "Travel-time outputs are present, but the manifest does not record routing "
+                "provider provenance.",
+                "Record provider, endpoint, profile, network vintage, traffic assumptions, "
+                "and matrix metadata before publication review.",
+            )
+        )
+        return
+    provider_text = " ".join(
+        str(routing.get(key, ""))
+        for key in ["provider", "route_source_url", "matrix_metadata_json", "note"]
+    ).lower()
+    if "router.project-osrm.org" in provider_text or (
+        "osrm" in provider_text and "public" in provider_text
+    ):
+        checks.append(
+            AuditCheck(
+                "route_provider",
+                "Route provider provenance",
+                "BLOCKER",
+                "Travel-time outputs use the public OSRM-compatible endpoint, which is a "
+                "testing service without production uptime or network-vintage guarantees.",
+                "Regenerate route matrices with a reviewed production provider or self-hosted "
+                "routing engine before publishing road-time findings.",
+            )
+        )
+        return
+    checks.append(
+        AuditCheck(
+            "route_provider",
+            "Route provider provenance",
+            "PASS",
+            "Manifest records routing provider provenance for travel-time outputs.",
+            "Review provider terms, profile, network vintage, and traffic assumptions before "
+            "publication.",
         )
     )
 

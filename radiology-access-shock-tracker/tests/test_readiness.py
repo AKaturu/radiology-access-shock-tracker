@@ -78,6 +78,60 @@ def test_readiness_audit_accepts_manifest_inside_analysis_dir(tmp_path: Path) ->
     assert audit.overall_status == "WARN"
 
 
+def test_readiness_audit_blocks_public_osrm_travel_time_provider(tmp_path: Path) -> None:
+    analysis = tmp_path / "analysis"
+    analysis.mkdir()
+    (analysis / "manifest.json").write_text(
+        json.dumps(
+            {
+                "synthetic_data": False,
+                "routing": {
+                    "provider": "osrm:driving",
+                    "note": "public OSRM-compatible endpoint",
+                },
+            }
+        )
+        + "\n"
+    )
+    pd.DataFrame(columns=["event_type"]).to_csv(analysis / "facility_events.csv", index=False)
+    _travel_time_county_shocks(analysis / "county_shocks.csv")
+    _interventions(analysis / "intervention_rankings.csv")
+    _sensitivity(analysis / "sensitivity_analysis.csv")
+    (analysis / "policy_brief.md").write_text("# Brief\n")
+
+    audit = run_readiness_audit(analysis, require_travel_time=True)
+
+    check_statuses = {check.check_id: check.status for check in audit.checks}
+    assert audit.overall_status == "BLOCKED"
+    assert check_statuses["route_provider"] == "BLOCKER"
+
+
+def test_readiness_audit_warns_on_county_centroid_placeholder_candidates(
+    tmp_path: Path,
+) -> None:
+    analysis = tmp_path / "analysis"
+    analysis.mkdir()
+    (analysis / "manifest.json").write_text('{"synthetic_data": false}\n')
+    pd.DataFrame(columns=["event_type"]).to_csv(analysis / "facility_events.csv", index=False)
+    _county_shocks(analysis / "county_shocks.csv")
+    pd.DataFrame(
+        [
+            {
+                "candidate_id": "COUNTY-CENTROID-37001",
+                "candidate_name": "Demo County Centroid",
+                "intervention_score": 90.0,
+            }
+        ]
+    ).to_csv(analysis / "intervention_rankings.csv", index=False)
+    _sensitivity(analysis / "sensitivity_analysis.csv")
+    (analysis / "policy_brief.md").write_text("# Brief\n")
+
+    audit = run_readiness_audit(analysis)
+
+    check_statuses = {check.check_id: check.status for check in audit.checks}
+    assert check_statuses["interventions"] == "WARN"
+
+
 def _events(path: Path, requires_verification: bool) -> None:
     pd.DataFrame(
         [
@@ -107,6 +161,24 @@ def _county_shocks(path: Path) -> None:
                 "vulnerability_poverty_component": 0.2,
                 "vulnerability_rurality_component": 0.4,
                 "vulnerability_risk_component": 0.3,
+            }
+        ]
+    ).to_csv(path, index=False)
+
+
+def _travel_time_county_shocks(path: Path) -> None:
+    pd.DataFrame(
+        [
+            {
+                "county_fips": "37001",
+                "county_name": "Demo",
+                "shock_score": 0,
+                "alert_level": "NONE",
+                "access_metric": "travel_time_minutes",
+                "mean_travel_time_minutes_before": 12.0,
+                "mean_travel_time_minutes_after": 12.0,
+                "travel_time_coverage_before": 1.0,
+                "travel_time_coverage_after": 1.0,
             }
         ]
     ).to_csv(path, index=False)
