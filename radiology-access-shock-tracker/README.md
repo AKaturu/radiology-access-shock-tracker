@@ -239,10 +239,11 @@ radshock fill-travel-time-review \
 ```
 
 For publication-grade NC road-time outputs, use the manual GitHub Actions workflow
-`self-hosted OSRM travel-time package` or run the same script on a Linux host with Docker:
+`self-hosted OSRM travel-time package` or run the same script on a Linux host with Docker. The
+script also supports Git Bash on Windows when Docker Desktop is using its WSL-backed Linux engine:
 
 ```bash
-export OSM_DATA_TIMESTAMP="2026-06-17T20:21:14Z"
+export OSM_DATA_TIMESTAMP="2026-06-19T20:21:41Z"
 bash scripts/run_self_hosted_osrm_matrix.sh
 ```
 

@@ -304,8 +304,8 @@ Production readiness hardening.
   warning/critical alerts, as expected for unchanged facility snapshots.
 - `readiness-audit --require-travel-time` was tightened to block public OSRM route-provider
   provenance and warn on county-centroid placeholder candidates. After replacing placeholders with
-  HRSA service-delivery assumptions, the real tract package now returns `BLOCKED` with 1 blocker
-  and 0 warnings; the remaining blocker is the testing-grade public OSRM route provider.
+  HRSA service-delivery assumptions, the public-OSRM real tract package returns `BLOCKED` with 1
+  blocker and 0 warnings; the remaining blocker is the testing-grade public OSRM route provider.
 - The route-provider readiness gate now requires provider, profile, traffic assumption, routing
   engine deployment/version, and OSM map extract source/date/checksum provenance. Self-hosted OSRM
   provenance passes; incomplete private routing provenance blocks publication.
@@ -326,9 +326,11 @@ Production readiness hardening.
 - Latest validation after this pass: `python -m pytest` passed with 79 tests,
   `python -m ruff check .` passed, `python -m mypy src/radshock` passed, and the real tract
   travel-time readiness audit correctly reports `BLOCKED` for the testing-grade OSRM route
-  provider. A public-OSRM finalizer smoke run completed and correctly remained blocked. Docker
-  Desktop, WSL, and Git Bash are now installed/configured locally, but Windows reported a required
-  reboot before the WSL-backed Docker Linux engine can start and run the self-hosted OSRM workflow.
+  provider. A public-OSRM finalizer smoke run completed and correctly remained blocked. After the
+  Windows reboot, Docker Desktop's WSL-backed Linux engine and Git Bash were usable locally; the
+  self-hosted OSRM workflow routed 52,680 of 52,680 tract-nearest pairs with zero unreachable/error
+  rows and wrote a readiness `READY` package with 0 blockers and 0 warnings at
+  `work/self-hosted-osrm/analysis-tract-self-hosted-osrm`.
 
 Latest validation gate completed:
 
@@ -428,9 +430,9 @@ Latest validation gate completed:
 
 ### Remaining Work
 
-- After rebooting the local Windows host, run `scripts/run_self_hosted_osrm_matrix.sh` with Docker
-  Desktop's WSL-backed Linux engine, or run the manual `self-hosted OSRM travel-time package` GitHub
-  Actions workflow, then review/download the artifact before publishing route-time findings.
+- Review/archive the local self-hosted OSRM package under `work/self-hosted-osrm` or rerun the
+  manual `self-hosted OSRM travel-time package` GitHub Actions workflow to produce a CI artifact
+  before publishing route-time findings.
 - Apply GitHub branch protection, repository secrets, and code-owner review in GitHub itself after
   installing/authenticating `gh` with repo admin access.
 - Obtain a later real reviewed snapshot before making any trend or deterioration claim beyond
@@ -440,9 +442,9 @@ Latest validation gate completed:
 
 1. Run the GitHub governance setup from an authenticated admin shell:
    `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\configure_github_governance.ps1 -Apply`.
-2. Reboot the local Windows host, start Docker Desktop, run the self-hosted OSRM workflow with the
-   current Geofabrik North Carolina OSM data timestamp, and confirm the artifact readiness audit is
-   `READY`.
+2. Review/archive the local self-hosted OSRM artifact or rerun the manual GitHub Actions workflow
+   with the current Geofabrik North Carolina OSM data timestamp before publishing route-time
+   findings.
 3. Pull and review a later MQSA source snapshot before making actual change claims.
 
 ## Risks
@@ -460,8 +462,8 @@ Latest validation gate completed:
 - Great-circle distance remains the default demo method.
 - The complete tract OSRM travel-time matrix is a testing artifact with real provider output from
   the public OSRM-compatible endpoint. The repository now includes a self-hosted OSRM generation
-  workflow, but the local workflow artifact is still waiting on the post-install Windows reboot
-  needed for Docker Desktop's WSL-backed Linux engine.
+  workflow, and the local self-hosted OSRM package is readiness `READY`; the public-OSRM matrix
+  remains a testing artifact.
 
 ### Technical Concerns
 

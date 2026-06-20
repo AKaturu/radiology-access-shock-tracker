@@ -25,6 +25,25 @@ CONTAINER_NAME="radshock-osrm-${OSRM_PORT}"
 
 mkdir -p "${OSRM_DATA_DIR}" "${WORK_DIR}"
 
+HOST_IS_WINDOWS_BASH=false
+case "$(uname -s)" in
+  MINGW* | MSYS* | CYGWIN*) HOST_IS_WINDOWS_BASH=true ;;
+esac
+
+if [[ "${HOST_IS_WINDOWS_BASH}" == "true" ]]; then
+  OSRM_DATA_MOUNT="$(cygpath -am "${OSRM_DATA_DIR}")"
+else
+  OSRM_DATA_MOUNT="${PWD}/${OSRM_DATA_DIR}"
+fi
+
+docker_cli() {
+  if [[ "${HOST_IS_WINDOWS_BASH}" == "true" ]]; then
+    MSYS_NO_PATHCONV=1 docker "$@"
+  else
+    docker "$@"
+  fi
+}
+
 echo "Downloading ${OSM_EXTRACT_URL}"
 curl -fL "${OSM_EXTRACT_URL}" -o "${OSM_FILE}"
 curl -fL "${OSM_EXTRACT_MD5_URL}" -o "${OSM_FILE}.md5"
@@ -32,18 +51,18 @@ curl -fL "${OSM_EXTRACT_MD5_URL}" -o "${OSM_FILE}.md5"
 OSM_SHA256="$(sha256sum "${OSM_FILE}" | awk '{print $1}')"
 echo "OSM_SHA256=${OSM_SHA256}"
 
-docker run --rm -t -v "${PWD}/${OSRM_DATA_DIR}:/data" "${OSRM_IMAGE}" \
+docker_cli run --rm -t -v "${OSRM_DATA_MOUNT}:/data" "${OSRM_IMAGE}" \
   osrm-extract -p "${OSRM_PROFILE_LUA}" /data/$(basename "${OSM_FILE}")
-docker run --rm -t -v "${PWD}/${OSRM_DATA_DIR}:/data" "${OSRM_IMAGE}" \
+docker_cli run --rm -t -v "${OSRM_DATA_MOUNT}:/data" "${OSRM_IMAGE}" \
   osrm-partition "${OSM_BASE}"
-docker run --rm -t -v "${PWD}/${OSRM_DATA_DIR}:/data" "${OSRM_IMAGE}" \
+docker_cli run --rm -t -v "${OSRM_DATA_MOUNT}:/data" "${OSRM_IMAGE}" \
   osrm-customize "${OSM_BASE}"
 
-docker rm -f "${CONTAINER_NAME}" >/dev/null 2>&1 || true
-docker run -d --name "${CONTAINER_NAME}" -p "${OSRM_PORT}:5000" \
-  -v "${PWD}/${OSRM_DATA_DIR}:/data" "${OSRM_IMAGE}" \
+docker_cli rm -f "${CONTAINER_NAME}" >/dev/null 2>&1 || true
+docker_cli run -d --name "${CONTAINER_NAME}" -p "${OSRM_PORT}:5000" \
+  -v "${OSRM_DATA_MOUNT}:/data" "${OSRM_IMAGE}" \
   osrm-routed --algorithm mld "${OSM_BASE}" >/dev/null
-trap 'docker rm -f "${CONTAINER_NAME}" >/dev/null 2>&1 || true' EXIT
+trap 'docker_cli rm -f "${CONTAINER_NAME}" >/dev/null 2>&1 || true' EXIT
 
 echo "Waiting for OSRM at ${ROUTE_SOURCE_URL}"
 for _ in $(seq 1 60); do

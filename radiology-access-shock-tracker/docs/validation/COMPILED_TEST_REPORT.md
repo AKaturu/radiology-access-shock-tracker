@@ -8,7 +8,7 @@ Status: PASS
 
 ## Checks
 
-- `python -m pytest`: 79 passed in 3.74s.
+- `python -m pytest`: 79 passed in 4.12s.
 - `python -m ruff check .`: passed.
 - `python -m mypy src/radshock`: passed with no issues in 24 source files.
 - `python -m pip wheel . -w work/dist`: built the project wheel.
@@ -19,6 +19,11 @@ Status: PASS
 - Secret scan for the supplied Census and OpenRouteService key literals: no matches.
 - `scripts/finalize_travel_time_package.py` public-OSRM smoke run completed and correctly
   remained BLOCKED for the public route provider.
+- `bash -n scripts/run_self_hosted_osrm_matrix.sh`: passed.
+- `bash scripts/run_self_hosted_osrm_matrix.sh` with Geofabrik NC timestamp
+  `2026-06-19T20:21:41Z`: routed 52,680 of 52,680 tract-nearest facility pairs through local
+  self-hosted OSRM, finalized the matrix, and produced readiness READY with 0 blockers and 0
+  warnings.
 
 ## Built Wheel
 
@@ -39,11 +44,12 @@ Status: PASS
 - Real travel-time package:
   `work/source-refresh-smoke/analysis-tract-osrm-travel-time`, readiness BLOCKED until route
   provider provenance is production-approved.
-- Self-hosted OSRM production route workflow:
-  `.github/workflows/self-hosted-osrm-travel-time.yml`, backed by
-  `scripts/run_self_hosted_osrm_matrix.sh` and `scripts/finalize_travel_time_package.py`.
-  This was not executed locally because Docker/WSL are not installed in the current Windows
-  environment; it is designed for GitHub's Ubuntu runner or another Linux host with Docker.
+- Self-hosted OSRM production route package:
+  `work/self-hosted-osrm/analysis-tract-self-hosted-osrm`, readiness READY with 0 blockers and 0
+  warnings. The run used Docker Desktop's WSL-backed Linux engine from Git Bash, OSRM backend
+  `ghcr.io/project-osrm/osrm-backend:v6.0.0`, Geofabrik North Carolina OSM data timestamp
+  `2026-06-19T20:21:41Z`, and PBF SHA-256
+  `fa3f912373958c448bc1651a32f3f531ae55e4525665d111e2ca0fd9ccad553f`.
 
 ## Media Evidence
 

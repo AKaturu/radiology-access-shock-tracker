@@ -5,7 +5,7 @@ on:
     inputs:
       osm_data_timestamp:
         description: OSM data timestamp printed on the Geofabrik North Carolina page.
-        default: "2026-06-17T20:21:14Z"
+        default: "2026-06-19T20:21:41Z"
         required: true
       osm_extract_url:
         description: Geofabrik OSM PBF extract URL.

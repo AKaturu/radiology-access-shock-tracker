@@ -143,19 +143,22 @@ route review through `http://127.0.0.1:5000`, writes a new matrix, and emits an 
 package artifact.
 
 The workflow input `osm_data_timestamp` must match the Geofabrik page line "contains all OSM data
-up to ...". As of this project pass, the North Carolina page reported
-`2026-06-17T20:21:14Z`. If the page changes, update the workflow input rather than reusing the old
+up to ...". As of the local self-hosted OSRM pass on 2026-06-20, the North Carolina page reported
+`2026-06-19T20:21:41Z`. If the page changes, update the workflow input rather than reusing the old
 timestamp.
 
-The same run can be executed on any Linux host with Docker:
+The same run can be executed on any Linux host with Docker, or from Git Bash on Windows when Docker
+Desktop is using its WSL-backed Linux engine:
 
 ```bash
-export OSM_DATA_TIMESTAMP="2026-06-17T20:21:14Z"
+export OSM_DATA_TIMESTAMP="2026-06-19T20:21:41Z"
 bash scripts/run_self_hosted_osrm_matrix.sh
 ```
 
-The resulting package should report readiness `READY`. If it does not, do not publish the route-time
-findings until the blockers are resolved.
+The 2026-06-20 local run routed 52,680 of 52,680 tract-nearest facility pairs with zero unreachable
+rows, wrote `work/self-hosted-osrm/analysis-tract-self-hosted-osrm`, and reported readiness `READY`
+with zero blockers and zero warnings. If a later run does not report readiness `READY`, do not
+publish the route-time findings until the blockers are resolved.
 
 For hosted OpenRouteService testing, store the key as `OPENROUTESERVICE_API_KEY` and call:
 
