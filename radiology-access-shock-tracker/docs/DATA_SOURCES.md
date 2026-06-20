@@ -50,12 +50,21 @@ Official dataset: <https://data.cdc.gov/resource/swc5-untb.json>
 
 The ACS 5-year API supplies county socioeconomic context. `radshock fetch-census-county-context`
 retrieves North Carolina county indicators and joins them to the Census county Gazetteer file for
-county names, land area, and internal-point coordinates. The 2024 production test files are:
+county names, land area, and internal-point coordinates. The 2024 county context files are:
 
 - `data/counties.csv`: access-engine county schema.
 - `data/census_county_context_2024.csv`: source-rich Census/Gazetteer context.
-- `data/population_points.csv`: county-centroid population points weighted by eligible population.
+- `data/population_points.csv`: county-centroid population points weighted by eligible population
+  for smoke testing.
 - `data/census_county_context_2024.metadata.json`: source URLs, derivation notes, and checksums.
+
+`radshock fetch-census-population-points` retrieves North Carolina tract indicators and joins them
+to the Census tract Gazetteer file for finer population-point inputs:
+
+- `data/population_points_tracts.csv`: tract-centroid population points weighted by eligible
+  population.
+- `data/census_tract_context_2024.csv`: source-rich tract ACS/Gazetteer context.
+- `data/census_tract_context_2024.metadata.json`: source URLs, derivation notes, and checksums.
 
 The eligible-population field is ACS female population age 50-74, summed from `B01001_040E`
 through `B01001_046E`, to align with the CDC PLACES mammography measure age band. The current
@@ -64,12 +73,13 @@ The current `high_risk_index` is a min-max scaling of ACS households with no veh
 within NC counties, used as a provisional access-vulnerability proxy. These derived indexes are
 transparent analysis inputs, not clinically validated risk scores.
 
-County-centroid population points are acceptable for local smoke testing, but publication workflows
-should replace them with finer reviewed population points, such as tract or block-group centroids.
-Variable definitions and release-year changes must be reviewed whenever the configured ACS year
-changes. The Census developer documentation currently states that ACS API queries require an API
-key, so production workflows should read the key from local configuration or environment variables
-rather than committing it.
+County-centroid population points are acceptable for local smoke testing. Tract-centroid points are
+the preferred built-in public-data option for production review because they are finer than county
+centroids, but they remain centroid approximations and require regenerated route matrices before
+publication. Variable definitions and release-year changes must be reviewed whenever the configured
+ACS year changes. The Census developer documentation currently states that ACS API queries require
+an API key, so production workflows should read the key from local configuration or environment
+variables rather than committing it.
 
 Official API documentation: <https://www.census.gov/data/developers/data-sets/acs-5year.html>
 

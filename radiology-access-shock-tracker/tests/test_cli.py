@@ -162,6 +162,60 @@ def test_geocode_mqsa_review_command_uses_static_provider(tmp_path: Path) -> Non
     assert geocoded.loc[0, "review_status"] == "needs_review"
 
 
+def test_fetch_census_population_points_command_writes_metadata(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    output = tmp_path / "population_points_tracts.csv"
+    raw_context = tmp_path / "census_tract_context.csv"
+    metadata = tmp_path / "metadata.json"
+    monkeypatch.setenv("CENSUS_API_KEY", "test-key")
+    monkeypatch.setattr(
+        "radshock.cli.build_nc_tract_analysis_context",
+        lambda **kwargs: pd.DataFrame(
+            [
+                {
+                    "tract_geoid": "37001020100",
+                    "county_fips": "37001",
+                    "centroid_lat": 35.1,
+                    "centroid_lon": -78.1,
+                    "eligible_population": 46,
+                },
+                {
+                    "tract_geoid": "37001020200",
+                    "county_fips": "37001",
+                    "centroid_lat": 35.2,
+                    "centroid_lon": -78.2,
+                    "eligible_population": 0,
+                },
+            ]
+        ),
+    )
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "fetch-census-population-points",
+            "--output-csv",
+            str(output),
+            "--raw-context-csv",
+            str(raw_context),
+            "--metadata-json",
+            str(metadata),
+        ],
+    )
+
+    assert result.exit_code == 0
+    points = pd.read_csv(output, dtype={"point_id": str, "county_fips": str})
+    payload = json.loads(metadata.read_text())
+    assert len(points) == 1
+    assert points.loc[0, "point_id"] == "tract-37001020100"
+    assert payload["geography"] == "tract"
+    assert payload["row_counts"]["tracts"] == 2
+    assert payload["row_counts"]["population_points"] == 1
+    assert payload["outputs"]["population_points"]["sha256"]
+
+
 def test_compare_travel_time_access_command_writes_county_shocks(tmp_path: Path) -> None:
     before = tmp_path / "before.csv"
     after = tmp_path / "after.csv"

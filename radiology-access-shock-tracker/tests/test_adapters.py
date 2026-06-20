@@ -6,8 +6,10 @@ import pytest
 
 from radshock.adapters.acs import (
     build_nc_county_analysis_context,
+    build_nc_tract_analysis_context,
     to_analysis_counties,
     to_county_centroid_population_points,
+    to_tract_population_points,
 )
 from radshock.adapters.cms import summarize_mammography_claims
 from radshock.adapters.facilities import (
@@ -162,6 +164,106 @@ def test_acs_builds_analysis_counties_and_population_points(
     assert points.loc[0, "point_id"] == "county-37001"
     assert points.loc[0, "weight"] == 460
     assert calls[0]["params"]["key"] == "key"
+
+
+def test_acs_builds_tract_population_points(monkeypatch: pytest.MonkeyPatch) -> None:
+    class Response:
+        def __init__(self, payload: list[list[str]] | None = None, text: str = "") -> None:
+            self.payload = payload
+            self.text = text
+
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> list[list[str]]:
+            assert self.payload is not None
+            return self.payload
+
+    calls: list[dict[str, object]] = []
+    acs_payload = [
+        [
+            "NAME",
+            "B01001_001E",
+            "B01001_040E",
+            "B01001_041E",
+            "B01001_042E",
+            "B01001_043E",
+            "B01001_044E",
+            "B01001_045E",
+            "B01001_046E",
+            "B17001_002E",
+            "B17001_001E",
+            "B08201_002E",
+            "B08201_001E",
+            "state",
+            "county",
+            "tract",
+        ],
+        [
+            "Census Tract 201, County A, North Carolina",
+            "1000",
+            "10",
+            "11",
+            "5",
+            "6",
+            "4",
+            "4",
+            "6",
+            "120",
+            "950",
+            "30",
+            "400",
+            "37",
+            "001",
+            "020100",
+        ],
+        [
+            "Census Tract 202, County A, North Carolina",
+            "500",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "80",
+            "490",
+            "20",
+            "200",
+            "37",
+            "001",
+            "020200",
+        ],
+    ]
+    gazetteer = "\n".join(
+        [
+            "USPS\tGEOID\tGEOIDFQ\tNAME\tALAND\tAWATER\tALAND_SQMI\tAWATER_SQMI\tINTPTLAT\tINTPTLONG",
+            "NC\t37001020100\t1400000US37001020100\tCensus Tract 201\t100\t0\t10.0\t0\t35.1\t-78.1",
+            "NC\t37001020200\t1400000US37001020200\tCensus Tract 202\t200\t0\t20.0\t0\t35.2\t-78.2",
+        ]
+    )
+
+    def fake_get(url: str, **kwargs: object) -> Response:
+        calls.append({"url": url, **kwargs})
+        if "api.census.gov" in url:
+            return Response(payload=acs_payload)
+        return Response(text=gazetteer)
+
+    monkeypatch.setattr("radshock.adapters.acs.requests.get", fake_get)
+    context = build_nc_tract_analysis_context(year=2024, api_key="key", timeout=5)
+    points = to_tract_population_points(context)
+    points_with_zero = to_tract_population_points(context, include_zero_weight=True)
+
+    assert context.loc[0, "tract_geoid"] == "37001020100"
+    assert context.loc[0, "eligible_population"] == 46
+    assert context.loc[0, "county_fips"] == "37001"
+    assert points.loc[0, "point_id"] == "tract-37001020100"
+    assert points.loc[0, "weight"] == 46
+    assert len(points) == 1
+    assert len(points_with_zero) == 2
+    assert calls[0]["params"]["for"] == "tract:*"
+    assert calls[0]["params"]["in"] == "state:37 county:*"
 
 
 def test_fda_mqsa_fixed_width_zip_builds_review_template(tmp_path: Path) -> None:

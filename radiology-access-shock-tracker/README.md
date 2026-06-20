@@ -170,12 +170,23 @@ radshock fetch-census-county-context \
 ```
 
 This writes analysis-ready county context plus county-centroid population points. The centroid
-points are useful for testing and smoke runs; replace them with finer reviewed population points
-before publication.
+points are useful for testing and smoke runs. Build finer tract-centroid population points before
+publication route review:
+
+```bash
+radshock fetch-census-population-points \
+  --output-csv data/population_points_tracts.csv \
+  --raw-context-csv data/census_tract_context_2024.csv \
+  --metadata-json data/census_tract_context_2024.metadata.json \
+  --year 2024
+```
+
+Tract points are still centroid approximations, but they are the preferred built-in public-data
+input for production review.
 
 ```bash
 radshock prepare-travel-time-review \
-  --population-csv data/population_points.csv \
+  --population-csv data/population_points_tracts.csv \
   --facilities-csv data/snapshots/2026-07-01/facilities.csv \
   --output-csv work/2026-07-01_travel_time_review.csv \
   --max-distance-miles 150
@@ -221,7 +232,7 @@ have been reviewed.
 radshock compare-travel-time-access \
   --before-csv data/snapshots/2026-04-01/facilities.csv \
   --after-csv data/snapshots/2026-07-01/facilities.csv \
-  --population-csv data/population_points.csv \
+  --population-csv data/population_points_tracts.csv \
   --counties-csv data/counties.csv \
   --before-travel-times-csv data/travel_times/2026-04-01_point_facility.csv \
   --after-travel-times-csv data/travel_times/2026-07-01_point_facility.csv \
@@ -265,7 +276,7 @@ Run the full analysis:
 radshock analyze \
   --before-csv data/snapshots/2026-04-01/facilities.csv \
   --after-csv data/snapshots/2026-07-01/facilities.csv \
-  --population-csv data/population_points.csv \
+  --population-csv data/population_points_tracts.csv \
   --counties-csv data/counties.csv \
   --candidates-csv data/candidate_sites.csv \
   --utilization-csv data/utilization.csv \
@@ -294,7 +305,7 @@ external credentials before publication workflows can use those data.
 
 The MVP deliberately separates source ingestion from the surveillance engine:
 
-- `radshock.adapters.acs` fetches selected ACS 5-year county indicators.
+- `radshock.adapters.acs` fetches selected ACS 5-year county and tract indicators.
 - `radshock.adapters.places` fetches the CDC PLACES county mammography measure.
 - `radshock.adapters.facilities` normalizes reviewed facility exports into the snapshot schema.
 - `radshock.adapters.cms` summarizes user-downloaded provider/service extracts after explicit source-column mapping.

@@ -11,9 +11,13 @@ import typer
 
 from radshock.access import compare_county_access, compare_county_travel_time_access
 from radshock.adapters.acs import (
+    NC_COUNTY_GAZETTEER_URL_TEMPLATE,
+    NC_TRACT_GAZETTEER_URL_TEMPLATE,
     build_nc_county_analysis_context,
+    build_nc_tract_analysis_context,
     to_analysis_counties,
     to_county_centroid_population_points,
+    to_tract_population_points,
 )
 from radshock.adapters.facilities import (
     FDA_MQSA_PUBLIC_ZIP_URL,
@@ -34,7 +38,7 @@ from radshock.intervention import simulate_candidates
 from radshock.readiness import audit_to_json, render_readiness_markdown, run_readiness_audit
 from radshock.schemas import validate_facilities
 from radshock.sensitivity import run_sensitivity_analysis
-from radshock.snapshots import store_snapshot
+from radshock.snapshots import file_sha256, store_snapshot
 from radshock.sources import archive_local_source, fetch_url_source
 from radshock.travel_times import (
     TRAVEL_TIME_ROUTE_STATUSES,
@@ -299,6 +303,10 @@ def fetch_census_county_context_command(
         Path | None,
         typer.Option(help="Optional county-centroid population points CSV path."),
     ] = Path("data/population_points.csv"),
+    metadata_json: Annotated[
+        Path | None,
+        typer.Option(help="Optional source metadata JSON path."),
+    ] = Path("data/census_county_context_2024.metadata.json"),
     year: Annotated[int, typer.Option(help="ACS/Gazetteer release year.")] = 2024,
     api_key_env: Annotated[
         str,
@@ -308,7 +316,7 @@ def fetch_census_county_context_command(
     force: Annotated[bool, typer.Option(help="Overwrite existing output CSVs.")] = False,
 ) -> None:
     """Fetch Census county context and write analysis-ready CSV inputs."""
-    for path in [output_csv, raw_context_csv, population_points_csv]:
+    for path in [output_csv, raw_context_csv, population_points_csv, metadata_json]:
         if path is not None and path.exists() and not force:
             raise typer.BadParameter(f"output already exists: {path}")
     api_key = os.getenv(api_key_env)
@@ -334,6 +342,112 @@ def fetch_census_county_context_command(
             "Population points are county-centroid testing inputs; "
             "use finer reviewed points before publication."
         )
+    if metadata_json is not None:
+        _write_census_metadata(
+            metadata_json,
+            force=force,
+            year=year,
+            geography="county",
+            outputs={
+                "analysis_counties": output_csv,
+                "raw_context": raw_context_csv,
+                "population_points": population_points_csv,
+            },
+            row_counts={
+                "counties": len(counties),
+                "population_points": len(population_points)
+                if population_points_csv is not None
+                else 0,
+            },
+            source_urls=[
+                f"https://api.census.gov/data/{year}/acs/acs5",
+                NC_COUNTY_GAZETTEER_URL_TEMPLATE.format(year=year),
+            ],
+            notes=[
+                "eligible_population is ACS female population age 50-74.",
+                "population_points are county centroids for testing, "
+                "not publication-grade routing.",
+            ],
+        )
+        typer.echo(f"Census metadata written: {metadata_json.resolve()}")
+
+
+@app.command("fetch-census-population-points")
+def fetch_census_population_points_command(
+    output_csv: Annotated[
+        Path,
+        typer.Option(help="Tract-centroid population points CSV path."),
+    ] = Path("data/population_points_tracts.csv"),
+    raw_context_csv: Annotated[
+        Path | None,
+        typer.Option(help="Optional raw/source-rich Census tract context CSV path."),
+    ] = Path("data/census_tract_context_2024.csv"),
+    metadata_json: Annotated[
+        Path | None,
+        typer.Option(help="Optional source metadata JSON path."),
+    ] = Path("data/census_tract_context_2024.metadata.json"),
+    year: Annotated[int, typer.Option(help="ACS/Gazetteer release year.")] = 2024,
+    api_key_env: Annotated[
+        str,
+        typer.Option(help="Environment variable containing the Census API key."),
+    ] = "CENSUS_API_KEY",
+    timeout: Annotated[int, typer.Option(help="HTTP timeout in seconds.")] = 30,
+    include_zero_weight: Annotated[
+        bool,
+        typer.Option(help="Keep tract rows with zero eligible-population weight."),
+    ] = False,
+    force: Annotated[bool, typer.Option(help="Overwrite existing output files.")] = False,
+) -> None:
+    """Fetch Census tract context and write finer population-point inputs."""
+    for path in [output_csv, raw_context_csv, metadata_json]:
+        if path is not None and path.exists() and not force:
+            raise typer.BadParameter(f"output already exists: {path}")
+    api_key = os.getenv(api_key_env)
+    if api_key is None or not api_key.strip():
+        raise typer.BadParameter(f"{api_key_env} is not set")
+    context = build_nc_tract_analysis_context(year=year, api_key=api_key, timeout=timeout)
+    population_points = to_tract_population_points(
+        context,
+        include_zero_weight=include_zero_weight,
+    )
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    population_points.to_csv(output_csv, index=False)
+    typer.echo(f"Tract population points written: {output_csv.resolve()}")
+    eligible_population = int(population_points["weight"].sum())
+    typer.echo(f"Points: {len(population_points)}; eligible population: {eligible_population}")
+    typer.echo(
+        "Population points use Census tract internal points; "
+        "route matrices should be regenerated before publication."
+    )
+    if raw_context_csv is not None:
+        raw_context_csv.parent.mkdir(parents=True, exist_ok=True)
+        context.to_csv(raw_context_csv, index=False)
+        typer.echo(f"Raw Census tract context written: {raw_context_csv.resolve()}")
+    if metadata_json is not None:
+        _write_census_metadata(
+            metadata_json,
+            force=force,
+            year=year,
+            geography="tract",
+            outputs={
+                "population_points": output_csv,
+                "raw_context": raw_context_csv,
+            },
+            row_counts={
+                "tracts": len(context),
+                "population_points": len(population_points),
+            },
+            source_urls=[
+                f"https://api.census.gov/data/{year}/acs/acs5",
+                NC_TRACT_GAZETTEER_URL_TEMPLATE.format(year=year),
+            ],
+            notes=[
+                "eligible_population is ACS female population age 50-74.",
+                "latitude and longitude are Census Gazetteer tract internal points.",
+                "tract points are finer than county centroids but remain centroid approximations.",
+            ],
+        )
+        typer.echo(f"Census metadata written: {metadata_json.resolve()}")
 
 
 @app.command("prepare-travel-time-review")
@@ -564,6 +678,45 @@ def _merge_filled_route_rows(input_frame: pd.DataFrame, filled: pd.DataFrame) ->
         result[column] = result[column].astype("object")
     result.loc[filled.index, filled.columns] = filled.astype("object")
     return result
+
+
+def _write_census_metadata(
+    path: Path,
+    *,
+    force: bool,
+    year: int,
+    geography: str,
+    outputs: dict[str, Path | None],
+    row_counts: dict[str, int],
+    source_urls: list[str],
+    notes: list[str],
+) -> None:
+    if path.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {path}")
+    output_metadata: dict[str, dict[str, str] | None] = {}
+    for label, output_path in outputs.items():
+        if output_path is None:
+            output_metadata[label] = None
+            continue
+        output_metadata[label] = {
+            "path": str(output_path),
+            "sha256": file_sha256(output_path),
+        }
+    metadata = {
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "source_name": "census-acs5-gazetteer",
+        "state": "NC",
+        "state_fips": "37",
+        "year": year,
+        "geography": geography,
+        "outputs": output_metadata,
+        "row_counts": row_counts,
+        "source_urls": source_urls,
+        "eligible_population_definition": "ACS B01001 female age 50-74 estimate",
+        "notes": notes,
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def _write_report(path: Path, content: str, force: bool) -> None:

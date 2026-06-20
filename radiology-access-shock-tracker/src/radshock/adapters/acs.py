@@ -35,6 +35,10 @@ NC_COUNTY_GAZETTEER_URL_TEMPLATE = (
     "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/"
     "{year}_Gazetteer/{year}_gaz_counties_37.txt"
 )
+NC_TRACT_GAZETTEER_URL_TEMPLATE = (
+    "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/"
+    "{year}_Gazetteer/{year}_gaz_tracts_37.txt"
+)
 
 
 def fetch_nc_county_context(
@@ -44,9 +48,47 @@ def fetch_nc_county_context(
     timeout: int = 30,
 ) -> pd.DataFrame:
     """Fetch selected North Carolina county indicators from the Census ACS 5-year API."""
+    frame = _fetch_acs_context(
+        year,
+        geography="county:*",
+        in_clause=f"state:{NC_STATE_FIPS}",
+        api_key=api_key,
+        timeout=timeout,
+    )
+    frame["county_fips"] = frame["state"] + frame["county"]
+    return _add_derived_acs_indicators(frame).sort_values("county_fips").reset_index(drop=True)
+
+
+def fetch_nc_tract_context(
+    year: int = 2024,
+    *,
+    api_key: str | None = None,
+    timeout: int = 30,
+) -> pd.DataFrame:
+    """Fetch selected North Carolina tract indicators from the Census ACS 5-year API."""
+    frame = _fetch_acs_context(
+        year,
+        geography="tract:*",
+        in_clause=f"state:{NC_STATE_FIPS} county:*",
+        api_key=api_key,
+        timeout=timeout,
+    )
+    frame["county_fips"] = frame["state"] + frame["county"]
+    frame["tract_geoid"] = frame["county_fips"] + frame["tract"]
+    return _add_derived_acs_indicators(frame).sort_values("tract_geoid").reset_index(drop=True)
+
+
+def _fetch_acs_context(
+    year: int,
+    *,
+    geography: str,
+    in_clause: str,
+    api_key: str | None,
+    timeout: int,
+) -> pd.DataFrame:
     variables = ",".join(ACS_VARIABLES)
     url = f"https://api.census.gov/data/{year}/acs/acs5"
-    params = {"get": variables, "for": "county:*", "in": f"state:{NC_STATE_FIPS}"}
+    params = {"get": variables, "for": geography, "in": in_clause}
     if api_key is not None and api_key.strip():
         params["key"] = api_key.strip()
     response = requests.get(
@@ -59,13 +101,17 @@ def fetch_nc_county_context(
     frame = pd.DataFrame(payload[1:], columns=payload[0]).rename(columns=ACS_VARIABLES)
     numeric = [column for column in ACS_VARIABLES.values() if column != "name"]
     frame[numeric] = frame[numeric].apply(pd.to_numeric, errors="coerce")
-    frame["county_fips"] = frame["state"] + frame["county"]
+    return frame
+
+
+def _add_derived_acs_indicators(frame: pd.DataFrame) -> pd.DataFrame:
+    frame = frame.copy()
     frame["eligible_population"] = frame[FEMALE_50_74_COLUMNS].sum(axis=1)
     frame["poverty_pct"] = 100 * frame["population_below_poverty"] / frame["poverty_universe"]
     frame["no_vehicle_pct"] = (
         100 * frame["households_no_vehicle"] / frame["households_vehicle_universe"]
     )
-    return frame.sort_values("county_fips").reset_index(drop=True)
+    return frame
 
 
 def fetch_nc_county_gazetteer(year: int = 2024, timeout: int = 30) -> pd.DataFrame:
@@ -87,6 +133,39 @@ def fetch_nc_county_gazetteer(year: int = 2024, timeout: int = 30) -> pd.DataFra
     numeric = ["land_area_sqmi", "centroid_lat", "centroid_lon"]
     result[numeric] = result[numeric].apply(pd.to_numeric, errors="raise")
     return result[["county_fips", "county_name", "land_area_sqmi", "centroid_lat", "centroid_lon"]]
+
+
+def fetch_nc_tract_gazetteer(year: int = 2024, timeout: int = 30) -> pd.DataFrame:
+    """Fetch NC tract centroid and land-area data from the Census Gazetteer file."""
+    url = NC_TRACT_GAZETTEER_URL_TEMPLATE.format(year=year)
+    response = requests.get(url, timeout=timeout)
+    response.raise_for_status()
+    frame = pd.read_csv(StringIO(response.text), sep="\t", dtype=str)
+    frame.columns = [column.strip() for column in frame.columns]
+    result = frame.rename(
+        columns={
+            "GEOID": "tract_geoid",
+            "NAME": "tract_name",
+            "ALAND_SQMI": "land_area_sqmi",
+            "INTPTLAT": "centroid_lat",
+            "INTPTLONG": "centroid_lon",
+        }
+    )
+    numeric = ["land_area_sqmi", "centroid_lat", "centroid_lon"]
+    result[numeric] = result[numeric].apply(pd.to_numeric, errors="raise")
+    result["county_fips"] = result["tract_geoid"].str.slice(0, 5)
+    if "tract_name" not in result.columns:
+        result["tract_name"] = ""
+    return result[
+        [
+            "tract_geoid",
+            "county_fips",
+            "tract_name",
+            "land_area_sqmi",
+            "centroid_lat",
+            "centroid_lon",
+        ]
+    ]
 
 
 def build_nc_county_analysis_context(
@@ -114,6 +193,30 @@ def build_nc_county_analysis_context(
     result["rurality_index"] = _inverse_min_max(result["population_density_per_sqmi"])
     result["high_risk_index"] = _min_max(result["no_vehicle_pct"])
     return result.sort_values("county_fips").reset_index(drop=True)
+
+
+def build_nc_tract_analysis_context(
+    year: int = 2024,
+    *,
+    api_key: str | None = None,
+    timeout: int = 30,
+) -> pd.DataFrame:
+    """Build source-rich NC tract context for population-point generation.
+
+    Tract points use ACS female population age 50-74 as weights and Census Gazetteer internal
+    points as reproducible centroids. They are finer than county centroids but still represent
+    tract-level approximations, not household-level locations.
+    """
+    acs = fetch_nc_tract_context(year=year, api_key=api_key, timeout=timeout)
+    gazetteer = fetch_nc_tract_gazetteer(year=year, timeout=timeout)
+    result = gazetteer.merge(acs, on=["tract_geoid", "county_fips"], how="inner")
+    if len(result) != len(gazetteer):
+        raise ValueError("Census ACS/Gazetteer tract join did not preserve all NC tracts")
+    result["state"] = NC_STATE_ABBR
+    result["population_density_per_sqmi"] = (
+        result["total_population"] / result["land_area_sqmi"]
+    )
+    return result.sort_values("tract_geoid").reset_index(drop=True)
 
 
 def to_analysis_counties(context: pd.DataFrame) -> pd.DataFrame:
@@ -148,6 +251,26 @@ def to_county_centroid_population_points(context: pd.DataFrame) -> pd.DataFrame:
             "weight": context["eligible_population"].round(0).astype("int64"),
         }
     )
+    return result.sort_values("point_id").reset_index(drop=True)
+
+
+def to_tract_population_points(
+    context: pd.DataFrame,
+    *,
+    include_zero_weight: bool = False,
+) -> pd.DataFrame:
+    """Build tract-centroid population points weighted by eligible population."""
+    result = pd.DataFrame(
+        {
+            "point_id": "tract-" + context["tract_geoid"].astype(str),
+            "county_fips": context["county_fips"].astype(str),
+            "latitude": context["centroid_lat"],
+            "longitude": context["centroid_lon"],
+            "weight": context["eligible_population"].round(0).astype("int64"),
+        }
+    )
+    if not include_zero_weight:
+        result = result.loc[result["weight"] > 0].copy()
     return result.sort_values("point_id").reset_index(drop=True)
 
 

@@ -54,8 +54,19 @@ radshock fetch-census-county-context `
   --year 2024
 ```
 
-The command writes county-centroid population points for testing. Replace those with finer reviewed
-population points before publication.
+The command writes county-centroid population points for testing. Build finer tract-centroid
+population points before publication route review:
+
+```powershell
+radshock fetch-census-population-points `
+  --output-csv data/population_points_tracts.csv `
+  --raw-context-csv data/census_tract_context_2024.csv `
+  --metadata-json data/census_tract_context_2024.metadata.json `
+  --year 2024
+```
+
+Use `data/population_points_tracts.csv` when preparing production travel-time worklists, then
+regenerate and review route matrices against that same population file.
 
 ## Travel-Time Provider Options
 
