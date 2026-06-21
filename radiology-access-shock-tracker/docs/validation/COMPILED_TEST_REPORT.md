@@ -8,7 +8,7 @@ Status: PASS
 
 ## Checks
 
-- `python -m pytest`: 80 passed in 6.59s.
+- `python -m pytest`: 80 passed in 4.61s.
 - `python -m ruff check .`: passed.
 - `python -m mypy src/radshock`: passed with no issues in 25 source files.
 - `python -m pip wheel . -w work/dist`: built the project wheel.
@@ -30,7 +30,8 @@ Status: PASS
   release manifest; ZIP inspection found no ignored work/cache/build directories, and required
   journal evidence files were present.
 - `scripts/capture_github_assets.mjs` recaptured the GitHub screenshots and walkthrough from the
-  reviewed real self-hosted OSRM package with synthetic captures disallowed.
+  synthetic demo with `RADSHOCK_CAPTURE_ALLOW_SYNTHETIC=1`; visual inspection confirmed the warning
+  banner and blocked readiness gate are visible.
 - `python -m radshock.desktop --check`: validated the bundled reviewed desktop payload.
 - `scripts/build_desktop.py`: built a local Windows PyInstaller bundle, and the frozen
   `RadiologyAccessShockTracker.exe --check` validated its bundled payload.
@@ -63,15 +64,16 @@ Status: PASS
 
 ## Media Evidence
 
-- Real-data screenshots: `docs/assets/github/*.png`
-- Real-data walkthrough footage: `docs/assets/github/dashboard-walkthrough.webm`
+- Synthetic demo screenshots: `docs/assets/github/*.png`
+- Synthetic demo walkthrough footage: `docs/assets/github/dashboard-walkthrough.webm`
 - Capture script: `scripts/capture_github_assets.mjs`
 
 ## Boundary
 
-The screenshots and walkthrough use the reviewed real North Carolina self-hosted OSRM package, not
-the synthetic demo. They show a no-observed-change validation run for the reviewed `2026-06-19` to
-`2026-06-20` snapshots; they do not support trend, deterioration, or causal utilization claims.
+The GitHub screenshots and walkthrough intentionally use synthetic demo data and show the synthetic
+warning plus a blocked readiness audit. They are for software demonstration only. The reviewed real
+North Carolina self-hosted OSRM package remains available in `desktop_payload/analysis` and the
+journal bundle for methods/reproducibility work.
 
 ## Desktop Evidence
 

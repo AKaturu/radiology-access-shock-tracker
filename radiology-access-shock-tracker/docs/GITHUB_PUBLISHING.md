@@ -26,8 +26,8 @@ git archive --format zip `
   HEAD:radiology-access-shock-tracker
 ```
 
-That archive contains tracked source, docs, tests, reviewed public-data inputs, screenshots, and
-workflow templates. It intentionally excludes ignored local directories.
+That archive contains tracked source, docs, tests, reviewed public-data inputs, synthetic demo
+screenshots, and workflow templates. It intentionally excludes ignored local directories.
 
 ## Create The GitHub Repository
 
@@ -70,8 +70,8 @@ Official GitHub references:
 
 ## Enable GitHub Pages
 
-This repository includes `docs/index.md`, screenshots, and validation notes suitable for a project
-page.
+This repository includes `docs/index.md`, synthetic demo screenshots, and validation notes suitable
+for a project page.
 
 1. Go to the GitHub repository.
 2. Open **Settings** > **Pages**.
@@ -129,9 +129,13 @@ Official GitHub branch-protection reference:
 
 Before writing a public-facing GitHub release or project page:
 
-- Confirm the latest readiness audit is `READY`.
-- State that the current real comparison is `2026-06-19` versus `2026-06-20`.
-- State that no facility events or warning/critical county shocks were observed in that comparison.
+- Label the README and Pages screenshots as synthetic demo media.
+- Keep real-data findings separate from the public demo.
+- For real-data release notes, confirm the latest readiness audit is `READY`.
+- For real-data release notes, state that the current real comparison is `2026-06-19` versus
+  `2026-06-20`.
+- For real-data release notes, state that no facility events or warning/critical county shocks were
+  observed in that comparison.
 - Do not claim longitudinal deterioration until a future FDA MQSA source update is reviewed.
 - Do not claim facility-level annual capacity, because FDA MQSA public data do not publish it.
 - Label HRSA candidate response sites as planning assumptions, not mammography-capable sites.

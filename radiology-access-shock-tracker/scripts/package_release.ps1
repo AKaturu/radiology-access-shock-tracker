@@ -177,7 +177,7 @@ claims are appropriate.
 - `snapshots/`: reviewed MQSA facility snapshots and checksum metadata.
 - `source_metadata/`: archived source provenance.
 - `docs/`: methods, data-source, operations, and journal guidance.
-- `figures/`: dashboard screenshots and walkthrough media.
+- `figures/`: synthetic dashboard screenshots and walkthrough media for UI context.
 - `validation/`: compiled local validation report.
 "@
 Write-TextFile -Path (Join-Path $JournalStage "README_JOURNAL_BUNDLE.md") -Content $BundleReadme

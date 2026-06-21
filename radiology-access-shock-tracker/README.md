@@ -22,9 +22,9 @@ An open-source surveillance toolkit for detecting changes in mammography access,
 
 The `radshock demo` command still creates **synthetic North Carolina-like data** and must not be
 interpreted as a real facility, county, screening, or utilization assessment. The published
-dashboard preview assets below use the reviewed real North Carolina self-hosted OSRM package
-described in the validation report. The current real comparison is a no-observed-change validation
-run, so it does not support trend, deterioration, or causal utilization claims.
+dashboard preview assets below intentionally use the synthetic demo so the public project is easy
+to run and review. Reviewed real-data packages are documented separately and should be used only
+with the publication-readiness caveats in the validation report.
 
 ## Dashboard preview
 
@@ -72,6 +72,25 @@ outputs/demo/
 
 The synthetic demo readiness audit is expected to be `BLOCKED`; it proves the publication gate is
 working and visible in the dashboard.
+
+## Use the reviewed real-data package
+
+The repository also preserves a reviewed real North Carolina no-observed-change validation package.
+Use it when you want to reproduce the research workflow rather than the public demo:
+
+```bash
+RADSHOCK_ANALYSIS_DIR=desktop_payload/analysis streamlit run src/radshock/app.py
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:RADSHOCK_ANALYSIS_DIR = "desktop_payload/analysis"
+streamlit run src/radshock/app.py
+```
+
+The reviewed real package supports workflow and methods claims, but it does not support trend,
+deterioration, or causal utilization claims.
 
 ## Use your own reviewed facility data
 

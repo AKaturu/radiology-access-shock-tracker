@@ -37,9 +37,11 @@ The `dist/journal/` package includes:
 - `matrix_metadata.json`: finalized route matrix row counts and checksums.
 - `compiled_test_report.md`: local validation evidence.
 - `methods.md`, `data_sources.md`, `operations.md`: supporting documentation.
-- selected GitHub screenshots for visual context.
+- selected synthetic GitHub-demo screenshots for visual context.
 
 Large local OSRM graph files are intentionally excluded.
+The included dashboard screenshots are synthetic demonstration media; use `analysis_outputs/` for
+real-data result tables and readiness evidence.
 
 ## Results That Can Be Stated
 

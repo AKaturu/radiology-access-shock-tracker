@@ -34,7 +34,8 @@ reviewed against the tract points before publication.
 Candidate-site assumptions now have a review-template and finalization gate so intervention
 rankings can be kept separate from unreviewed placeholder locations.
 GitHub-ready screenshots, walkthrough footage, and a compiled validation report now document the
-reviewed real-data self-hosted OSRM workflow for the project front page.
+synthetic demo workflow for the public project front page, while reviewed real-data packages remain
+available for explicit research and reproduction workflows.
 
 ## Completed Features
 
@@ -250,8 +251,8 @@ and CLI prepare/finalize behavior.
 #### Validation
 
 The dashboard overview chart no longer depends on external map tiles for screenshot rendering.
-GitHub-page screenshots and walkthrough footage were recaptured from the reviewed real-data
-self-hosted OSRM package after the original synthetic demo media was retired.
+GitHub-page screenshots and walkthrough footage were recaptured from the synthetic demo so the
+public project can be demonstrated without presenting real-data outputs as casual demo findings.
 The README links to the media guide and compiled local validation report.
 
 #### Tests Added
@@ -432,12 +433,22 @@ Latest validation gate completed:
   `radiology_access_shock_tracker-0.1.0-py3-none-any.whl`, and Streamlit health returned HTTP 200.
 - The GitHub-page assets were later recaptured from
   `work/self-hosted-osrm/analysis-tract-self-hosted-osrm` with the dashboard synthetic-warning
-  guard enabled. The media now shows the reviewed real-data no-observed-change validation package,
-  readiness `READY`, 0 blockers, and 0 warnings.
-- Latest validation after the real-data media refresh: `python -m pytest` passed with 79 tests,
-  `python -m ruff check .` passed, `python -m mypy src/radshock` passed, the capture script
-  completed with synthetic captures disallowed, and visual inspection confirmed the overview,
-  readiness, and mobile screenshots have no synthetic warning.
+  guard enabled. That pass showed the reviewed real-data no-observed-change validation package,
+  readiness `READY`, 0 blockers, and 0 warnings before the public demo posture was switched back
+  to synthetic-first.
+- Intermediate validation after the real-data media refresh: `python -m pytest` passed with 79
+  tests, `python -m ruff check .` passed, `python -m mypy src/radshock` passed, and the capture
+  script completed against the reviewed package before the public assets were switched back to the
+  synthetic demo.
+- The GitHub-page assets were then intentionally recaptured from `outputs/demo/analysis` with
+  `RADSHOCK_CAPTURE_ALLOW_SYNTHETIC=1`. The public README and Pages demo are now synthetic-first
+  again, with visible synthetic warnings and a blocked readiness audit. The reviewed real-data
+  package is preserved in `desktop_payload/analysis` and the journal bundle for deliberate
+  research/reproduction use.
+- Latest validation after restoring synthetic-first GitHub demo assets: `python -m pytest` passed
+  with 80 tests, `python -m ruff check .` passed, `python -m mypy src/radshock` passed,
+  `scripts/package_release.ps1` parsed successfully, and visual inspection confirmed the overview
+  and readiness screenshots show the synthetic warning and blocked readiness gate.
 - Desktop packaging support was added. `desktop_payload/analysis` tracks the compact reviewed
   self-hosted OSRM analysis package for offline dashboard use, `radshock.desktop` launches the
   bundled Streamlit dashboard, `scripts/build_desktop.py` builds a PyInstaller bundle, and

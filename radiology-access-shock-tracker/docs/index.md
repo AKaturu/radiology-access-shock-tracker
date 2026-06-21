@@ -7,22 +7,24 @@ communities are affected, and reviewing candidate response locations.
 
 ## Current Status
 
-The local self-hosted OSRM production package is readiness `READY` with 0 blockers and 0 warnings.
-It uses reviewed North Carolina MQSA facility snapshots for `2026-06-19` and `2026-06-20`, tract
-population points, HRSA service-delivery candidate assumptions, and a self-hosted OSRM route-time
-matrix.
+The public GitHub demo uses synthetic North Carolina-like data. The warning banner in the
+screenshots is intentional: synthetic outputs are not real North Carolina findings and are blocked
+by the readiness audit.
 
-Current real-data boundary:
+Synthetic demo signals:
 
-- 289 active NC MQSA facility records in each reviewed snapshot.
-- 52,680 of 52,680 tract-nearest facility route pairs routed.
-- 0 unreachable route rows.
-- 0 facility event signals between `2026-06-19` and `2026-06-20`.
-- 0 warning or critical county shocks.
-- 771 HRSA service-delivery candidate assumptions for response-site planning review.
+- 4 synthetic facility event signals.
+- 2 synthetic counties flagged.
+- Synthetic readiness audit: `BLOCKED`.
+- The blocked audit demonstrates the publication-readiness gate.
 
-This result supports a no-observed-change validation run for the reviewed dates. It does not support
-trend, deterioration, or causal claims until a later FDA MQSA source update is reviewed.
+Reviewed real-data package:
+
+- Preserved separately in `desktop_payload/analysis` and the journal bundle.
+- Uses reviewed NC MQSA snapshots for `2026-06-19` and `2026-06-20`.
+- Uses a self-hosted OSRM route-time matrix.
+- Readiness audit: `READY`, 0 blockers, 0 warnings.
+- Supports a no-observed-change validation run, not trend, deterioration, or causal claims.
 
 ## Screenshots
 
@@ -48,15 +50,16 @@ Key references:
 Core validation:
 
 ```text
-python -m pytest: 79 passed
+python -m pytest: 80 passed
 ruff check: passed
 mypy src/radshock: passed
-self-hosted OSRM readiness audit: READY, 0 blockers, 0 warnings
+synthetic demo readiness audit: BLOCKED as expected
+reviewed real-data readiness audit: READY, 0 blockers, 0 warnings
 ```
 
 ## Responsible Use
 
-Facility events are surveillance signals requiring source verification. Candidate response rankings
-are planning assumptions and do not indicate that a listed site currently provides mammography.
-The exploratory shock score is transparent and reproducible, but it is not a clinically validated
-measure.
+Synthetic demo outputs are for software review only. Reviewed facility events are surveillance
+signals requiring source verification. Candidate response rankings are planning assumptions and do
+not indicate that a listed site currently provides mammography. The exploratory shock score is
+transparent and reproducible, but it is not a clinically validated measure.
