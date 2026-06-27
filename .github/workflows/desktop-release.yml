@@ -75,9 +75,18 @@ jobs:
             -format UDZO \
             dist/${{ matrix.package_name }}
 
+      - name: Generate artifact checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum "${{ matrix.package_name }}" > "${{ matrix.package_name }}.sha256"
+
       - name: Upload desktop artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
-          path: dist/${{ matrix.package_name }}
+          path: |
+            dist/${{ matrix.package_name }}
+            dist/${{ matrix.package_name }}.sha256
           if-no-files-found: error
