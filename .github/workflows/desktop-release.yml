@@ -22,7 +22,7 @@ jobs:
             artifact_name: linux-x64
             package_name: RadiologyAccessShockTracker-linux-x64.tar.gz
             windowed: "false"
-          - os: macos-13
+          - os: macos-15
             artifact_name: macos-x64
             package_name: RadiologyAccessShockTracker-macos-x64.dmg
             windowed: "true"
