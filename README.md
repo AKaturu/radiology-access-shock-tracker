@@ -16,6 +16,7 @@ An open-source surveillance toolkit for detecting changes in mammography access,
 - Produces a vulnerability-adjusted county shock score and alert level.
 - Re-scores county shocks under alternative weighting assumptions for sensitivity review.
 - Audits analysis packages for publication-readiness blockers, warnings, and provenance gaps.
+- Writes reviewer-facing data-quality JSON/Markdown reports for core CSV inputs.
 - Summarizes before/after screening utilization signals.
 - Ranks hypothetical mobile mammography or fixed-site locations by geographic access recovery.
 - Generates CSV outputs, a Streamlit dashboard, and a downloadable Markdown policy brief.

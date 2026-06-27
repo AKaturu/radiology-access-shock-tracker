@@ -18,7 +18,8 @@
 3. Generate reviewed road-network travel-time matrices and uncertainty checks.
 4. Configure source review owners and production-data credentials for ACS/routing workflows.
 5. Add multiple pre/post CMS periods and causal-study export tables.
-6. Add data-quality dashboards, geocoder confidence, and identifier crosswalks.
+6. Add data-quality dashboards, geocoder confidence, and identifier crosswalks. A first
+   command-line data-quality report is implemented as `radshock data-quality-report`.
 7. Expand sensitivity-analysis reports beyond CSV outputs for reviewer signoff.
 
 ## Reserved future applications

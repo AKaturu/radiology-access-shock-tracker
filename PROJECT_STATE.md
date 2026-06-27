@@ -476,6 +476,13 @@ Latest validation gate completed:
   tests, `python -m ruff check .` passed, and `python -m mypy src/radshock` passed.
 - The quarterly MQSA source-refresh workflow is now enabled on its cron schedule, and
   `docs/OPERATIONS.md` records the required external review-owner and credential setup.
+- `radshock data-quality-report` was added as a first data-quality reporting surface for core CSV
+  inputs. It infers or accepts dataset type, checks required columns, blank required values,
+  duplicate keys, numeric parsing, coordinate ranges, and emits JSON plus Markdown reports for
+  reviewer signoff.
+- Latest validation after data-quality reporting: `python -m pytest -q` passed,
+  `python -m pytest tests/test_cli.py -q` passed, `python -m ruff check .` passed, and
+  `python -m mypy src/radshock` passed.
 
 ### Remaining Work
 

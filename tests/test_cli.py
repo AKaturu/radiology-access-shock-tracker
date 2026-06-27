@@ -30,6 +30,64 @@ def test_validate_snapshot_command(tmp_path: Path) -> None:
     assert "Snapshot valid: 1 records, 1 active" in result.output
 
 
+def test_data_quality_report_command_passes_valid_facilities(tmp_path: Path) -> None:
+    snapshot = tmp_path / "snapshot.csv"
+    output_json = tmp_path / "quality.json"
+    output_md = tmp_path / "quality.md"
+    _snapshot(snapshot, [["F1", "Facility", 35.0, -78.0, 1000, True]])
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "data-quality-report",
+            str(snapshot),
+            "--dataset-type",
+            "facilities",
+            "--output-json",
+            str(output_json),
+            "--output-md",
+            str(output_md),
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(output_json.read_text())
+    assert payload["status"] == "PASS"
+    assert payload["dataset_type"] == "facilities"
+    assert payload["row_count"] == 1
+    assert "Data Quality Report" in output_md.read_text()
+
+
+def test_data_quality_report_command_fails_duplicate_and_blank_values(tmp_path: Path) -> None:
+    snapshot = tmp_path / "snapshot.csv"
+    output_json = tmp_path / "quality.json"
+    _snapshot(
+        snapshot,
+        [
+            ["F1", "Facility", "", -78.0, 1000, True],
+            ["F1", "Facility Duplicate", 91.0, -181.0, 1000, True],
+        ],
+    )
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "data-quality-report",
+            str(snapshot),
+            "--output-json",
+            str(output_json),
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(output_json.read_text())
+    checks = {check["id"]: check for check in payload["checks"]}
+    assert payload["status"] == "FAIL"
+    assert checks["blank_required_values"]["status"] == "FAIL"
+    assert checks["duplicate_keys"]["status"] == "FAIL"
+    assert checks["coordinate_ranges"]["status"] == "FAIL"
+
+
 def test_compare_snapshots_command_writes_possible_closure(tmp_path: Path) -> None:
     before = tmp_path / "before.csv"
     after = tmp_path / "after.csv"

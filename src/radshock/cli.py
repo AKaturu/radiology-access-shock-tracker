@@ -34,6 +34,7 @@ from radshock.adapters.hrsa import (
 from radshock.briefs import generate_policy_brief, generate_policy_brief_html
 from radshock.candidates import build_county_candidate_review_template, finalize_candidate_review
 from radshock.changes import detect_changes
+from radshock.data_quality import audit_csv_quality, render_quality_markdown
 from radshock.demo import build_demo
 from radshock.geocoding import (
     CensusGeocoder,
@@ -325,6 +326,41 @@ def validate_snapshot(
     """Validate a normalized facility snapshot CSV."""
     frame = validate_facilities(pd.read_csv(snapshot_csv))
     typer.echo(f"Snapshot valid: {len(frame)} records, {int(frame['active'].sum())} active")
+
+
+@app.command("data-quality-report")
+def data_quality_report_command(
+    input_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    dataset_type: Annotated[
+        str,
+        typer.Option(
+            help=(
+                "Dataset type: auto, facilities, counties, population_points, "
+                "candidates, travel_time_matrix."
+            )
+        ),
+    ] = "auto",
+    output_json: Annotated[Path | None, typer.Option()] = None,
+    output_md: Annotated[Path | None, typer.Option()] = None,
+    force: Annotated[bool, typer.Option(help="Overwrite existing report files.")] = False,
+) -> None:
+    """Write data-quality JSON/Markdown reports for core RadShock CSV inputs."""
+    for path in [output_json, output_md]:
+        if path is not None and path.exists() and not force:
+            raise typer.BadParameter(f"output already exists: {path}")
+    audit = audit_csv_quality(input_csv, dataset_type=dataset_type)
+    if output_json is not None:
+        output_json.parent.mkdir(parents=True, exist_ok=True)
+        output_json.write_text(json.dumps(audit, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        typer.echo(f"Data-quality JSON written: {output_json.resolve()}")
+    if output_md is not None:
+        output_md.parent.mkdir(parents=True, exist_ok=True)
+        output_md.write_text(render_quality_markdown(audit), encoding="utf-8")
+        typer.echo(f"Data-quality Markdown written: {output_md.resolve()}")
+    typer.echo(
+        f"Data quality: {audit['status']} ({audit['dataset_type']}, "
+        f"{audit['row_count']} rows)"
+    )
 
 
 @app.command("compare-snapshots")
