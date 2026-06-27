@@ -120,9 +120,7 @@ def run_sensitivity_analysis(
     outputs: list[pd.DataFrame] = []
     for scenario in scenarios:
         scenario.validate()
-        scored = frame[
-            ["county_fips", "county_name", "shock_score", "alert_level"]
-        ].copy()
+        scored = frame[["county_fips", "county_name", "shock_score", "alert_level"]].copy()
         scored["scenario_id"] = scenario.scenario_id
         scored["scenario_name"] = scenario.scenario_name
         scored["scenario_description"] = scenario.description
@@ -141,9 +139,7 @@ def run_sensitivity_analysis(
         scored["sensitivity_alert_level"] = _alert_levels(scored["sensitivity_shock_score"])
         scored["baseline_rank"] = baseline["baseline_rank"]
         scored["sensitivity_rank"] = _scenario_ranks(scored)
-        scored["rank_delta_from_baseline"] = (
-            scored["sensitivity_rank"] - scored["baseline_rank"]
-        )
+        scored["rank_delta_from_baseline"] = scored["sensitivity_rank"] - scored["baseline_rank"]
         scored["mean_weight"] = scenario.mean_weight
         scored["p90_weight"] = scenario.p90_weight
         scored["threshold_weight"] = scenario.threshold_weight
@@ -217,9 +213,7 @@ def _add_vulnerability_components(frame: pd.DataFrame) -> None:
 
 
 def _detect_access_metric(frame: pd.DataFrame) -> tuple[AccessMetric, str, str]:
-    if {"shock_mean_distance_component", "shock_p90_distance_component"}.issubset(
-        frame.columns
-    ):
+    if {"shock_mean_distance_component", "shock_p90_distance_component"}.issubset(frame.columns):
         return "distance_miles", "shock_mean_distance_component", "shock_p90_distance_component"
     if {"shock_mean_travel_time_component", "shock_p90_travel_time_component"}.issubset(
         frame.columns
@@ -242,9 +236,9 @@ def _score_scenario(
 ) -> pd.Series:
     mean_component = pd.to_numeric(frame[mean_column], errors="raise").clip(0, 1)
     p90_component = pd.to_numeric(frame[p90_column], errors="raise").clip(0, 1)
-    threshold_component = pd.to_numeric(
-        frame["shock_threshold_component"], errors="raise"
-    ).clip(0, 1)
+    threshold_component = pd.to_numeric(frame["shock_threshold_component"], errors="raise").clip(
+        0, 1
+    )
     deterioration = (
         scenario.mean_weight * mean_component
         + scenario.p90_weight * p90_component
@@ -255,8 +249,10 @@ def _score_scenario(
         + scenario.rurality_weight * frame["vulnerability_rurality_component"]
         + scenario.risk_weight * frame["vulnerability_risk_component"]
     )
-    score = 100 * deterioration * (
-        scenario.vulnerability_floor + scenario.vulnerability_multiplier * vulnerability
+    score = (
+        100
+        * deterioration
+        * (scenario.vulnerability_floor + scenario.vulnerability_multiplier * vulnerability)
     )
     return score.clip(0, 100).round(1)
 

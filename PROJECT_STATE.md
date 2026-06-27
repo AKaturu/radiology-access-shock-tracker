@@ -36,6 +36,8 @@ rankings can be kept separate from unreviewed placeholder locations.
 GitHub-ready screenshots, walkthrough footage, and a compiled validation report now document the
 synthetic demo workflow for the public project front page, while reviewed real-data packages remain
 available for explicit research and reproduction workflows.
+Repository presentation polish now adds badges, a repository guide, explicit quality gates,
+contribution/security links, package project URLs, and clearer publication-boundary language.
 
 ## Completed Features
 

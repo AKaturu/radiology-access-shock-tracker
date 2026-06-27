@@ -228,14 +228,19 @@ def carry_forward_mqsa_review_command(
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(output_csv, index=False)
     matched_count = int(
-        current["source_record_hash"].astype(str).str.strip().isin(
-            set(previous["source_record_hash"].astype(str).str.strip())
-        ).sum()
+        current["source_record_hash"]
+        .astype(str)
+        .str.strip()
+        .isin(set(previous["source_record_hash"].astype(str).str.strip()))
+        .sum()
     )
     approved_count = int(
-        result["review_status"].astype(str).str.strip().str.lower().isin(
-            {"reviewed", "verified", "approved"}
-        ).sum()
+        result["review_status"]
+        .astype(str)
+        .str.strip()
+        .str.lower()
+        .isin({"reviewed", "verified", "approved"})
+        .sum()
     )
     typer.echo(f"MQSA carry-forward review written: {output_csv.resolve()}")
     typer.echo(
@@ -548,9 +553,7 @@ def prepare_travel_time_review_command(
     max_facilities_per_point: Annotated[
         int | None,
         typer.Option(
-            help=(
-                "Optional nearest-facility cap per population point after distance filtering."
-            )
+            help=("Optional nearest-facility cap per population point after distance filtering.")
         ),
     ] = None,
     include_inactive: Annotated[

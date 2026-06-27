@@ -17,6 +17,16 @@ from radshock.snapshots import file_sha256
 from radshock.utilization import summarize_utilization_change
 
 
+def _float_value(value: object) -> float:
+    if isinstance(value, (str, int, float, np.integer, np.floating)):
+        return float(value)
+    raise TypeError(f"Expected numeric value, got {type(value).__name__}")
+
+
+def _str_value(value: object) -> str:
+    return str(value)
+
+
 def build_demo(output_dir: Path) -> dict[str, Path]:
     """Create synthetic NC-like data and run the entire surveillance pipeline."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -143,15 +153,19 @@ def _population_points(counties: pd.DataFrame) -> pd.DataFrame:
     rng = np.random.default_rng(20260619)
     rows: list[dict[str, object]] = []
     for county in counties.itertuples(index=False):
+        county_fips = _str_value(county.county_fips)
+        centroid_lat = _float_value(county.centroid_lat)
+        centroid_lon = _float_value(county.centroid_lon)
+        eligible_population = _float_value(county.eligible_population)
         shares = rng.dirichlet(np.ones(6))
         for index, share in enumerate(shares, start=1):
             rows.append(
                 {
-                    "point_id": f"{county.county_fips}-P{index}",
-                    "county_fips": county.county_fips,
-                    "latitude": county.centroid_lat + rng.normal(0, 0.12),
-                    "longitude": county.centroid_lon + rng.normal(0, 0.14),
-                    "weight": round(county.eligible_population * share, 2),
+                    "point_id": f"{county_fips}-P{index}",
+                    "county_fips": county_fips,
+                    "latitude": centroid_lat + rng.normal(0, 0.12),
+                    "longitude": centroid_lon + rng.normal(0, 0.14),
+                    "weight": round(eligible_population * share, 2),
                 }
             )
     return pd.DataFrame(rows)
@@ -211,18 +225,21 @@ def _utilization(counties: pd.DataFrame) -> pd.DataFrame:
     rows: list[dict[str, object]] = []
     declining = {"37007": -0.18, "37013": -0.12, "37009": -0.06}
     for county in counties.itertuples(index=False):
-        base_rate = 105 - 60 * county.rurality_index + rng.normal(0, 3)
-        beneficiaries = max(2500, round(county.eligible_population * 0.32))
+        county_fips = _str_value(county.county_fips)
+        rurality_index = _float_value(county.rurality_index)
+        eligible_population = _float_value(county.eligible_population)
+        base_rate = 105 - 60 * rurality_index + rng.normal(0, 3)
+        beneficiaries = max(2500, round(eligible_population * 0.32))
         periods = [
             ("2025Q4", 1.0),
-            ("2026Q2", 1.0 + declining.get(county.county_fips, 0.01)),
+            ("2026Q2", 1.0 + declining.get(county_fips, 0.01)),
         ]
         for period, multiplier in periods:
             services = max(0, round(base_rate * multiplier * beneficiaries / 1000))
             rows.append(
                 {
                     "period": period,
-                    "county_fips": county.county_fips,
+                    "county_fips": county_fips,
                     "screening_services": services,
                     "eligible_beneficiaries": beneficiaries,
                 }

@@ -232,9 +232,9 @@ def geocode_mqsa_review(
 
     attempted = 0
     for index, row in result.iterrows():
-        has_coordinates = str(row.get("latitude", "")).strip() and str(
-            row.get("longitude", "")
-        ).strip()
+        has_coordinates = (
+            str(row.get("latitude", "")).strip() and str(row.get("longitude", "")).strip()
+        )
         if has_coordinates and not overwrite_coordinates:
             continue
         if limit is not None and attempted >= limit:
