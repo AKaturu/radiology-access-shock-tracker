@@ -1,0 +1,32 @@
+{
+  "eligible_population_definition": "ACS B01001 female age 50-74 estimate",
+  "generated_at_utc": "2026-06-20T01:29:02.770165+00:00",
+  "geography": "tract",
+  "notes": [
+    "eligible_population is ACS female population age 50-74.",
+    "latitude and longitude are Census Gazetteer tract internal points.",
+    "tract points are finer than county centroids but remain centroid approximations."
+  ],
+  "outputs": {
+    "population_points": {
+      "path": "data\\population_points_tracts.csv",
+      "sha256": "b0bf2f82e597b8d3cb6044e702d055f17a395faaca5a6ce8e39a970cc982e7db"
+    },
+    "raw_context": {
+      "path": "data\\census_tract_context_2024.csv",
+      "sha256": "9f61cc7be847615e93ddd776b89b9328bcb7e9e26232a6cf87288e61ac9162fe"
+    }
+  },
+  "row_counts": {
+    "population_points": 2634,
+    "tracts": 2672
+  },
+  "source_name": "census-acs5-gazetteer",
+  "source_urls": [
+    "https://api.census.gov/data/2024/acs/acs5",
+    "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_gaz_tracts_37.txt"
+  ],
+  "state": "NC",
+  "state_fips": "37",
+  "year": 2024
+}

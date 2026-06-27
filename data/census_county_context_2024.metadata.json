@@ -1,0 +1,30 @@
+﻿{
+    "generated_at_utc":  "2026-06-20T00:48:17.6839707Z",
+    "source_name":  "US Census ACS 2024 5-year and 2024 Census Gazetteer counties",
+    "source_urls":  [
+                        "https://api.census.gov/data/2024/acs/acs5",
+                        "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_gaz_counties_37.txt"
+                    ],
+    "state":  "NC",
+    "county_rows":  100,
+    "population_point_rows":  100,
+    "eligible_population_definition":  "ACS B01001 female population age 50-74, summed from B01001_040E through B01001_046E.",
+    "population_points_note":  "County-centroid testing inputs weighted by eligible_population; replace with finer reviewed population points before publication.",
+    "rurality_index_note":  "Inverse min-max scaling of Census population density per square mile within NC counties.",
+    "high_risk_index_note":  "Min-max scaling of ACS households with no vehicle available within NC counties; provisional access-vulnerability proxy.",
+    "files":  {
+                  "counties_csv":  {
+                                       "path":  "data/counties.csv",
+                                       "sha256":  "86875f1bf07ad83e18b23b4b5b3d82bef370c041c63e59db942d7945050fc8bb"
+                                   },
+                  "raw_context_csv":  {
+                                          "path":  "data/census_county_context_2024.csv",
+                                          "sha256":  "5d957e3194c324f119e6e8b0f189630a2fd45832d81dcbdac8a71fab2c851fc3",
+                                          "rows":  100
+                                      },
+                  "population_points_csv":  {
+                                                "path":  "data/population_points.csv",
+                                                "sha256":  "f0d8ff013ad222e58953f7919025f077c78308c968b3e5e78b4be26b69826232"
+                                            }
+              }
+}

@@ -1,0 +1,80 @@
+{
+  "access_metric": "travel_time_minutes",
+  "candidate_assumptions": {
+    "candidate_review_csv": "data/candidate_sites_review.csv",
+    "candidate_review_metadata_json": "data\\candidate_sites_review.metadata.json",
+    "candidate_sites_csv": "data\\candidate_sites.csv",
+    "note": "HRSA rows are active service-delivery health-center sites used as planning assumptions, not claims that candidate locations provide mammography.",
+    "row_counts": {
+      "candidate_rows": 771,
+      "candidate_types": {
+        "fixed_site_assumption": 592,
+        "mobile_stop_assumption": 61,
+        "seasonal_fixed_site_assumption": 118
+      },
+      "counties": 92
+    },
+    "source": "HRSA Health Center Program Service Delivery and Look-Alike Sites",
+    "source_urls": [
+      "https://data.hrsa.gov/data/download",
+      "https://data.hrsa.gov/DataDownload/DD_Files/Health_Center_Service_Delivery_and_LookAlike_Sites.csv"
+    ]
+  },
+  "command": "scripts/finalize_travel_time_package.py",
+  "generated_at_utc": "2026-06-20T16:07:34.229182+00:00",
+  "inputs": {
+    "after_csv": "data\\snapshots\\2026-06-20\\facilities.csv",
+    "after_travel_times_csv": "work\\self-hosted-osrm\\2026-06-20_tract_nearest20_self_hosted_osrm_matrix.csv",
+    "before_csv": "data\\snapshots\\2026-06-19\\facilities.csv",
+    "before_travel_times_csv": "work\\self-hosted-osrm\\2026-06-20_tract_nearest20_self_hosted_osrm_matrix.csv",
+    "candidates_csv": "data\\candidate_sites.csv",
+    "counties_csv": "data\\counties.csv",
+    "population_csv": "data\\population_points_tracts.csv"
+  },
+  "outputs": {
+    "brief": "policy_brief.md",
+    "brief_html": "policy_brief.html",
+    "county_shocks": "county_shocks.csv",
+    "events": "facility_events.csv",
+    "interventions": "intervention_rankings.csv",
+    "readiness_json": "readiness_audit.json",
+    "readiness_md": "readiness_audit.md",
+    "sensitivity": "sensitivity_analysis.csv"
+  },
+  "periods": {
+    "after_period": "2026-06-20",
+    "before_period": "2026-06-19"
+  },
+  "routing": {
+    "engine": {
+      "deployment": "self-hosted Docker OSRM container",
+      "name": "Project OSRM",
+      "version": "ghcr.io/project-osrm/osrm-backend:v6.0.0"
+    },
+    "map_extract": {
+      "name": "Geofabrik North Carolina",
+      "osm_data_timestamp": "2026-06-19T20:21:41Z",
+      "sha256": "fa3f912373958c448bc1651a32f3f531ae55e4525665d111e2ca0fd9ccad553f",
+      "source_url": "https://download.geofabrik.de/north-america/us/north-carolina-latest.osm.pbf"
+    },
+    "matrix_csv": "work\\self-hosted-osrm\\2026-06-20_tract_nearest20_self_hosted_osrm_matrix.csv",
+    "matrix_metadata_json": "work\\self-hosted-osrm\\2026-06-20_tract_nearest20_self_hosted_osrm_matrix.metadata.json",
+    "note": "Self-hosted OSRM MLD run generated from the documented Geofabrik OSM extract.",
+    "profile": "driving",
+    "provider": "osrm:driving",
+    "review_csv": "work\\self-hosted-osrm\\2026-06-20_tract_nearest20_self_hosted_osrm_review.csv",
+    "route_source_url": "http://127.0.0.1:5000/table/v1/driving",
+    "row_counts": {
+      "approved_review_rows": 52680,
+      "excluded_rows": 0,
+      "facilities": 289,
+      "finalized_matrix_rows": 52680,
+      "population_points": 2634,
+      "route_rows": 52680,
+      "routed_rows": 52680,
+      "unreachable_rows": 0
+    },
+    "traffic_assumption": "free-flow travel time; no live traffic"
+  },
+  "synthetic_data": false
+}

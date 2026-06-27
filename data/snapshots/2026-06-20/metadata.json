@@ -1,0 +1,13 @@
+{
+  "as_of": "2026-06-20",
+  "source_name": "reviewed-fda-mqsa-public",
+  "record_count": 289,
+  "active_record_count": 289,
+  "sha256": "60b6e73e2cfbceec43fb6f2cbe8a28b69509c8b075a1fa14e474c20e5330a09f",
+  "created_at_utc": "2026-06-20T02:23:03.212766+00:00",
+  "input_filename": "facilities_2026-06-20_NC_reviewed.csv",
+  "schema_version": "facility_snapshot_v1",
+  "source_url": "https://www.accessdata.fda.gov/premarket/ftparea/public.zip",
+  "raw_source_filename": "public.zip",
+  "raw_source_sha256": "9aa978827386629891acc4fed87e50964de10bd3d681b47b916c78ec39a4141c"
+}

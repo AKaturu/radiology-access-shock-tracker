@@ -1,0 +1,501 @@
+scenario_id,scenario_name,scenario_description,access_metric,county_fips,county_name,baseline_shock_score,sensitivity_shock_score,score_delta_from_baseline,baseline_alert_level,sensitivity_alert_level,baseline_rank,sensitivity_rank,rank_delta_from_baseline,mean_weight,p90_weight,threshold_weight,poverty_weight,rurality_weight,risk_weight,vulnerability_floor,vulnerability_multiplier
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37001,Alamance County,0.0,0.0,0.0,NONE,NONE,1,1,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37003,Alexander County,0.0,0.0,0.0,NONE,NONE,2,2,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37005,Alleghany County,0.0,0.0,0.0,NONE,NONE,3,3,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37007,Anson County,0.0,0.0,0.0,NONE,NONE,4,4,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37009,Ashe County,0.0,0.0,0.0,NONE,NONE,5,5,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37011,Avery County,0.0,0.0,0.0,NONE,NONE,6,6,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37013,Beaufort County,0.0,0.0,0.0,NONE,NONE,7,7,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37015,Bertie County,0.0,0.0,0.0,NONE,NONE,8,8,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37017,Bladen County,0.0,0.0,0.0,NONE,NONE,9,9,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37019,Brunswick County,0.0,0.0,0.0,NONE,NONE,10,10,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37021,Buncombe County,0.0,0.0,0.0,NONE,NONE,11,11,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37023,Burke County,0.0,0.0,0.0,NONE,NONE,12,12,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37025,Cabarrus County,0.0,0.0,0.0,NONE,NONE,13,13,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37027,Caldwell County,0.0,0.0,0.0,NONE,NONE,14,14,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37029,Camden County,0.0,0.0,0.0,NONE,NONE,15,15,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37031,Carteret County,0.0,0.0,0.0,NONE,NONE,16,16,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37033,Caswell County,0.0,0.0,0.0,NONE,NONE,17,17,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37035,Catawba County,0.0,0.0,0.0,NONE,NONE,18,18,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37037,Chatham County,0.0,0.0,0.0,NONE,NONE,19,19,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37039,Cherokee County,0.0,0.0,0.0,NONE,NONE,20,20,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37041,Chowan County,0.0,0.0,0.0,NONE,NONE,21,21,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37043,Clay County,0.0,0.0,0.0,NONE,NONE,22,22,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37045,Cleveland County,0.0,0.0,0.0,NONE,NONE,23,23,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37047,Columbus County,0.0,0.0,0.0,NONE,NONE,24,24,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37049,Craven County,0.0,0.0,0.0,NONE,NONE,25,25,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37051,Cumberland County,0.0,0.0,0.0,NONE,NONE,26,26,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37053,Currituck County,0.0,0.0,0.0,NONE,NONE,27,27,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37055,Dare County,0.0,0.0,0.0,NONE,NONE,28,28,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37057,Davidson County,0.0,0.0,0.0,NONE,NONE,29,29,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37059,Davie County,0.0,0.0,0.0,NONE,NONE,30,30,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37061,Duplin County,0.0,0.0,0.0,NONE,NONE,31,31,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37063,Durham County,0.0,0.0,0.0,NONE,NONE,32,32,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37065,Edgecombe County,0.0,0.0,0.0,NONE,NONE,33,33,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37067,Forsyth County,0.0,0.0,0.0,NONE,NONE,34,34,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37069,Franklin County,0.0,0.0,0.0,NONE,NONE,35,35,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37071,Gaston County,0.0,0.0,0.0,NONE,NONE,36,36,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37073,Gates County,0.0,0.0,0.0,NONE,NONE,37,37,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37075,Graham County,0.0,0.0,0.0,NONE,NONE,38,38,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37077,Granville County,0.0,0.0,0.0,NONE,NONE,39,39,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37079,Greene County,0.0,0.0,0.0,NONE,NONE,40,40,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37081,Guilford County,0.0,0.0,0.0,NONE,NONE,41,41,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37083,Halifax County,0.0,0.0,0.0,NONE,NONE,42,42,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37085,Harnett County,0.0,0.0,0.0,NONE,NONE,43,43,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37087,Haywood County,0.0,0.0,0.0,NONE,NONE,44,44,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37089,Henderson County,0.0,0.0,0.0,NONE,NONE,45,45,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37091,Hertford County,0.0,0.0,0.0,NONE,NONE,46,46,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37093,Hoke County,0.0,0.0,0.0,NONE,NONE,47,47,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37095,Hyde County,0.0,0.0,0.0,NONE,NONE,48,48,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37097,Iredell County,0.0,0.0,0.0,NONE,NONE,49,49,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37099,Jackson County,0.0,0.0,0.0,NONE,NONE,50,50,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37101,Johnston County,0.0,0.0,0.0,NONE,NONE,51,51,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37103,Jones County,0.0,0.0,0.0,NONE,NONE,52,52,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37105,Lee County,0.0,0.0,0.0,NONE,NONE,53,53,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37107,Lenoir County,0.0,0.0,0.0,NONE,NONE,54,54,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37109,Lincoln County,0.0,0.0,0.0,NONE,NONE,55,55,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37113,Macon County,0.0,0.0,0.0,NONE,NONE,56,56,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37115,Madison County,0.0,0.0,0.0,NONE,NONE,57,57,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37117,Martin County,0.0,0.0,0.0,NONE,NONE,58,58,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37111,McDowell County,0.0,0.0,0.0,NONE,NONE,59,59,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37119,Mecklenburg County,0.0,0.0,0.0,NONE,NONE,60,60,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37121,Mitchell County,0.0,0.0,0.0,NONE,NONE,61,61,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37123,Montgomery County,0.0,0.0,0.0,NONE,NONE,62,62,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37125,Moore County,0.0,0.0,0.0,NONE,NONE,63,63,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37127,Nash County,0.0,0.0,0.0,NONE,NONE,64,64,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37129,New Hanover County,0.0,0.0,0.0,NONE,NONE,65,65,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37131,Northampton County,0.0,0.0,0.0,NONE,NONE,66,66,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37133,Onslow County,0.0,0.0,0.0,NONE,NONE,67,67,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37135,Orange County,0.0,0.0,0.0,NONE,NONE,68,68,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37137,Pamlico County,0.0,0.0,0.0,NONE,NONE,69,69,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37139,Pasquotank County,0.0,0.0,0.0,NONE,NONE,70,70,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37141,Pender County,0.0,0.0,0.0,NONE,NONE,71,71,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37143,Perquimans County,0.0,0.0,0.0,NONE,NONE,72,72,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37145,Person County,0.0,0.0,0.0,NONE,NONE,73,73,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37147,Pitt County,0.0,0.0,0.0,NONE,NONE,74,74,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37149,Polk County,0.0,0.0,0.0,NONE,NONE,75,75,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37151,Randolph County,0.0,0.0,0.0,NONE,NONE,76,76,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37153,Richmond County,0.0,0.0,0.0,NONE,NONE,77,77,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37155,Robeson County,0.0,0.0,0.0,NONE,NONE,78,78,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37157,Rockingham County,0.0,0.0,0.0,NONE,NONE,79,79,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37159,Rowan County,0.0,0.0,0.0,NONE,NONE,80,80,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37161,Rutherford County,0.0,0.0,0.0,NONE,NONE,81,81,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37163,Sampson County,0.0,0.0,0.0,NONE,NONE,82,82,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37165,Scotland County,0.0,0.0,0.0,NONE,NONE,83,83,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37167,Stanly County,0.0,0.0,0.0,NONE,NONE,84,84,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37169,Stokes County,0.0,0.0,0.0,NONE,NONE,85,85,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37171,Surry County,0.0,0.0,0.0,NONE,NONE,86,86,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37173,Swain County,0.0,0.0,0.0,NONE,NONE,87,87,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37175,Transylvania County,0.0,0.0,0.0,NONE,NONE,88,88,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37177,Tyrrell County,0.0,0.0,0.0,NONE,NONE,89,89,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37179,Union County,0.0,0.0,0.0,NONE,NONE,90,90,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37181,Vance County,0.0,0.0,0.0,NONE,NONE,91,91,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37183,Wake County,0.0,0.0,0.0,NONE,NONE,92,92,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37185,Warren County,0.0,0.0,0.0,NONE,NONE,93,93,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37187,Washington County,0.0,0.0,0.0,NONE,NONE,94,94,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37189,Watauga County,0.0,0.0,0.0,NONE,NONE,95,95,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37191,Wayne County,0.0,0.0,0.0,NONE,NONE,96,96,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37193,Wilkes County,0.0,0.0,0.0,NONE,NONE,97,97,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37195,Wilson County,0.0,0.0,0.0,NONE,NONE,98,98,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37197,Yadkin County,0.0,0.0,0.0,NONE,NONE,99,99,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+baseline,Baseline,Current published exploratory weighting.,travel_time_minutes,37199,Yancey County,0.0,0.0,0.0,NONE,NONE,100,100,0,0.45,0.3,0.25,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37001,Alamance County,0.0,0.0,0.0,NONE,NONE,1,1,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37003,Alexander County,0.0,0.0,0.0,NONE,NONE,2,2,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37005,Alleghany County,0.0,0.0,0.0,NONE,NONE,3,3,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37007,Anson County,0.0,0.0,0.0,NONE,NONE,4,4,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37009,Ashe County,0.0,0.0,0.0,NONE,NONE,5,5,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37011,Avery County,0.0,0.0,0.0,NONE,NONE,6,6,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37013,Beaufort County,0.0,0.0,0.0,NONE,NONE,7,7,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37015,Bertie County,0.0,0.0,0.0,NONE,NONE,8,8,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37017,Bladen County,0.0,0.0,0.0,NONE,NONE,9,9,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37019,Brunswick County,0.0,0.0,0.0,NONE,NONE,10,10,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37021,Buncombe County,0.0,0.0,0.0,NONE,NONE,11,11,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37023,Burke County,0.0,0.0,0.0,NONE,NONE,12,12,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37025,Cabarrus County,0.0,0.0,0.0,NONE,NONE,13,13,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37027,Caldwell County,0.0,0.0,0.0,NONE,NONE,14,14,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37029,Camden County,0.0,0.0,0.0,NONE,NONE,15,15,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37031,Carteret County,0.0,0.0,0.0,NONE,NONE,16,16,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37033,Caswell County,0.0,0.0,0.0,NONE,NONE,17,17,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37035,Catawba County,0.0,0.0,0.0,NONE,NONE,18,18,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37037,Chatham County,0.0,0.0,0.0,NONE,NONE,19,19,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37039,Cherokee County,0.0,0.0,0.0,NONE,NONE,20,20,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37041,Chowan County,0.0,0.0,0.0,NONE,NONE,21,21,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37043,Clay County,0.0,0.0,0.0,NONE,NONE,22,22,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37045,Cleveland County,0.0,0.0,0.0,NONE,NONE,23,23,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37047,Columbus County,0.0,0.0,0.0,NONE,NONE,24,24,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37049,Craven County,0.0,0.0,0.0,NONE,NONE,25,25,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37051,Cumberland County,0.0,0.0,0.0,NONE,NONE,26,26,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37053,Currituck County,0.0,0.0,0.0,NONE,NONE,27,27,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37055,Dare County,0.0,0.0,0.0,NONE,NONE,28,28,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37057,Davidson County,0.0,0.0,0.0,NONE,NONE,29,29,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37059,Davie County,0.0,0.0,0.0,NONE,NONE,30,30,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37061,Duplin County,0.0,0.0,0.0,NONE,NONE,31,31,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37063,Durham County,0.0,0.0,0.0,NONE,NONE,32,32,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37065,Edgecombe County,0.0,0.0,0.0,NONE,NONE,33,33,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37067,Forsyth County,0.0,0.0,0.0,NONE,NONE,34,34,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37069,Franklin County,0.0,0.0,0.0,NONE,NONE,35,35,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37071,Gaston County,0.0,0.0,0.0,NONE,NONE,36,36,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37073,Gates County,0.0,0.0,0.0,NONE,NONE,37,37,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37075,Graham County,0.0,0.0,0.0,NONE,NONE,38,38,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37077,Granville County,0.0,0.0,0.0,NONE,NONE,39,39,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37079,Greene County,0.0,0.0,0.0,NONE,NONE,40,40,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37081,Guilford County,0.0,0.0,0.0,NONE,NONE,41,41,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37083,Halifax County,0.0,0.0,0.0,NONE,NONE,42,42,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37085,Harnett County,0.0,0.0,0.0,NONE,NONE,43,43,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37087,Haywood County,0.0,0.0,0.0,NONE,NONE,44,44,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37089,Henderson County,0.0,0.0,0.0,NONE,NONE,45,45,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37091,Hertford County,0.0,0.0,0.0,NONE,NONE,46,46,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37093,Hoke County,0.0,0.0,0.0,NONE,NONE,47,47,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37095,Hyde County,0.0,0.0,0.0,NONE,NONE,48,48,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37097,Iredell County,0.0,0.0,0.0,NONE,NONE,49,49,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37099,Jackson County,0.0,0.0,0.0,NONE,NONE,50,50,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37101,Johnston County,0.0,0.0,0.0,NONE,NONE,51,51,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37103,Jones County,0.0,0.0,0.0,NONE,NONE,52,52,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37105,Lee County,0.0,0.0,0.0,NONE,NONE,53,53,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37107,Lenoir County,0.0,0.0,0.0,NONE,NONE,54,54,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37109,Lincoln County,0.0,0.0,0.0,NONE,NONE,55,55,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37113,Macon County,0.0,0.0,0.0,NONE,NONE,56,56,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37115,Madison County,0.0,0.0,0.0,NONE,NONE,57,57,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37117,Martin County,0.0,0.0,0.0,NONE,NONE,58,58,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37111,McDowell County,0.0,0.0,0.0,NONE,NONE,59,59,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37119,Mecklenburg County,0.0,0.0,0.0,NONE,NONE,60,60,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37121,Mitchell County,0.0,0.0,0.0,NONE,NONE,61,61,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37123,Montgomery County,0.0,0.0,0.0,NONE,NONE,62,62,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37125,Moore County,0.0,0.0,0.0,NONE,NONE,63,63,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37127,Nash County,0.0,0.0,0.0,NONE,NONE,64,64,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37129,New Hanover County,0.0,0.0,0.0,NONE,NONE,65,65,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37131,Northampton County,0.0,0.0,0.0,NONE,NONE,66,66,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37133,Onslow County,0.0,0.0,0.0,NONE,NONE,67,67,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37135,Orange County,0.0,0.0,0.0,NONE,NONE,68,68,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37137,Pamlico County,0.0,0.0,0.0,NONE,NONE,69,69,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37139,Pasquotank County,0.0,0.0,0.0,NONE,NONE,70,70,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37141,Pender County,0.0,0.0,0.0,NONE,NONE,71,71,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37143,Perquimans County,0.0,0.0,0.0,NONE,NONE,72,72,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37145,Person County,0.0,0.0,0.0,NONE,NONE,73,73,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37147,Pitt County,0.0,0.0,0.0,NONE,NONE,74,74,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37149,Polk County,0.0,0.0,0.0,NONE,NONE,75,75,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37151,Randolph County,0.0,0.0,0.0,NONE,NONE,76,76,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37153,Richmond County,0.0,0.0,0.0,NONE,NONE,77,77,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37155,Robeson County,0.0,0.0,0.0,NONE,NONE,78,78,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37157,Rockingham County,0.0,0.0,0.0,NONE,NONE,79,79,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37159,Rowan County,0.0,0.0,0.0,NONE,NONE,80,80,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37161,Rutherford County,0.0,0.0,0.0,NONE,NONE,81,81,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37163,Sampson County,0.0,0.0,0.0,NONE,NONE,82,82,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37165,Scotland County,0.0,0.0,0.0,NONE,NONE,83,83,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37167,Stanly County,0.0,0.0,0.0,NONE,NONE,84,84,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37169,Stokes County,0.0,0.0,0.0,NONE,NONE,85,85,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37171,Surry County,0.0,0.0,0.0,NONE,NONE,86,86,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37173,Swain County,0.0,0.0,0.0,NONE,NONE,87,87,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37175,Transylvania County,0.0,0.0,0.0,NONE,NONE,88,88,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37177,Tyrrell County,0.0,0.0,0.0,NONE,NONE,89,89,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37179,Union County,0.0,0.0,0.0,NONE,NONE,90,90,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37181,Vance County,0.0,0.0,0.0,NONE,NONE,91,91,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37183,Wake County,0.0,0.0,0.0,NONE,NONE,92,92,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37185,Warren County,0.0,0.0,0.0,NONE,NONE,93,93,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37187,Washington County,0.0,0.0,0.0,NONE,NONE,94,94,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37189,Watauga County,0.0,0.0,0.0,NONE,NONE,95,95,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37191,Wayne County,0.0,0.0,0.0,NONE,NONE,96,96,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37193,Wilkes County,0.0,0.0,0.0,NONE,NONE,97,97,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37195,Wilson County,0.0,0.0,0.0,NONE,NONE,98,98,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37197,Yadkin County,0.0,0.0,0.0,NONE,NONE,99,99,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+mean_access_heavy,Mean Access Heavy,Places more emphasis on broad average access deterioration.,travel_time_minutes,37199,Yancey County,0.0,0.0,0.0,NONE,NONE,100,100,0,0.6,0.25,0.15,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37001,Alamance County,0.0,0.0,0.0,NONE,NONE,1,1,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37003,Alexander County,0.0,0.0,0.0,NONE,NONE,2,2,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37005,Alleghany County,0.0,0.0,0.0,NONE,NONE,3,3,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37007,Anson County,0.0,0.0,0.0,NONE,NONE,4,4,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37009,Ashe County,0.0,0.0,0.0,NONE,NONE,5,5,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37011,Avery County,0.0,0.0,0.0,NONE,NONE,6,6,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37013,Beaufort County,0.0,0.0,0.0,NONE,NONE,7,7,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37015,Bertie County,0.0,0.0,0.0,NONE,NONE,8,8,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37017,Bladen County,0.0,0.0,0.0,NONE,NONE,9,9,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37019,Brunswick County,0.0,0.0,0.0,NONE,NONE,10,10,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37021,Buncombe County,0.0,0.0,0.0,NONE,NONE,11,11,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37023,Burke County,0.0,0.0,0.0,NONE,NONE,12,12,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37025,Cabarrus County,0.0,0.0,0.0,NONE,NONE,13,13,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37027,Caldwell County,0.0,0.0,0.0,NONE,NONE,14,14,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37029,Camden County,0.0,0.0,0.0,NONE,NONE,15,15,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37031,Carteret County,0.0,0.0,0.0,NONE,NONE,16,16,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37033,Caswell County,0.0,0.0,0.0,NONE,NONE,17,17,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37035,Catawba County,0.0,0.0,0.0,NONE,NONE,18,18,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37037,Chatham County,0.0,0.0,0.0,NONE,NONE,19,19,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37039,Cherokee County,0.0,0.0,0.0,NONE,NONE,20,20,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37041,Chowan County,0.0,0.0,0.0,NONE,NONE,21,21,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37043,Clay County,0.0,0.0,0.0,NONE,NONE,22,22,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37045,Cleveland County,0.0,0.0,0.0,NONE,NONE,23,23,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37047,Columbus County,0.0,0.0,0.0,NONE,NONE,24,24,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37049,Craven County,0.0,0.0,0.0,NONE,NONE,25,25,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37051,Cumberland County,0.0,0.0,0.0,NONE,NONE,26,26,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37053,Currituck County,0.0,0.0,0.0,NONE,NONE,27,27,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37055,Dare County,0.0,0.0,0.0,NONE,NONE,28,28,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37057,Davidson County,0.0,0.0,0.0,NONE,NONE,29,29,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37059,Davie County,0.0,0.0,0.0,NONE,NONE,30,30,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37061,Duplin County,0.0,0.0,0.0,NONE,NONE,31,31,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37063,Durham County,0.0,0.0,0.0,NONE,NONE,32,32,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37065,Edgecombe County,0.0,0.0,0.0,NONE,NONE,33,33,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37067,Forsyth County,0.0,0.0,0.0,NONE,NONE,34,34,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37069,Franklin County,0.0,0.0,0.0,NONE,NONE,35,35,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37071,Gaston County,0.0,0.0,0.0,NONE,NONE,36,36,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37073,Gates County,0.0,0.0,0.0,NONE,NONE,37,37,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37075,Graham County,0.0,0.0,0.0,NONE,NONE,38,38,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37077,Granville County,0.0,0.0,0.0,NONE,NONE,39,39,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37079,Greene County,0.0,0.0,0.0,NONE,NONE,40,40,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37081,Guilford County,0.0,0.0,0.0,NONE,NONE,41,41,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37083,Halifax County,0.0,0.0,0.0,NONE,NONE,42,42,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37085,Harnett County,0.0,0.0,0.0,NONE,NONE,43,43,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37087,Haywood County,0.0,0.0,0.0,NONE,NONE,44,44,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37089,Henderson County,0.0,0.0,0.0,NONE,NONE,45,45,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37091,Hertford County,0.0,0.0,0.0,NONE,NONE,46,46,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37093,Hoke County,0.0,0.0,0.0,NONE,NONE,47,47,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37095,Hyde County,0.0,0.0,0.0,NONE,NONE,48,48,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37097,Iredell County,0.0,0.0,0.0,NONE,NONE,49,49,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37099,Jackson County,0.0,0.0,0.0,NONE,NONE,50,50,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37101,Johnston County,0.0,0.0,0.0,NONE,NONE,51,51,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37103,Jones County,0.0,0.0,0.0,NONE,NONE,52,52,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37105,Lee County,0.0,0.0,0.0,NONE,NONE,53,53,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37107,Lenoir County,0.0,0.0,0.0,NONE,NONE,54,54,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37109,Lincoln County,0.0,0.0,0.0,NONE,NONE,55,55,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37113,Macon County,0.0,0.0,0.0,NONE,NONE,56,56,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37115,Madison County,0.0,0.0,0.0,NONE,NONE,57,57,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37117,Martin County,0.0,0.0,0.0,NONE,NONE,58,58,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37111,McDowell County,0.0,0.0,0.0,NONE,NONE,59,59,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37119,Mecklenburg County,0.0,0.0,0.0,NONE,NONE,60,60,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37121,Mitchell County,0.0,0.0,0.0,NONE,NONE,61,61,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37123,Montgomery County,0.0,0.0,0.0,NONE,NONE,62,62,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37125,Moore County,0.0,0.0,0.0,NONE,NONE,63,63,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37127,Nash County,0.0,0.0,0.0,NONE,NONE,64,64,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37129,New Hanover County,0.0,0.0,0.0,NONE,NONE,65,65,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37131,Northampton County,0.0,0.0,0.0,NONE,NONE,66,66,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37133,Onslow County,0.0,0.0,0.0,NONE,NONE,67,67,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37135,Orange County,0.0,0.0,0.0,NONE,NONE,68,68,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37137,Pamlico County,0.0,0.0,0.0,NONE,NONE,69,69,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37139,Pasquotank County,0.0,0.0,0.0,NONE,NONE,70,70,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37141,Pender County,0.0,0.0,0.0,NONE,NONE,71,71,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37143,Perquimans County,0.0,0.0,0.0,NONE,NONE,72,72,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37145,Person County,0.0,0.0,0.0,NONE,NONE,73,73,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37147,Pitt County,0.0,0.0,0.0,NONE,NONE,74,74,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37149,Polk County,0.0,0.0,0.0,NONE,NONE,75,75,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37151,Randolph County,0.0,0.0,0.0,NONE,NONE,76,76,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37153,Richmond County,0.0,0.0,0.0,NONE,NONE,77,77,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37155,Robeson County,0.0,0.0,0.0,NONE,NONE,78,78,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37157,Rockingham County,0.0,0.0,0.0,NONE,NONE,79,79,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37159,Rowan County,0.0,0.0,0.0,NONE,NONE,80,80,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37161,Rutherford County,0.0,0.0,0.0,NONE,NONE,81,81,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37163,Sampson County,0.0,0.0,0.0,NONE,NONE,82,82,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37165,Scotland County,0.0,0.0,0.0,NONE,NONE,83,83,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37167,Stanly County,0.0,0.0,0.0,NONE,NONE,84,84,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37169,Stokes County,0.0,0.0,0.0,NONE,NONE,85,85,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37171,Surry County,0.0,0.0,0.0,NONE,NONE,86,86,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37173,Swain County,0.0,0.0,0.0,NONE,NONE,87,87,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37175,Transylvania County,0.0,0.0,0.0,NONE,NONE,88,88,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37177,Tyrrell County,0.0,0.0,0.0,NONE,NONE,89,89,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37179,Union County,0.0,0.0,0.0,NONE,NONE,90,90,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37181,Vance County,0.0,0.0,0.0,NONE,NONE,91,91,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37183,Wake County,0.0,0.0,0.0,NONE,NONE,92,92,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37185,Warren County,0.0,0.0,0.0,NONE,NONE,93,93,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37187,Washington County,0.0,0.0,0.0,NONE,NONE,94,94,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37189,Watauga County,0.0,0.0,0.0,NONE,NONE,95,95,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37191,Wayne County,0.0,0.0,0.0,NONE,NONE,96,96,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37193,Wilkes County,0.0,0.0,0.0,NONE,NONE,97,97,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37195,Wilson County,0.0,0.0,0.0,NONE,NONE,98,98,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37197,Yadkin County,0.0,0.0,0.0,NONE,NONE,99,99,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+tail_access_heavy,Tail Access Heavy,Places more emphasis on 90th-percentile access deterioration.,travel_time_minutes,37199,Yancey County,0.0,0.0,0.0,NONE,NONE,100,100,0,0.25,0.5,0.25,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37001,Alamance County,0.0,0.0,0.0,NONE,NONE,1,1,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37003,Alexander County,0.0,0.0,0.0,NONE,NONE,2,2,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37005,Alleghany County,0.0,0.0,0.0,NONE,NONE,3,3,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37007,Anson County,0.0,0.0,0.0,NONE,NONE,4,4,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37009,Ashe County,0.0,0.0,0.0,NONE,NONE,5,5,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37011,Avery County,0.0,0.0,0.0,NONE,NONE,6,6,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37013,Beaufort County,0.0,0.0,0.0,NONE,NONE,7,7,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37015,Bertie County,0.0,0.0,0.0,NONE,NONE,8,8,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37017,Bladen County,0.0,0.0,0.0,NONE,NONE,9,9,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37019,Brunswick County,0.0,0.0,0.0,NONE,NONE,10,10,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37021,Buncombe County,0.0,0.0,0.0,NONE,NONE,11,11,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37023,Burke County,0.0,0.0,0.0,NONE,NONE,12,12,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37025,Cabarrus County,0.0,0.0,0.0,NONE,NONE,13,13,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37027,Caldwell County,0.0,0.0,0.0,NONE,NONE,14,14,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37029,Camden County,0.0,0.0,0.0,NONE,NONE,15,15,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37031,Carteret County,0.0,0.0,0.0,NONE,NONE,16,16,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37033,Caswell County,0.0,0.0,0.0,NONE,NONE,17,17,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37035,Catawba County,0.0,0.0,0.0,NONE,NONE,18,18,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37037,Chatham County,0.0,0.0,0.0,NONE,NONE,19,19,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37039,Cherokee County,0.0,0.0,0.0,NONE,NONE,20,20,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37041,Chowan County,0.0,0.0,0.0,NONE,NONE,21,21,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37043,Clay County,0.0,0.0,0.0,NONE,NONE,22,22,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37045,Cleveland County,0.0,0.0,0.0,NONE,NONE,23,23,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37047,Columbus County,0.0,0.0,0.0,NONE,NONE,24,24,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37049,Craven County,0.0,0.0,0.0,NONE,NONE,25,25,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37051,Cumberland County,0.0,0.0,0.0,NONE,NONE,26,26,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37053,Currituck County,0.0,0.0,0.0,NONE,NONE,27,27,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37055,Dare County,0.0,0.0,0.0,NONE,NONE,28,28,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37057,Davidson County,0.0,0.0,0.0,NONE,NONE,29,29,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37059,Davie County,0.0,0.0,0.0,NONE,NONE,30,30,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37061,Duplin County,0.0,0.0,0.0,NONE,NONE,31,31,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37063,Durham County,0.0,0.0,0.0,NONE,NONE,32,32,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37065,Edgecombe County,0.0,0.0,0.0,NONE,NONE,33,33,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37067,Forsyth County,0.0,0.0,0.0,NONE,NONE,34,34,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37069,Franklin County,0.0,0.0,0.0,NONE,NONE,35,35,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37071,Gaston County,0.0,0.0,0.0,NONE,NONE,36,36,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37073,Gates County,0.0,0.0,0.0,NONE,NONE,37,37,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37075,Graham County,0.0,0.0,0.0,NONE,NONE,38,38,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37077,Granville County,0.0,0.0,0.0,NONE,NONE,39,39,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37079,Greene County,0.0,0.0,0.0,NONE,NONE,40,40,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37081,Guilford County,0.0,0.0,0.0,NONE,NONE,41,41,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37083,Halifax County,0.0,0.0,0.0,NONE,NONE,42,42,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37085,Harnett County,0.0,0.0,0.0,NONE,NONE,43,43,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37087,Haywood County,0.0,0.0,0.0,NONE,NONE,44,44,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37089,Henderson County,0.0,0.0,0.0,NONE,NONE,45,45,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37091,Hertford County,0.0,0.0,0.0,NONE,NONE,46,46,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37093,Hoke County,0.0,0.0,0.0,NONE,NONE,47,47,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37095,Hyde County,0.0,0.0,0.0,NONE,NONE,48,48,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37097,Iredell County,0.0,0.0,0.0,NONE,NONE,49,49,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37099,Jackson County,0.0,0.0,0.0,NONE,NONE,50,50,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37101,Johnston County,0.0,0.0,0.0,NONE,NONE,51,51,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37103,Jones County,0.0,0.0,0.0,NONE,NONE,52,52,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37105,Lee County,0.0,0.0,0.0,NONE,NONE,53,53,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37107,Lenoir County,0.0,0.0,0.0,NONE,NONE,54,54,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37109,Lincoln County,0.0,0.0,0.0,NONE,NONE,55,55,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37113,Macon County,0.0,0.0,0.0,NONE,NONE,56,56,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37115,Madison County,0.0,0.0,0.0,NONE,NONE,57,57,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37117,Martin County,0.0,0.0,0.0,NONE,NONE,58,58,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37111,McDowell County,0.0,0.0,0.0,NONE,NONE,59,59,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37119,Mecklenburg County,0.0,0.0,0.0,NONE,NONE,60,60,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37121,Mitchell County,0.0,0.0,0.0,NONE,NONE,61,61,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37123,Montgomery County,0.0,0.0,0.0,NONE,NONE,62,62,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37125,Moore County,0.0,0.0,0.0,NONE,NONE,63,63,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37127,Nash County,0.0,0.0,0.0,NONE,NONE,64,64,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37129,New Hanover County,0.0,0.0,0.0,NONE,NONE,65,65,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37131,Northampton County,0.0,0.0,0.0,NONE,NONE,66,66,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37133,Onslow County,0.0,0.0,0.0,NONE,NONE,67,67,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37135,Orange County,0.0,0.0,0.0,NONE,NONE,68,68,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37137,Pamlico County,0.0,0.0,0.0,NONE,NONE,69,69,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37139,Pasquotank County,0.0,0.0,0.0,NONE,NONE,70,70,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37141,Pender County,0.0,0.0,0.0,NONE,NONE,71,71,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37143,Perquimans County,0.0,0.0,0.0,NONE,NONE,72,72,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37145,Person County,0.0,0.0,0.0,NONE,NONE,73,73,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37147,Pitt County,0.0,0.0,0.0,NONE,NONE,74,74,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37149,Polk County,0.0,0.0,0.0,NONE,NONE,75,75,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37151,Randolph County,0.0,0.0,0.0,NONE,NONE,76,76,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37153,Richmond County,0.0,0.0,0.0,NONE,NONE,77,77,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37155,Robeson County,0.0,0.0,0.0,NONE,NONE,78,78,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37157,Rockingham County,0.0,0.0,0.0,NONE,NONE,79,79,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37159,Rowan County,0.0,0.0,0.0,NONE,NONE,80,80,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37161,Rutherford County,0.0,0.0,0.0,NONE,NONE,81,81,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37163,Sampson County,0.0,0.0,0.0,NONE,NONE,82,82,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37165,Scotland County,0.0,0.0,0.0,NONE,NONE,83,83,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37167,Stanly County,0.0,0.0,0.0,NONE,NONE,84,84,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37169,Stokes County,0.0,0.0,0.0,NONE,NONE,85,85,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37171,Surry County,0.0,0.0,0.0,NONE,NONE,86,86,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37173,Swain County,0.0,0.0,0.0,NONE,NONE,87,87,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37175,Transylvania County,0.0,0.0,0.0,NONE,NONE,88,88,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37177,Tyrrell County,0.0,0.0,0.0,NONE,NONE,89,89,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37179,Union County,0.0,0.0,0.0,NONE,NONE,90,90,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37181,Vance County,0.0,0.0,0.0,NONE,NONE,91,91,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37183,Wake County,0.0,0.0,0.0,NONE,NONE,92,92,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37185,Warren County,0.0,0.0,0.0,NONE,NONE,93,93,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37187,Washington County,0.0,0.0,0.0,NONE,NONE,94,94,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37189,Watauga County,0.0,0.0,0.0,NONE,NONE,95,95,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37191,Wayne County,0.0,0.0,0.0,NONE,NONE,96,96,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37193,Wilkes County,0.0,0.0,0.0,NONE,NONE,97,97,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37195,Wilson County,0.0,0.0,0.0,NONE,NONE,98,98,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37197,Yadkin County,0.0,0.0,0.0,NONE,NONE,99,99,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+threshold_heavy,Threshold Heavy,Places more emphasis on populations newly beyond the access threshold.,travel_time_minutes,37199,Yancey County,0.0,0.0,0.0,NONE,NONE,100,100,0,0.3,0.2,0.5,0.4,0.3,0.3,0.7,0.3
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37001,Alamance County,0.0,0.0,0.0,NONE,NONE,1,1,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37003,Alexander County,0.0,0.0,0.0,NONE,NONE,2,2,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37005,Alleghany County,0.0,0.0,0.0,NONE,NONE,3,3,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37007,Anson County,0.0,0.0,0.0,NONE,NONE,4,4,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37009,Ashe County,0.0,0.0,0.0,NONE,NONE,5,5,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37011,Avery County,0.0,0.0,0.0,NONE,NONE,6,6,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37013,Beaufort County,0.0,0.0,0.0,NONE,NONE,7,7,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37015,Bertie County,0.0,0.0,0.0,NONE,NONE,8,8,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37017,Bladen County,0.0,0.0,0.0,NONE,NONE,9,9,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37019,Brunswick County,0.0,0.0,0.0,NONE,NONE,10,10,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37021,Buncombe County,0.0,0.0,0.0,NONE,NONE,11,11,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37023,Burke County,0.0,0.0,0.0,NONE,NONE,12,12,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37025,Cabarrus County,0.0,0.0,0.0,NONE,NONE,13,13,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37027,Caldwell County,0.0,0.0,0.0,NONE,NONE,14,14,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37029,Camden County,0.0,0.0,0.0,NONE,NONE,15,15,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37031,Carteret County,0.0,0.0,0.0,NONE,NONE,16,16,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37033,Caswell County,0.0,0.0,0.0,NONE,NONE,17,17,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37035,Catawba County,0.0,0.0,0.0,NONE,NONE,18,18,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37037,Chatham County,0.0,0.0,0.0,NONE,NONE,19,19,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37039,Cherokee County,0.0,0.0,0.0,NONE,NONE,20,20,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37041,Chowan County,0.0,0.0,0.0,NONE,NONE,21,21,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37043,Clay County,0.0,0.0,0.0,NONE,NONE,22,22,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37045,Cleveland County,0.0,0.0,0.0,NONE,NONE,23,23,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37047,Columbus County,0.0,0.0,0.0,NONE,NONE,24,24,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37049,Craven County,0.0,0.0,0.0,NONE,NONE,25,25,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37051,Cumberland County,0.0,0.0,0.0,NONE,NONE,26,26,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37053,Currituck County,0.0,0.0,0.0,NONE,NONE,27,27,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37055,Dare County,0.0,0.0,0.0,NONE,NONE,28,28,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37057,Davidson County,0.0,0.0,0.0,NONE,NONE,29,29,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37059,Davie County,0.0,0.0,0.0,NONE,NONE,30,30,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37061,Duplin County,0.0,0.0,0.0,NONE,NONE,31,31,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37063,Durham County,0.0,0.0,0.0,NONE,NONE,32,32,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37065,Edgecombe County,0.0,0.0,0.0,NONE,NONE,33,33,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37067,Forsyth County,0.0,0.0,0.0,NONE,NONE,34,34,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37069,Franklin County,0.0,0.0,0.0,NONE,NONE,35,35,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37071,Gaston County,0.0,0.0,0.0,NONE,NONE,36,36,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37073,Gates County,0.0,0.0,0.0,NONE,NONE,37,37,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37075,Graham County,0.0,0.0,0.0,NONE,NONE,38,38,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37077,Granville County,0.0,0.0,0.0,NONE,NONE,39,39,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37079,Greene County,0.0,0.0,0.0,NONE,NONE,40,40,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37081,Guilford County,0.0,0.0,0.0,NONE,NONE,41,41,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37083,Halifax County,0.0,0.0,0.0,NONE,NONE,42,42,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37085,Harnett County,0.0,0.0,0.0,NONE,NONE,43,43,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37087,Haywood County,0.0,0.0,0.0,NONE,NONE,44,44,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37089,Henderson County,0.0,0.0,0.0,NONE,NONE,45,45,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37091,Hertford County,0.0,0.0,0.0,NONE,NONE,46,46,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37093,Hoke County,0.0,0.0,0.0,NONE,NONE,47,47,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37095,Hyde County,0.0,0.0,0.0,NONE,NONE,48,48,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37097,Iredell County,0.0,0.0,0.0,NONE,NONE,49,49,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37099,Jackson County,0.0,0.0,0.0,NONE,NONE,50,50,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37101,Johnston County,0.0,0.0,0.0,NONE,NONE,51,51,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37103,Jones County,0.0,0.0,0.0,NONE,NONE,52,52,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37105,Lee County,0.0,0.0,0.0,NONE,NONE,53,53,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37107,Lenoir County,0.0,0.0,0.0,NONE,NONE,54,54,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37109,Lincoln County,0.0,0.0,0.0,NONE,NONE,55,55,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37113,Macon County,0.0,0.0,0.0,NONE,NONE,56,56,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37115,Madison County,0.0,0.0,0.0,NONE,NONE,57,57,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37117,Martin County,0.0,0.0,0.0,NONE,NONE,58,58,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37111,McDowell County,0.0,0.0,0.0,NONE,NONE,59,59,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37119,Mecklenburg County,0.0,0.0,0.0,NONE,NONE,60,60,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37121,Mitchell County,0.0,0.0,0.0,NONE,NONE,61,61,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37123,Montgomery County,0.0,0.0,0.0,NONE,NONE,62,62,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37125,Moore County,0.0,0.0,0.0,NONE,NONE,63,63,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37127,Nash County,0.0,0.0,0.0,NONE,NONE,64,64,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37129,New Hanover County,0.0,0.0,0.0,NONE,NONE,65,65,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37131,Northampton County,0.0,0.0,0.0,NONE,NONE,66,66,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37133,Onslow County,0.0,0.0,0.0,NONE,NONE,67,67,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37135,Orange County,0.0,0.0,0.0,NONE,NONE,68,68,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37137,Pamlico County,0.0,0.0,0.0,NONE,NONE,69,69,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37139,Pasquotank County,0.0,0.0,0.0,NONE,NONE,70,70,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37141,Pender County,0.0,0.0,0.0,NONE,NONE,71,71,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37143,Perquimans County,0.0,0.0,0.0,NONE,NONE,72,72,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37145,Person County,0.0,0.0,0.0,NONE,NONE,73,73,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37147,Pitt County,0.0,0.0,0.0,NONE,NONE,74,74,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37149,Polk County,0.0,0.0,0.0,NONE,NONE,75,75,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37151,Randolph County,0.0,0.0,0.0,NONE,NONE,76,76,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37153,Richmond County,0.0,0.0,0.0,NONE,NONE,77,77,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37155,Robeson County,0.0,0.0,0.0,NONE,NONE,78,78,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37157,Rockingham County,0.0,0.0,0.0,NONE,NONE,79,79,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37159,Rowan County,0.0,0.0,0.0,NONE,NONE,80,80,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37161,Rutherford County,0.0,0.0,0.0,NONE,NONE,81,81,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37163,Sampson County,0.0,0.0,0.0,NONE,NONE,82,82,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37165,Scotland County,0.0,0.0,0.0,NONE,NONE,83,83,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37167,Stanly County,0.0,0.0,0.0,NONE,NONE,84,84,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37169,Stokes County,0.0,0.0,0.0,NONE,NONE,85,85,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37171,Surry County,0.0,0.0,0.0,NONE,NONE,86,86,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37173,Swain County,0.0,0.0,0.0,NONE,NONE,87,87,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37175,Transylvania County,0.0,0.0,0.0,NONE,NONE,88,88,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37177,Tyrrell County,0.0,0.0,0.0,NONE,NONE,89,89,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37179,Union County,0.0,0.0,0.0,NONE,NONE,90,90,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37181,Vance County,0.0,0.0,0.0,NONE,NONE,91,91,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37183,Wake County,0.0,0.0,0.0,NONE,NONE,92,92,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37185,Warren County,0.0,0.0,0.0,NONE,NONE,93,93,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37187,Washington County,0.0,0.0,0.0,NONE,NONE,94,94,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37189,Watauga County,0.0,0.0,0.0,NONE,NONE,95,95,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37191,Wayne County,0.0,0.0,0.0,NONE,NONE,96,96,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37193,Wilkes County,0.0,0.0,0.0,NONE,NONE,97,97,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37195,Wilson County,0.0,0.0,0.0,NONE,NONE,98,98,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37197,Yadkin County,0.0,0.0,0.0,NONE,NONE,99,99,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
+vulnerability_heavy,Vulnerability Heavy,Increases the effect of community vulnerability on the composite score.,travel_time_minutes,37199,Yancey County,0.0,0.0,0.0,NONE,NONE,100,100,0,0.45,0.3,0.25,0.45,0.25,0.3,0.6,0.4
