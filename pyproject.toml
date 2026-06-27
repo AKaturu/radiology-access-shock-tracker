@@ -42,7 +42,7 @@ packages = ["src/radshock"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
-addopts = "-q --basetemp=work/pytest-tmp -p no:cacheprovider"
+addopts = "-q --basetemp=.pytest-tmp -p no:cacheprovider"
 
 [tool.ruff]
 line-length = 100
