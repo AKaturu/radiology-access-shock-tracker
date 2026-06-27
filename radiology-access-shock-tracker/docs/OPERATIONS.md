@@ -1,4 +1,4 @@
-# Operations Notes
+﻿# Operations Notes
 
 ## Quarterly MQSA Source Refresh
 
@@ -21,8 +21,8 @@ Recommended protected actions:
 - require review before accepting finalized facility snapshots or route matrices
 - require a source-review owner before resolving readiness-audit blockers
 
-The repository now includes `.github/CODEOWNERS`, with `@krishna2006sai` as the default owner
-because the README points at `krishna2006sai/radiology-access-shock-tracker`. Update that file if
+The repository now includes `.github/CODEOWNERS`, with `@AKaturu` as the default owner
+because the README points at `AKaturu/radiology-access-shock-tracker`. Update that file if
 the repository owner or source-review team changes.
 
 ## GitHub Governance Setup
@@ -34,7 +34,7 @@ so the settings cannot be applied locally without adding those credentials.
 After installing and authenticating the GitHub CLI, run a dry run:
 
 ```powershell
-$env:GITHUB_REPOSITORY = "krishna2006sai/radiology-access-shock-tracker"
+$env:GITHUB_REPOSITORY = "AKaturu/radiology-access-shock-tracker"
 .\scripts\configure_github_governance.ps1
 ```
 

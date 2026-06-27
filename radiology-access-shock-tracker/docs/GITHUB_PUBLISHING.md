@@ -58,8 +58,7 @@ git branch -M main
 gh repo create <OWNER>/radiology-access-shock-tracker --public --source . --remote origin --push
 ```
 
-After pushing, update the README test badge if the repository owner is not
-`krishna2006sai`.
+After pushing, confirm the README test badge points at the published repository owner.
 
 Official GitHub references:
 

@@ -1,6 +1,6 @@
 # Radiology Access Shock Tracker
 
-[![Tests](https://github.com/krishna2006sai/radiology-access-shock-tracker/actions/workflows/tests.yml/badge.svg)](https://github.com/krishna2006sai/radiology-access-shock-tracker/actions/workflows/tests.yml)
+[![Tests](https://github.com/AKaturu/radiology-access-shock-tracker/actions/workflows/tests.yml/badge.svg)](https://github.com/AKaturu/radiology-access-shock-tracker/actions/workflows/tests.yml)
 
 An open-source surveillance toolkit for detecting changes in mammography access, estimating which communities are affected, and comparing candidate response locations.
 
