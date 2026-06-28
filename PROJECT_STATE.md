@@ -484,6 +484,35 @@ Latest validation gate completed:
   `python -m pytest tests/test_cli.py -q` passed, `python -m ruff check .` passed, and
   `python -m mypy src/radshock` passed.
 
+### Production Reporting Build-Out
+
+#### Validation
+
+Added:
+
+- `export-causal-study` for descriptive multi-period pre/post county and period panels.
+- `data-quality-report` for data-quality, geocoder-confidence, identifier-crosswalk, and optional
+  route-uncertainty CSVs.
+- `route-uncertainty-check` for reviewed route coverage, provider metadata, and plausibility
+  checks.
+- `audit-production-config` for review-owner and credential environment audits without exposing
+  secrets.
+- Markdown and HTML sensitivity review reports from both `sensitivity-analysis` and `analyze`.
+- A dashboard data-quality tab that appears when quality artifacts are present.
+
+Smoke artifacts were generated under `work/production-readiness-build/`, and the reviewed
+self-hosted OSRM analysis folder was populated with sensitivity signoff and data-quality artifacts.
+Real causal-study exports remain blocked until reviewed multi-period CMS utilization input files
+are supplied.
+
+#### Tests Added
+
+Added unit and CLI coverage for causal exports, quality reports, route uncertainty, production
+config audits, and sensitivity Markdown output. Latest local validation: `python -m pytest` passed
+with 90 tests, `python -m ruff check .` passed, and targeted `py -3.11 -m mypy` on the touched
+modules passed. Full-project mypy remains affected by pre-existing pandas typing errors in older
+modules plus a Python 3.12/NumPy-stub mismatch when run with the default Python 3.12 interpreter.
+
 ### Remaining Work
 
 - Publish the generated source ZIP from `dist/github/` to GitHub, enable GitHub Pages from `/docs`,
@@ -495,6 +524,8 @@ Latest validation gate completed:
   installing/authenticating `gh` with repo admin access.
 - Obtain a later real reviewed snapshot after a future FDA MQSA source update before making any
   trend or deterioration claim beyond "no observed change between 2026-06-19 and 2026-06-20."
+- Supply reviewed multi-period CMS utilization inputs before producing real causal-study export
+  tables or causal manuscript claims.
 
 ## Next Actions
 

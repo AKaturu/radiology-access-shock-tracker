@@ -780,6 +780,7 @@ def test_merge_filled_route_rows_updates_only_subset_with_numeric_minutes() -> N
 def test_sensitivity_analysis_command_writes_scenario_rows(tmp_path: Path) -> None:
     county_shocks = tmp_path / "county_shocks.csv"
     output = tmp_path / "sensitivity.csv"
+    output_md = tmp_path / "sensitivity.md"
     pd.DataFrame(
         [
             {
@@ -803,6 +804,8 @@ def test_sensitivity_analysis_command_writes_scenario_rows(tmp_path: Path) -> No
             str(county_shocks),
             "--output-csv",
             str(output),
+            "--output-md",
+            str(output_md),
         ],
     )
     assert result.exit_code == 0
@@ -810,6 +813,130 @@ def test_sensitivity_analysis_command_writes_scenario_rows(tmp_path: Path) -> No
     assert "baseline" in set(sensitivity["scenario_id"])
     assert "threshold_heavy" in set(sensitivity["scenario_id"])
     assert sensitivity.loc[0, "county_fips"] == 37001
+    assert "Sensitivity Analysis Review" in output_md.read_text()
+
+
+def test_export_causal_study_command_writes_panels(tmp_path: Path) -> None:
+    utilization = tmp_path / "utilization.csv"
+    shocks = tmp_path / "county_shocks.csv"
+    output_dir = tmp_path / "causal"
+    pd.DataFrame(
+        [
+            ["2024Q1", "37001", 100, 1000],
+            ["2024Q2", "37001", 110, 1000],
+            ["2025Q1", "37001", 120, 1000],
+            ["2025Q2", "37001", 140, 1000],
+        ],
+        columns=["period", "county_fips", "screening_services", "eligible_beneficiaries"],
+    ).to_csv(utilization, index=False)
+    pd.DataFrame(
+        [["37001", "Demo", 24.4, "WARNING"]],
+        columns=["county_fips", "county_name", "shock_score", "alert_level"],
+    ).to_csv(shocks, index=False)
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "export-causal-study",
+            "--utilization-csv",
+            str(utilization),
+            "--county-shocks-csv",
+            str(shocks),
+            "--output-dir",
+            str(output_dir),
+            "--pre-period",
+            "2024Q1",
+            "--pre-period",
+            "2024Q2",
+            "--post-period",
+            "2025Q1",
+            "--post-period",
+            "2025Q2",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert (output_dir / "causal_county_panel.csv").exists()
+    assert (output_dir / "causal_period_panel.csv").exists()
+    assert (output_dir / "causal_export.metadata.json").exists()
+
+
+def test_data_quality_report_command_writes_crosswalk(tmp_path: Path) -> None:
+    facilities = tmp_path / "facilities.csv"
+    review = tmp_path / "mqsa_review.csv"
+    output_dir = tmp_path / "quality"
+    _snapshot(facilities, [["MQSA-NC-1", "Facility", 35.0, -78.0, "", True]])
+    pd.DataFrame(
+        [
+            {
+                "facility_id": "MQSA-NC-1",
+                "facility_name": "Facility",
+                "source_record_hash": "hash1",
+                "source_facility_name": "Facility Raw",
+                "source_address_1": "100 Main St",
+                "source_city": "Raleigh",
+                "source_state": "NC",
+                "source_zip_code": "27601",
+                "review_status": "reviewed",
+                "latitude": "35.0",
+                "longitude": "-78.0",
+                "geocode_status": "matched",
+                "coordinate_quality": "reviewed",
+            }
+        ]
+    ).to_csv(review, index=False)
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "data-quality-report",
+            "--output-dir",
+            str(output_dir),
+            "--facilities-csv",
+            str(facilities),
+            "--mqsa-review-csv",
+            str(review),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert (output_dir / "data_quality.csv").exists()
+    assert (output_dir / "geocoder_confidence.csv").exists()
+    assert (output_dir / "identifier_crosswalk.csv").exists()
+
+
+def test_audit_production_config_command_reports_blockers(tmp_path: Path) -> None:
+    config = tmp_path / "config.toml"
+    output = tmp_path / "production_config_audit.csv"
+    config.write_text(
+        """
+[credentials]
+required_env = ["MISSING_SECRET"]
+
+[review.owners]
+mqsa_snapshot = []
+geocoding = ["Owner"]
+routing = ["Owner"]
+candidate_sites = ["Owner"]
+publication = ["Owner"]
+""".strip()
+        + "\n"
+    )
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "audit-production-config",
+            str(config),
+            "--output-csv",
+            str(output),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "blockers=2" in result.output
+    report = pd.read_csv(output)
+    assert "BLOCKER" in set(report["status"])
 
 
 def test_analyze_command_writes_manifest_and_readiness_reports(tmp_path: Path) -> None:

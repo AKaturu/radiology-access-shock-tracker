@@ -72,6 +72,16 @@ Expected external credentials:
 
 The current quarterly FDA review-artifact workflow does not use these secrets.
 
+Audit production configuration before scheduled or publication runs:
+
+```bash
+radshock audit-production-config config.example.toml \
+  --output-csv work/production-readiness-build/production_config_audit.csv
+```
+
+The audit checks that review owners are named and required credential environment variables are
+present. It never writes secret values to disk.
+
 ## Census API Key
 
 The Census Bureau states that all Census Data API queries now require an API key. Request a key at:
@@ -196,6 +206,43 @@ Before finalization, reviewers must record or verify:
 
 Only after that review should `review_status` be changed from `needs_review` to `reviewed`,
 `verified`, or `approved`, followed by `radshock finalize-travel-time-review`.
+
+After route review, generate uncertainty and plausibility checks:
+
+```bash
+radshock route-uncertainty-check \
+  work/self-hosted-osrm/2026-06-20_tract_nearest20_self_hosted_osrm_review.csv \
+  --output-csv work/self-hosted-osrm/analysis-tract-self-hosted-osrm/route_uncertainty.csv
+```
+
+To prepare dashboard-readable data-quality artifacts:
+
+```bash
+radshock data-quality-report \
+  --output-dir work/self-hosted-osrm/analysis-tract-self-hosted-osrm \
+  --facilities-csv data/snapshots/2026-06-20/facilities.csv \
+  --population-csv data/population_points_tracts.csv \
+  --mqsa-review-csv work/source-refresh-smoke/review/fda_mqsa_2026-06-20_NC_review.csv \
+  --travel-time-review-csv work/self-hosted-osrm/2026-06-20_tract_nearest20_self_hosted_osrm_review.csv
+```
+
+## Causal-Study Export Tables
+
+When reviewed multi-period CMS utilization inputs are available, export descriptive study-design
+tables with repeated pre/post periods:
+
+```bash
+radshock export-causal-study \
+  --utilization-csv work/reviewed-cms-utilization.csv \
+  --county-shocks-csv work/self-hosted-osrm/analysis-tract-self-hosted-osrm/county_shocks.csv \
+  --output-dir work/causal-study-export \
+  --pre-period 2024Q1 \
+  --pre-period 2024Q2 \
+  --post-period 2025Q1 \
+  --post-period 2025Q2
+```
+
+The outputs are descriptive design tables, not causal estimates.
 
 ## Candidate-Site Review
 

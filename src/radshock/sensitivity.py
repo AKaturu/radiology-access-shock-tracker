@@ -181,6 +181,105 @@ def run_sensitivity_analysis(
     )
 
 
+def render_sensitivity_markdown(sensitivity: pd.DataFrame) -> str:
+    """Render reviewer-oriented sensitivity signoff notes."""
+    require_columns(
+        sensitivity,
+        {
+            "scenario_id",
+            "scenario_name",
+            "county_name",
+            "baseline_rank",
+            "sensitivity_rank",
+            "baseline_alert_level",
+            "sensitivity_alert_level",
+            "rank_delta_from_baseline",
+        },
+        "sensitivity analysis",
+    )
+    frame = sensitivity.copy()
+    frame["rank_delta_from_baseline"] = pd.to_numeric(
+        frame["rank_delta_from_baseline"], errors="raise"
+    )
+    lines = [
+        "# Sensitivity Analysis Review",
+        "",
+        "This report re-scores county shock outputs under alternate transparent weighting "
+        "assumptions. It supports reviewer signoff; it does not validate the exploratory score "
+        "as a clinical or causal measure.",
+        "",
+        "## Scenario Summary",
+        "",
+        "| Scenario | Counties | Alert changes | Rank shifts >= 5 |",
+        "|---|---:|---:|---:|",
+    ]
+    for scenario_id, scenario_rows in frame.groupby("scenario_id", sort=False):
+        scenario_name = str(scenario_rows["scenario_name"].iloc[0])
+        alert_changes = int(
+            (
+                scenario_rows["baseline_alert_level"].astype(str)
+                != scenario_rows["sensitivity_alert_level"].astype(str)
+            ).sum()
+        )
+        large_rank_shifts = int(scenario_rows["rank_delta_from_baseline"].abs().ge(5).sum())
+        lines.append(
+            f"| {scenario_name} (`{scenario_id}`) | {len(scenario_rows)} | "
+            f"{alert_changes} | {large_rank_shifts} |"
+        )
+    lines.extend(["", "## Largest Rank Shifts", ""])
+    shifted = frame.reindex(
+        frame["rank_delta_from_baseline"].abs().sort_values(ascending=False).index
+    ).head(10)
+    if shifted.empty:
+        lines.append("No sensitivity rows were available.")
+    else:
+        lines.extend(
+            [
+                "| Scenario | County | Baseline rank | Sensitivity rank | Delta |",
+                "|---|---|---:|---:|---:|",
+            ]
+        )
+        for row in shifted.itertuples(index=False):
+            lines.append(
+                f"| {row.scenario_name} | {row.county_name} | {row.baseline_rank} | "
+                f"{row.sensitivity_rank} | {row.rank_delta_from_baseline:+} |"
+            )
+    lines.extend(
+        [
+            "",
+            "## Reviewer Signoff Checklist",
+            "",
+            "- Confirm that no high-priority county claim depends on a single exploratory "
+            "weighting scenario.",
+            "- Confirm that any county with a large rank shift is discussed as "
+            "sensitivity-dependent.",
+            "- Confirm that public text avoids causal language unless a separate causal "
+            "design has been executed.",
+        ]
+    )
+    return "\n".join(lines).strip() + "\n"
+
+
+def render_sensitivity_html(sensitivity: pd.DataFrame) -> str:
+    """Render a simple HTML version of the sensitivity signoff report."""
+    markdown = render_sensitivity_markdown(sensitivity)
+    body = (
+        markdown.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\n", "<br>\n")
+    )
+    return (
+        "<!doctype html>\n"
+        '<html><head><meta charset="utf-8"><title>Sensitivity Analysis Review</title>'
+        "<style>body{font-family:Arial,sans-serif;max-width:960px;margin:40px auto;"
+        "line-height:1.5;color:#1f2937}code{background:#eef2f7;padding:2px 4px}"
+        "</style></head><body>"
+        f"{body}"
+        "</body></html>\n"
+    )
+
+
 def _prepare_county_shocks(county_shocks: pd.DataFrame) -> pd.DataFrame:
     require_columns(county_shocks, IDENTIFIER_COLUMNS, "county shocks")
     result = county_shocks.copy()

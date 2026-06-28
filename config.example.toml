@@ -16,10 +16,25 @@ report_thresholds_minutes = [30, 45, 60]
 review_max_distance_miles = 150
 route_statuses = ["routed", "unreachable", "excluded"]
 approved_review_statuses = ["reviewed", "verified", "approved"]
+provider = "self-hosted-osrm"
+profile = "driving"
+traffic_assumption = "free-flow/no-live-traffic"
+matrix_metadata_json = "data/travel_times/2026-06-20_tract_nearest20_osrm_matrix.metadata.json"
 
 [adapters.census]
 year = 2024
 api_key_env = "CENSUS_API_KEY"
+
+[credentials]
+required_env = ["CENSUS_API_KEY"]
+optional_env = ["OPENROUTESERVICE_API_KEY"]
+
+[review.owners]
+mqsa_snapshot = ["Abinav Katuru"]
+geocoding = ["Abinav Katuru"]
+routing = ["Abinav Katuru"]
+candidate_sites = ["Abinav Katuru"]
+publication = ["Abinav Katuru"]
 
 [geocoding]
 provider = "census"
