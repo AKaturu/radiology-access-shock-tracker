@@ -94,6 +94,7 @@ def summarize_county_access(
     access = nearest_access(population_points, facilities)
     rows: list[dict[str, float | str]] = []
     for county_fips, group in access.groupby("county_fips", sort=True):
+        county_fips_text = str(county_fips)
         distances = group["distance_miles"].to_numpy(dtype=float)
         weights = group["weight"].to_numpy(dtype=float)
         finite = np.isfinite(distances)
@@ -107,7 +108,7 @@ def summarize_county_access(
             over = 1.0
         rows.append(
             {
-                "county_fips": county_fips,
+                "county_fips": county_fips_text,
                 "population_weight": float(weights.sum()),
                 "mean_distance_miles": mean_distance,
                 "p90_distance_miles": p90_distance,
@@ -126,6 +127,7 @@ def summarize_county_travel_time_access(
     access = nearest_travel_time_access(population_points, facilities, travel_times)
     rows: list[dict[str, float | str]] = []
     for county_fips, group in access.groupby("county_fips", sort=True):
+        county_fips_text = str(county_fips)
         times = group["travel_time_minutes"].to_numpy(dtype=float)
         weights = group["weight"].to_numpy(dtype=float)
         total_weight = float(weights.sum())
@@ -142,7 +144,7 @@ def summarize_county_travel_time_access(
             coverage = 0.0
         rows.append(
             {
-                "county_fips": county_fips,
+                "county_fips": county_fips_text,
                 "population_weight": total_weight,
                 "mean_travel_time_minutes": mean_time,
                 "p90_travel_time_minutes": p90_time,
@@ -276,12 +278,13 @@ def summarize_access_change(
     merged = before.merge(after, on="point_id", how="inner")
     rows: list[dict[str, float | str]] = []
     for county_fips, group in merged.groupby("county_fips", sort=True):
+        county_fips_text = str(county_fips)
         weights = group["weight"].to_numpy(dtype=float)
         changed = group["nearest_facility_id_before"].astype(str) != group[
             "nearest_facility_id_after"
         ].astype(str)
         row: dict[str, float | str] = {
-            "county_fips": county_fips,
+            "county_fips": county_fips_text,
             "population_nearest_facility_changed": float(weights[changed.to_numpy()].sum()),
         }
         before_distance = group["distance_miles_before"].to_numpy(dtype=float)
@@ -291,9 +294,7 @@ def summarize_access_change(
             after_over = (after_distance > threshold) | ~np.isfinite(after_distance)
             newly_over = (~before_over) & after_over
             threshold_label = int(threshold)
-            row[f"population_newly_over_{threshold_label}_miles"] = float(
-                weights[newly_over].sum()
-            )
+            row[f"population_newly_over_{threshold_label}_miles"] = float(weights[newly_over].sum())
         rows.append(row)
     return pd.DataFrame(rows)
 
@@ -326,12 +327,13 @@ def summarize_travel_time_access_change(
     merged = before.merge(after, on="point_id", how="inner")
     rows: list[dict[str, float | str]] = []
     for county_fips, group in merged.groupby("county_fips", sort=True):
+        county_fips_text = str(county_fips)
         weights = group["weight"].to_numpy(dtype=float)
         changed = group["nearest_facility_id_before"].astype(str) != group[
             "nearest_facility_id_after"
         ].astype(str)
         row: dict[str, float | str] = {
-            "county_fips": county_fips,
+            "county_fips": county_fips_text,
             "population_nearest_facility_changed": float(weights[changed.to_numpy()].sum()),
         }
         before_time = group["travel_time_minutes_before"].to_numpy(dtype=float)
@@ -397,9 +399,7 @@ def _add_vulnerability_adjusted_score(
         + 0.25 * result["shock_threshold_component"]
     )
 
-    result["vulnerability_poverty_component"] = result["poverty_pct"].div(30).clip(
-        lower=0, upper=1
-    )
+    result["vulnerability_poverty_component"] = result["poverty_pct"].div(30).clip(lower=0, upper=1)
     result["vulnerability_rurality_component"] = result["rurality_index"].clip(lower=0, upper=1)
     result["vulnerability_risk_component"] = result["high_risk_index"].clip(lower=0, upper=1)
     result["vulnerability_component"] = (
@@ -407,8 +407,8 @@ def _add_vulnerability_adjusted_score(
         + 0.3 * result["vulnerability_rurality_component"]
         + 0.3 * result["vulnerability_risk_component"]
     )
-    score = 100 * result["deterioration_component"] * (
-        0.70 + 0.30 * result["vulnerability_component"]
+    score = (
+        100 * result["deterioration_component"] * (0.70 + 0.30 * result["vulnerability_component"])
     )
     result["shock_score"] = score.clip(lower=0, upper=100).round(1)
     return result

@@ -8,6 +8,12 @@ from radshock.geo import haversine_miles
 from radshock.schemas import validate_candidates, validate_facilities
 
 
+def _float_value(value: object) -> float:
+    if isinstance(value, (str, int, float, np.integer, np.floating)):
+        return float(value)
+    raise TypeError(f"Expected numeric value, got {type(value).__name__}")
+
+
 def simulate_candidates(
     population_points: pd.DataFrame,
     current_facilities: pd.DataFrame,
@@ -22,11 +28,13 @@ def simulate_candidates(
     rows: list[dict[str, object]] = []
 
     for candidate in candidate_rows.itertuples(index=False):
+        latitude = _float_value(candidate.latitude)
+        longitude = _float_value(candidate.longitude)
         candidate_distance = haversine_miles(
-            current["latitude"].to_numpy(),
-            current["longitude"].to_numpy(),
-            float(candidate.latitude),
-            float(candidate.longitude),
+            current["latitude"].to_numpy(dtype=float),
+            current["longitude"].to_numpy(dtype=float),
+            latitude,
+            longitude,
         )
         new_distance = np.minimum(current_distance, candidate_distance)
         reduction = np.maximum(0, current_distance - new_distance)
@@ -37,8 +45,8 @@ def simulate_candidates(
                 "candidate_id": candidate.candidate_id,
                 "candidate_name": candidate.candidate_name,
                 "county_fips": str(candidate.county_fips).zfill(5),
-                "latitude": float(candidate.latitude),
-                "longitude": float(candidate.longitude),
+                "latitude": latitude,
+                "longitude": longitude,
                 "weighted_mean_distance_reduction": float(np.average(reduction, weights=weights)),
                 "person_miles_reduced": float(np.sum(reduction * weights)),
                 "population_brought_within_threshold": float(np.sum(weights[recovered])),

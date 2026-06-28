@@ -1,6 +1,8 @@
 # Radiology Access Shock Tracker
 
 [![Tests](https://github.com/AKaturu/radiology-access-shock-tracker/actions/workflows/tests.yml/badge.svg)](https://github.com/AKaturu/radiology-access-shock-tracker/actions/workflows/tests.yml)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 An open-source surveillance toolkit for detecting changes in mammography access, estimating which communities are affected, and comparing candidate response locations.
 
@@ -14,6 +16,7 @@ An open-source surveillance toolkit for detecting changes in mammography access,
 - Produces a vulnerability-adjusted county shock score and alert level.
 - Re-scores county shocks under alternative weighting assumptions for sensitivity review.
 - Audits analysis packages for publication-readiness blockers, warnings, and provenance gaps.
+- Writes reviewer-facing data-quality JSON/Markdown reports for core CSV inputs.
 - Summarizes before/after screening utilization signals.
 - Ranks hypothetical mobile mammography or fixed-site locations by geographic access recovery.
 - Generates CSV outputs, a Streamlit dashboard, and a downloadable Markdown policy brief.
@@ -25,6 +28,22 @@ interpreted as a real facility, county, screening, or utilization assessment. Th
 dashboard preview assets below intentionally use the synthetic demo so the public project is easy
 to run and review. Reviewed real-data packages are documented separately and should be used only
 with the publication-readiness caveats in the validation report.
+
+## Repository guide
+
+| Path | Purpose |
+|---|---|
+| `src/radshock/cli.py` | Typer CLI for snapshots, analysis, review gates, and demos |
+| `src/radshock/app.py` | Streamlit dashboard |
+| `src/radshock/snapshots.py` | Facility snapshot validation, ingestion, and checksums |
+| `src/radshock/changes.py` | Facility-event detection with verification-aware semantics |
+| `src/radshock/access.py` | Distance and reviewed travel-time access calculations |
+| `src/radshock/readiness.py` | Publication-readiness audit rules and reports |
+| `src/radshock/adapters/` | Public-source adapters for ACS, PLACES, CMS, HRSA, and reviewed facilities |
+| `data/` | Synthetic/demo inputs plus reviewed public-data package artifacts |
+| `desktop_payload/` | Packaged dashboard payload for desktop/demo use |
+| `docs/` | Methods, operations, publishing, data-source, and journal-package docs |
+| `tests/` | Unit and CLI regression tests |
 
 ## Dashboard preview
 
@@ -430,11 +449,27 @@ See [`docs/METHODS.md`](docs/METHODS.md) for formulas, assumptions, alert thresh
 
 ## Development
 
+Install the development dependencies first:
+
 ```bash
-pytest
-ruff check .
-mypy src/radshock
+python -m pip install -e ".[dev]"
 ```
+
+| Check | Command |
+|---|---|
+| Lint | `python -m ruff check .` |
+| Type check | `python -m mypy src/radshock` |
+| Tests | `python -m pytest` |
+| Synthetic demo smoke test | `radshock demo --output-dir outputs/demo` |
+| Dashboard smoke test | `streamlit run src/radshock/app.py` |
+
+GitHub Actions runs the `test` workflow for pushes and pull requests.
+
+## Contributing and security
+
+- Contribution workflow: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- Security and sensitive-data handling: [`SECURITY.md`](SECURITY.md)
+- Operations and repository governance: [`docs/OPERATIONS.md`](docs/OPERATIONS.md)
 
 ## Project boundary
 

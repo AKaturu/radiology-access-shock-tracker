@@ -33,7 +33,9 @@ from radshock.adapters.hrsa import (
 )
 from radshock.briefs import generate_policy_brief, generate_policy_brief_html
 from radshock.candidates import build_county_candidate_review_template, finalize_candidate_review
+from radshock.causal import build_causal_study_exports, write_causal_export_metadata
 from radshock.changes import detect_changes
+from radshock.data_quality import audit_csv_quality, render_quality_markdown
 from radshock.demo import build_demo
 from radshock.geocoding import (
     CensusGeocoder,
@@ -42,9 +44,15 @@ from radshock.geocoding import (
     geocode_mqsa_review,
 )
 from radshock.intervention import simulate_candidates
+from radshock.production import audit_production_config
+from radshock.quality import build_data_quality_reports, build_route_uncertainty_report
 from radshock.readiness import audit_to_json, render_readiness_markdown, run_readiness_audit
 from radshock.schemas import validate_facilities
-from radshock.sensitivity import run_sensitivity_analysis
+from radshock.sensitivity import (
+    render_sensitivity_html,
+    render_sensitivity_markdown,
+    run_sensitivity_analysis,
+)
 from radshock.snapshots import file_sha256, store_snapshot
 from radshock.sources import archive_local_source, fetch_url_source
 from radshock.travel_times import (
@@ -228,14 +236,19 @@ def carry_forward_mqsa_review_command(
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(output_csv, index=False)
     matched_count = int(
-        current["source_record_hash"].astype(str).str.strip().isin(
-            set(previous["source_record_hash"].astype(str).str.strip())
-        ).sum()
+        current["source_record_hash"]
+        .astype(str)
+        .str.strip()
+        .isin(set(previous["source_record_hash"].astype(str).str.strip()))
+        .sum()
     )
     approved_count = int(
-        result["review_status"].astype(str).str.strip().str.lower().isin(
-            {"reviewed", "verified", "approved"}
-        ).sum()
+        result["review_status"]
+        .astype(str)
+        .str.strip()
+        .str.lower()
+        .isin({"reviewed", "verified", "approved"})
+        .sum()
     )
     typer.echo(f"MQSA carry-forward review written: {output_csv.resolve()}")
     typer.echo(
@@ -320,6 +333,103 @@ def validate_snapshot(
     """Validate a normalized facility snapshot CSV."""
     frame = validate_facilities(pd.read_csv(snapshot_csv))
     typer.echo(f"Snapshot valid: {len(frame)} records, {int(frame['active'].sum())} active")
+
+
+@app.command("data-quality-report")
+def data_quality_report_command(
+    input_csv: Annotated[Path | None, typer.Argument(exists=True, readable=True)] = None,
+    dataset_type: Annotated[
+        str,
+        typer.Option(
+            help=(
+                "Dataset type: auto, facilities, counties, population_points, "
+                "candidates, travel_time_matrix."
+            )
+        ),
+    ] = "auto",
+    output_json: Annotated[Path | None, typer.Option()] = None,
+    output_md: Annotated[Path | None, typer.Option()] = None,
+    output_dir: Annotated[Path | None, typer.Option()] = None,
+    facilities_csv: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    population_csv: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    mqsa_review_csv: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    travel_time_review_csv: Annotated[
+        Path | None,
+        typer.Option(exists=True, readable=True),
+    ] = None,
+    force: Annotated[bool, typer.Option(help="Overwrite existing report files.")] = False,
+) -> None:
+    """Write data-quality reports for CSV inputs and production review bundles."""
+    wrote_report = False
+    if input_csv is not None or output_json is not None or output_md is not None:
+        if input_csv is None:
+            raise typer.BadParameter("input_csv is required when writing JSON/Markdown reports")
+        for path in [output_json, output_md]:
+            if path is not None and path.exists() and not force:
+                raise typer.BadParameter(f"output already exists: {path}")
+        audit = audit_csv_quality(input_csv, dataset_type=dataset_type)
+        if output_json is not None:
+            output_json.parent.mkdir(parents=True, exist_ok=True)
+            output_json.write_text(
+                json.dumps(audit, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            typer.echo(f"Data-quality JSON written: {output_json.resolve()}")
+        if output_md is not None:
+            output_md.parent.mkdir(parents=True, exist_ok=True)
+            output_md.write_text(render_quality_markdown(audit), encoding="utf-8")
+            typer.echo(f"Data-quality Markdown written: {output_md.resolve()}")
+        typer.echo(
+            f"Data quality: {audit['status']} ({audit['dataset_type']}, "
+            f"{audit['row_count']} rows)"
+        )
+        wrote_report = True
+
+    bundle_requested = any(
+        path is not None
+        for path in [
+            output_dir,
+            facilities_csv,
+            population_csv,
+            mqsa_review_csv,
+            travel_time_review_csv,
+        ]
+    )
+    if bundle_requested:
+        if output_dir is None:
+            raise typer.BadParameter("output_dir is required for production data-quality tables")
+        reports = build_data_quality_reports(
+            facilities=pd.read_csv(facilities_csv) if facilities_csv is not None else None,
+            population_points=pd.read_csv(
+                population_csv,
+                dtype={"point_id": str, "county_fips": str},
+            )
+            if population_csv is not None
+            else None,
+            mqsa_review=pd.read_csv(mqsa_review_csv, dtype=str, keep_default_na=False)
+            if mqsa_review_csv is not None
+            else None,
+            travel_time_review=pd.read_csv(
+                travel_time_review_csv,
+                dtype=str,
+                keep_default_na=False,
+            )
+            if travel_time_review_csv is not None
+            else None,
+        )
+        output_dir.mkdir(parents=True, exist_ok=True)
+        for name, frame in reports.items():
+            path = output_dir / f"{name}.csv"
+            if path.exists() and not force:
+                raise typer.BadParameter(f"output already exists: {path}")
+            frame.to_csv(path, index=False)
+            typer.echo(f"{name} written: {path.resolve()}")
+        wrote_report = True
+
+    if not wrote_report:
+        raise typer.BadParameter(
+            "provide input_csv for JSON/Markdown reports or --output-dir for production tables"
+        )
 
 
 @app.command("compare-snapshots")
@@ -548,9 +658,7 @@ def prepare_travel_time_review_command(
     max_facilities_per_point: Annotated[
         int | None,
         typer.Option(
-            help=(
-                "Optional nearest-facility cap per population point after distance filtering."
-            )
+            help=("Optional nearest-facility cap per population point after distance filtering.")
         ),
     ] = None,
     include_inactive: Annotated[
@@ -871,11 +979,20 @@ def fill_travel_time_review_command(
 def sensitivity_analysis_command(
     county_shocks_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
     output_csv: Annotated[Path | None, typer.Option()] = None,
+    output_md: Annotated[
+        Path | None,
+        typer.Option(help="Optional Markdown reviewer signoff report."),
+    ] = None,
+    output_html: Annotated[
+        Path | None,
+        typer.Option(help="Optional HTML reviewer signoff report."),
+    ] = None,
     force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
 ) -> None:
     """Re-score county shocks under alternative transparent weighting assumptions."""
-    if output_csv is not None and output_csv.exists() and not force:
-        raise typer.BadParameter(f"output already exists: {output_csv}")
+    for path in [output_csv, output_md, output_html]:
+        if path is not None and path.exists() and not force:
+            raise typer.BadParameter(f"output already exists: {path}")
     sensitivity = run_sensitivity_analysis(
         pd.read_csv(county_shocks_csv, dtype={"county_fips": str})
     )
@@ -885,8 +1002,104 @@ def sensitivity_analysis_command(
         scenario_count = int(sensitivity["scenario_id"].nunique())
         typer.echo(f"Sensitivity analysis written: {output_csv.resolve()}")
         typer.echo(f"Rows: {len(sensitivity)}; scenarios: {scenario_count}")
+    if output_md is not None:
+        _write_report(output_md, render_sensitivity_markdown(sensitivity), force)
+        typer.echo(f"Sensitivity review report written: {output_md.resolve()}")
+    if output_html is not None:
+        _write_report(output_html, render_sensitivity_html(sensitivity), force)
+        typer.echo(f"Sensitivity HTML report written: {output_html.resolve()}")
     else:
-        typer.echo(sensitivity.to_csv(index=False))
+        if output_csv is None and output_md is None:
+            typer.echo(sensitivity.to_csv(index=False))
+
+
+@app.command("export-causal-study")
+def export_causal_study_command(
+    utilization_csv: Annotated[Path, typer.Option(exists=True, readable=True)],
+    county_shocks_csv: Annotated[Path, typer.Option(exists=True, readable=True)],
+    output_dir: Annotated[Path, typer.Option()],
+    pre_period: Annotated[
+        list[str],
+        typer.Option("--pre-period", help="Pre-period label; repeat for multiple periods."),
+    ],
+    post_period: Annotated[
+        list[str],
+        typer.Option("--post-period", help="Post-period label; repeat for multiple periods."),
+    ],
+    force: Annotated[bool, typer.Option(help="Overwrite existing output files.")] = False,
+) -> None:
+    """Export descriptive multi-period pre/post tables for downstream causal study design."""
+    county_export = output_dir / "causal_county_panel.csv"
+    period_export = output_dir / "causal_period_panel.csv"
+    metadata_json = output_dir / "causal_export.metadata.json"
+    for path in [county_export, period_export, metadata_json]:
+        if path.exists() and not force:
+            raise typer.BadParameter(f"output already exists: {path}")
+    county_panel, period_panel = build_causal_study_exports(
+        pd.read_csv(utilization_csv, dtype={"county_fips": str}),
+        pd.read_csv(county_shocks_csv, dtype={"county_fips": str}),
+        pre_periods=pre_period,
+        post_periods=post_period,
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+    county_panel.to_csv(county_export, index=False)
+    period_panel.to_csv(period_export, index=False)
+    write_causal_export_metadata(
+        metadata_json,
+        utilization_csv=utilization_csv,
+        county_shocks_csv=county_shocks_csv,
+        county_export_csv=county_export,
+        period_export_csv=period_export,
+        pre_periods=pre_period,
+        post_periods=post_period,
+        county_rows=len(county_panel),
+        period_rows=len(period_panel),
+        force=force,
+    )
+    typer.echo(f"Causal county panel written: {county_export.resolve()}")
+    typer.echo(f"Causal period panel written: {period_export.resolve()}")
+    typer.echo("Exports are descriptive design tables and do not estimate a causal effect.")
+
+
+@app.command("route-uncertainty-check")
+def route_uncertainty_check_command(
+    travel_time_review_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    output_csv: Annotated[Path | None, typer.Option()] = None,
+    force: Annotated[bool, typer.Option(help="Overwrite existing output CSV.")] = False,
+) -> None:
+    """Summarize route-review uncertainty, coverage, and plausibility flags."""
+    if output_csv is not None and output_csv.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    report = build_route_uncertainty_report(
+        pd.read_csv(travel_time_review_csv, dtype=str, keep_default_na=False)
+    )
+    if output_csv is None:
+        typer.echo(report.to_csv(index=False))
+        return
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    report.to_csv(output_csv, index=False)
+    typer.echo(f"Route uncertainty report written: {output_csv.resolve()}")
+
+
+@app.command("audit-production-config")
+def audit_production_config_command(
+    config_path: Annotated[Path, typer.Argument(exists=True, readable=True)] = Path(
+        "config.example.toml"
+    ),
+    output_csv: Annotated[Path | None, typer.Option()] = None,
+    force: Annotated[bool, typer.Option(help="Overwrite existing output CSV.")] = False,
+) -> None:
+    """Check production review owners and required credential environment variables."""
+    if output_csv is not None and output_csv.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    report = audit_production_config(config_path)
+    if output_csv is not None:
+        output_csv.parent.mkdir(parents=True, exist_ok=True)
+        report.to_csv(output_csv, index=False)
+        typer.echo(f"Production config audit written: {output_csv.resolve()}")
+    blockers = int(report["status"].eq("BLOCKER").sum())
+    warnings = int(report["status"].eq("WARN").sum())
+    typer.echo(f"Production config findings: blockers={blockers}; warnings={warnings}")
 
 
 @app.command("readiness-audit")
@@ -1363,6 +1576,14 @@ def analyze(
     shocks.to_csv(output_dir / "county_shocks.csv", index=False)
     interventions.to_csv(output_dir / "intervention_rankings.csv", index=False)
     sensitivity.to_csv(output_dir / "sensitivity_analysis.csv", index=False)
+    (output_dir / "sensitivity_analysis.md").write_text(
+        render_sensitivity_markdown(sensitivity),
+        encoding="utf-8",
+    )
+    (output_dir / "sensitivity_analysis.html").write_text(
+        render_sensitivity_html(sensitivity),
+        encoding="utf-8",
+    )
     brief = generate_policy_brief(
         events,
         shocks,
@@ -1422,6 +1643,8 @@ def _write_analysis_manifest(
         "county_shocks": "county_shocks.csv",
         "interventions": "intervention_rankings.csv",
         "sensitivity": "sensitivity_analysis.csv",
+        "sensitivity_md": "sensitivity_analysis.md",
+        "sensitivity_html": "sensitivity_analysis.html",
         "readiness_json": "readiness_audit.json",
         "readiness_md": "readiness_audit.md",
         "brief": "policy_brief.md",

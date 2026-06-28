@@ -187,9 +187,7 @@ def build_nc_county_analysis_context(
     if len(result) != len(gazetteer):
         raise ValueError("Census ACS/Gazetteer county join did not preserve all NC counties")
     result["state"] = NC_STATE_ABBR
-    result["population_density_per_sqmi"] = (
-        result["total_population"] / result["land_area_sqmi"]
-    )
+    result["population_density_per_sqmi"] = result["total_population"] / result["land_area_sqmi"]
     result["rurality_index"] = _inverse_min_max(result["population_density_per_sqmi"])
     result["high_risk_index"] = _min_max(result["no_vehicle_pct"])
     return result.sort_values("county_fips").reset_index(drop=True)
@@ -213,9 +211,7 @@ def build_nc_tract_analysis_context(
     if len(result) != len(gazetteer):
         raise ValueError("Census ACS/Gazetteer tract join did not preserve all NC tracts")
     result["state"] = NC_STATE_ABBR
-    result["population_density_per_sqmi"] = (
-        result["total_population"] / result["land_area_sqmi"]
-    )
+    result["population_density_per_sqmi"] = result["total_population"] / result["land_area_sqmi"]
     return result.sort_values("tract_geoid").reset_index(drop=True)
 
 

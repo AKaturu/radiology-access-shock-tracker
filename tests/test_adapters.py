@@ -353,9 +353,7 @@ def test_hrsa_sites_build_real_candidate_assumptions() -> None:
 
 def test_fda_mqsa_pipe_delimited_source_is_supported(tmp_path: Path) -> None:
     source = tmp_path / "public.txt"
-    source.write_text(
-        "Demo Facility|100 Main St|||Raleigh|NC|27601|9195550100|9195550101\n"
-    )
+    source.write_text("Demo Facility|100 Main St|||Raleigh|NC|27601|9195550100|9195550101\n")
     raw = read_fda_mqsa_fixed_width(source, state="NC")
     assert raw.loc[0, "source_facility_name"] == "Demo Facility"
     assert raw.loc[0, "source_state"] == "NC"
