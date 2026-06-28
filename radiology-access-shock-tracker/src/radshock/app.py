@@ -32,8 +32,14 @@ required = {
 }
 utilization_path = analysis_dir / "utilization_change.csv"
 sensitivity_path = analysis_dir / "sensitivity_analysis.csv"
+sensitivity_md_path = analysis_dir / "sensitivity_analysis.md"
+sensitivity_html_path = analysis_dir / "sensitivity_analysis.html"
 readiness_json_path = analysis_dir / "readiness_audit.json"
 readiness_md_path = analysis_dir / "readiness_audit.md"
+data_quality_path = analysis_dir / "data_quality.csv"
+geocoder_confidence_path = analysis_dir / "geocoder_confidence.csv"
+identifier_crosswalk_path = analysis_dir / "identifier_crosswalk.csv"
+route_uncertainty_path = analysis_dir / "route_uncertainty.csv"
 missing = [str(path) for path in required.values() if not path.exists()]
 if missing:
     st.warning("Run `radshock demo` first. Missing: " + ", ".join(missing))
@@ -51,6 +57,20 @@ sensitivity = (
     pd.read_csv(sensitivity_path, dtype={"county_fips": str})
     if sensitivity_path.exists()
     else pd.DataFrame()
+)
+data_quality = pd.read_csv(data_quality_path) if data_quality_path.exists() else pd.DataFrame()
+geocoder_confidence = (
+    pd.read_csv(geocoder_confidence_path, dtype=str)
+    if geocoder_confidence_path.exists()
+    else pd.DataFrame()
+)
+identifier_crosswalk = (
+    pd.read_csv(identifier_crosswalk_path, dtype=str)
+    if identifier_crosswalk_path.exists()
+    else pd.DataFrame()
+)
+route_uncertainty = (
+    pd.read_csv(route_uncertainty_path) if route_uncertainty_path.exists() else pd.DataFrame()
 )
 readiness_audit = {}
 readiness_error = ""
@@ -88,6 +108,7 @@ col4.metric("Best intervention score", f"{interventions['intervention_score'].ma
     intervention_tab,
     utilization_tab,
     sensitivity_tab,
+    quality_tab,
     readiness_tab,
     methods_tab,
 ) = st.tabs(
@@ -98,6 +119,7 @@ col4.metric("Best intervention score", f"{interventions['intervention_score'].ma
         "Interventions",
         "Utilization",
         "Sensitivity",
+        "Data quality",
         "Readiness",
         "Methods",
     ]
@@ -274,6 +296,61 @@ with sensitivity_tab:
             file_name="sensitivity_analysis.csv",
             mime="text/csv",
         )
+        if sensitivity_md_path.exists():
+            st.download_button(
+                "Download sensitivity review report",
+                sensitivity_md_path.read_text(encoding="utf-8"),
+                file_name="sensitivity_analysis.md",
+                mime="text/markdown",
+            )
+        if sensitivity_html_path.exists():
+            st.download_button(
+                "Download sensitivity HTML report",
+                sensitivity_html_path.read_text(encoding="utf-8"),
+                file_name="sensitivity_analysis.html",
+                mime="text/html",
+            )
+
+with quality_tab:
+    if data_quality.empty and geocoder_confidence.empty and route_uncertainty.empty:
+        st.info("No data-quality outputs found.")
+    else:
+        if not data_quality.empty:
+            st.subheader("Data-quality checks")
+            st.dataframe(data_quality, width="stretch", hide_index=True)
+            st.download_button(
+                "Download data-quality checks",
+                data_quality.to_csv(index=False),
+                file_name="data_quality.csv",
+                mime="text/csv",
+            )
+        if not geocoder_confidence.empty:
+            st.subheader("Geocoder confidence")
+            st.dataframe(geocoder_confidence, width="stretch", hide_index=True)
+            st.download_button(
+                "Download geocoder confidence",
+                geocoder_confidence.to_csv(index=False),
+                file_name="geocoder_confidence.csv",
+                mime="text/csv",
+            )
+        if not identifier_crosswalk.empty:
+            st.subheader("Identifier crosswalk")
+            st.dataframe(identifier_crosswalk, width="stretch", hide_index=True)
+            st.download_button(
+                "Download identifier crosswalk",
+                identifier_crosswalk.to_csv(index=False),
+                file_name="identifier_crosswalk.csv",
+                mime="text/csv",
+            )
+        if not route_uncertainty.empty:
+            st.subheader("Route uncertainty")
+            st.dataframe(route_uncertainty, width="stretch", hide_index=True)
+            st.download_button(
+                "Download route uncertainty",
+                route_uncertainty.to_csv(index=False),
+                file_name="route_uncertainty.csv",
+                mime="text/csv",
+            )
 
 with readiness_tab:
     if readiness_error:
