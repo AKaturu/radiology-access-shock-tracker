@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import html
+import re
 from datetime import date
 from typing import Any
 
@@ -147,6 +148,19 @@ def _access_limit_line(uses_travel_time: bool) -> str:
     return "- Great-circle distance is a screening metric, not a road travel-time estimate."
 
 
+_MARKDOWN_BOLD = re.compile(r"\*\*(.+?)\*\*")
+_MARKDOWN_CODE = re.compile(r"`(.+?)`")
+_MARKDOWN_LINK = re.compile(r"\[(.+?)\]\((.+?)\)")
+
+
+def _render_inline_markdown(text: str) -> str:
+    safe = html.escape(text)
+    safe = _MARKDOWN_CODE.sub(r"<code>\1</code>", safe)
+    safe = _MARKDOWN_LINK.sub(r'<a href="\2">\1</a>', safe)
+    safe = _MARKDOWN_BOLD.sub(r"<strong>\1</strong>", safe)
+    return safe
+
+
 def generate_policy_brief_html(markdown_text: str) -> str:
     """Render a conservative standalone HTML version of a generated Markdown brief."""
     body_lines: list[str] = []
@@ -156,19 +170,19 @@ def generate_policy_brief_html(markdown_text: str) -> str:
             if not in_list:
                 body_lines.append("<ul>")
                 in_list = True
-            body_lines.append(f"<li>{html.escape(line[2:])}</li>")
+            body_lines.append(f"<li>{_render_inline_markdown(line[2:])}</li>")
             continue
         if in_list:
             body_lines.append("</ul>")
             in_list = False
         if line.startswith("# "):
-            body_lines.append(f"<h1>{html.escape(line[2:])}</h1>")
+            body_lines.append(f"<h1>{_render_inline_markdown(line[2:])}</h1>")
         elif line.startswith("## "):
-            body_lines.append(f"<h2>{html.escape(line[3:])}</h2>")
+            body_lines.append(f"<h2>{_render_inline_markdown(line[3:])}</h2>")
         elif line.startswith("> "):
-            body_lines.append(f"<blockquote>{html.escape(line[2:])}</blockquote>")
+            body_lines.append(f"<blockquote>{_render_inline_markdown(line[2:])}</blockquote>")
         elif line.strip():
-            body_lines.append(f"<p>{html.escape(line)}</p>")
+            body_lines.append(f"<p>{_render_inline_markdown(line)}</p>")
     if in_list:
         body_lines.append("</ul>")
     return "\n".join(

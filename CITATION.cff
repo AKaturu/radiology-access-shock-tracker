@@ -4,7 +4,8 @@ message: If you use this software, please cite it using this metadata.
 type: software
 authors:
   - family-names: Katuru
-    given-names: Krishna
+    given-names: Abhinav
 version: 0.1.0
-date-released: 2026-06-19
+date-released: 2026-06-28
 license: MIT
+repository-code: "https://github.com/AKaturu/radiology-access-shock-tracker"

@@ -9,7 +9,7 @@ description = "Open-source surveillance for changes in mammography access and co
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
-authors = [{name = "Krishna Katuru"}]
+authors = [{name = "Abhinav Katuru"}]
 dependencies = [
   "jinja2>=3.1",
   "numpy>=1.26",
