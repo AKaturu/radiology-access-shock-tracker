@@ -25,7 +25,7 @@ Avoid for now:
 The `dist/journal/` package includes:
 
 - `README_JOURNAL_BUNDLE.md`: plain-language bundle map.
-- `CHATGPT_JOURNAL_PROMPT.md`: prompt to use with ChatGPT.
+- `MANUSCRIPT_OUTLINE.md`: neutral outline for software and methods drafting.
 - `MANUSCRIPT_OUTLINE.md`: suggested manuscript structure.
 - `analysis_manifest.json`: provenance for the self-hosted route-time analysis.
 - `readiness_audit.md` and `readiness_audit.json`: publication-readiness evidence.
@@ -84,7 +84,7 @@ real-data result tables and readiness evidence.
 14. Conclusion
 15. Data and Code Availability
 
-Use `docs/CHATGPT_JOURNAL_PROMPT.md` to start a draft without letting the model invent results.
+Use the manuscript outline and evidence bundle to keep drafts bounded by reviewed artifacts.
 
 ## Suggested Target Claim
 

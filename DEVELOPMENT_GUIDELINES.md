@@ -1,10 +1,10 @@
-# Codex instructions
+# Development Guidelines
 
 ## Mission
 
 Maintain a rigorous, reproducible public-health surveillance project that detects changes in mammography access and estimates community impact. Do not describe a facility as definitively closed or a utilization change as caused by a facility event without verified evidence.
 
-## Non-negotiable rules
+## Engineering Rules
 
 - Keep synthetic demo data clearly labeled.
 - Preserve snapshot immutability and provenance metadata.
@@ -15,11 +15,11 @@ Maintain a rigorous, reproducible public-health surveillance project that detect
 - Do not silently impute missing facility IDs or coordinates.
 - Avoid patient-level or protected health information.
 
-## Initial scope
+## Scope
 
-Mammography access-shock tracking in North Carolina. Do not add diagnostic-resolution, multimodality, workforce-vulnerability, or advanced equity-optimization modules unless a later application explicitly authorizes them.
+The initial scope is mammography access-shock tracking in North Carolina. New diagnostic-resolution, multimodality, workforce-vulnerability, or advanced equity-optimization modules should be proposed through normal roadmap discussion and reviewed before implementation.
 
-## Definition of done for a pull request
+## Definition Of Done
 
 - `pytest` passes.
 - `ruff check .` passes.

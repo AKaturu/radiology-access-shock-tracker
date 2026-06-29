@@ -4,16 +4,18 @@
 
 An open-source surveillance toolkit for detecting changes in mammography access, estimating which communities are affected, and comparing candidate response locations.
 
-**Validation status:** Software functionality has been tested using synthetic or public data as described below. This project has not undergone prospective clinical validation and is not intended for independent clinical decision-making.
+## Evidence Status
 
 | Evidence | Status |
 |---|---|
-| Unit tests | Complete (80 tests, ruff/mypy passing) |
-| Synthetic end-to-end test | Complete |
+| Unit and integration tests | Complete (80 tests, ruff/mypy passing) |
+| Synthetic end-to-end evaluation | Complete |
 | Public-data evaluation | Partial (real NC FDA MQSA snapshot ingested, census data fetched, OSRM travel-time matrix generated for NC tracts) |
-| Expert review | Not completed |
+| Independent expert review | Not completed |
 | Institutional validation | Not completed |
 | Prospective clinical validation | Not completed |
+
+This software is a research prototype and is not intended for independent clinical decision-making.
 
 ## Clinical Problem
 
