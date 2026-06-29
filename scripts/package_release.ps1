@@ -96,7 +96,6 @@ $copies = @(
     @("docs/DATA_SOURCES.md", "docs/data_sources.md"),
     @("docs/OPERATIONS.md", "docs/operations.md"),
     @("docs/JOURNAL_REPORT_PACKAGE.md", "docs/journal_report_package.md"),
-    @("docs/CHATGPT_JOURNAL_PROMPT.md", "CHATGPT_JOURNAL_PROMPT.md"),
     @("docs/validation/COMPILED_TEST_REPORT.md", "validation/compiled_test_report.md"),
     @("data/snapshots/2026-06-19/facilities.csv", "snapshots/2026-06-19/facilities.csv"),
     @("data/snapshots/2026-06-19/metadata.json", "snapshots/2026-06-19/metadata.json"),
@@ -145,7 +144,7 @@ Generated: $((Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ"))
 ## Purpose
 
 This bundle supports a journal-style software, methods, or public-health informatics write-up.
-It is designed for drafting with ChatGPT while keeping the claims bounded by reviewed artifacts.
+It is designed to keep manuscript claims bounded by reviewed artifacts.
 
 ## Current Evidence Boundary
 
@@ -162,12 +161,12 @@ Do not use this bundle to claim longitudinal deterioration, causal utilization e
 facility-level annual capacity. A future FDA MQSA source update must be reviewed before trend
 claims are appropriate.
 
-## How To Use With ChatGPT
+## How To Draft From This Bundle
 
-1. Upload this bundle or the selected files requested in `CHATGPT_JOURNAL_PROMPT.md`.
-2. Paste the prompt from `CHATGPT_JOURNAL_PROMPT.md`.
-3. Ask for a software/methods manuscript first.
-4. Ask for journal-specific formatting only after choosing a target journal.
+1. Start with the manuscript outline and evidence manifest.
+2. Draft a software/methods manuscript before attempting any longitudinal findings paper.
+3. Keep claims matched to the current no-observed-change validation run.
+4. Apply journal-specific formatting only after choosing a target journal.
 
 ## Folder Map
 
