@@ -79,6 +79,26 @@ def test_prepare_mqsa_review_command(tmp_path: Path) -> None:
     assert review.loc[0, "active"] == ""
 
 
+def test_prepare_mqsa_review_command_accepts_all_50_states(tmp_path: Path) -> None:
+    source = tmp_path / "public.txt"
+    source.write_text(
+        "NC Facility|100 Main St|||Raleigh|NC|27601|919-555-0100|\n"
+        "SC Facility|200 Main St|||Columbia|SC|29201|803-555-0100|\n"
+        "PR Facility|300 Main St|||San Juan|PR|00901|787-555-0100|\n"
+    )
+    output = tmp_path / "review.csv"
+    result = CliRunner().invoke(
+        app,
+        ["prepare-mqsa-review", str(source), "--output-csv", str(output), "--state", "ALL"],
+    )
+
+    assert result.exit_code == 0
+    assert "State scope: ALL_50_STATES" in result.output
+    review = pd.read_csv(output, dtype=str).fillna("")
+    assert set(review["source_state"]) == {"NC", "SC"}
+    assert "PR Facility" not in set(review["source_facility_name"])
+
+
 def test_archive_source_command_accepts_retrieved_on(tmp_path: Path) -> None:
     source = tmp_path / "source.txt"
     source.write_text("raw data\n")
@@ -261,7 +281,7 @@ def test_fetch_census_population_points_command_writes_metadata(
     metadata = tmp_path / "metadata.json"
     monkeypatch.setenv("CENSUS_API_KEY", "test-key")
     monkeypatch.setattr(
-        "radshock.cli.build_nc_tract_analysis_context",
+        "radshock.cli.build_tract_analysis_context",
         lambda **kwargs: pd.DataFrame(
             [
                 {
@@ -301,6 +321,9 @@ def test_fetch_census_population_points_command_writes_metadata(
     assert len(points) == 1
     assert points.loc[0, "point_id"] == "tract-37001020100"
     assert payload["geography"] == "tract"
+    assert payload["state"] == "NC"
+    assert payload["state_fips"] == "37"
+    assert payload["state_count"] == 1
     assert payload["row_counts"]["tracts"] == 2
     assert payload["row_counts"]["population_points"] == 1
     assert payload["outputs"]["population_points"]["sha256"]
@@ -437,6 +460,8 @@ def test_prepare_hrsa_candidate_review_command_writes_metadata(tmp_path: Path) -
     assert set(review_frame["review_status"]) == {"reviewed"}
     assert payload["row_counts"]["candidate_rows"] == 2
     assert payload["row_counts"]["candidate_types"]["mobile_stop_assumption"] == 1
+    assert payload["filters"]["state"] == "NC"
+    assert payload["filters"]["state_count"] == 1
     assert payload["filters"]["active_only"] is True
     assert payload["filters"]["service_delivery_only"] is True
     assert "data.hrsa.gov/data/download" in payload["source_urls"][0]

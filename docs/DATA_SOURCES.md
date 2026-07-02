@@ -13,9 +13,11 @@ Official national statistics page:
 
 The production workflow now supports `radshock fetch-fda-mqsa` for downloading and archiving the
 weekly ZIP, `radshock archive-source` for manually downloaded files, and
-`radshock prepare-mqsa-review` for creating a human-review CSV. The FDA page documents a fixed-width
-layout, while the live ZIP retrieved on 2026-06-19 contained pipe-delimited rows with the same
-logical fields. The parser supports both formats and records the observed `source_schema_version`.
+`radshock prepare-mqsa-review` for creating a human-review CSV. Use `--state NC` or another
+two-letter 50-state abbreviation for a state-specific review sheet, or `--state ALL` for a 50-state
+review sheet from the national file. The FDA page documents a fixed-width layout, while the live ZIP
+retrieved on 2026-06-19 contained pipe-delimited rows with the same logical fields. The parser
+supports both formats and records the observed `source_schema_version`.
 The layout includes facility name, address lines, city, state, ZIP, phone, and fax. It does not
 provide stable tracker IDs, coordinates, facility-level annual capacity, or verified active status,
 so the review CSV leaves those fields blank before snapshot ingestion.
@@ -42,15 +44,20 @@ Official NC DHSR equipment database:
 
 ## CDC PLACES
 
-The CDC PLACES county dataset provides model-based small-area estimates. The adapter uses the official Socrata resource endpoint for the current county dataset and filters for North Carolina mammography records. Measurement year and data-value type must remain visible in downstream products.
+The CDC PLACES county dataset provides model-based small-area estimates. The adapter uses the
+official Socrata resource endpoint for the current county dataset and can filter mammography
+records for one 50-state abbreviation or all 50 states. Measurement year and data-value type must
+remain visible in downstream products.
 
 Official dataset: <https://data.cdc.gov/resource/swc5-untb.json>
 
 ## American Community Survey
 
 The ACS 5-year API supplies county socioeconomic context. `radshock fetch-census-county-context`
-retrieves North Carolina county indicators and joins them to the Census county Gazetteer file for
-county names, land area, and internal-point coordinates. The 2024 county context files are:
+retrieves county indicators for a selected 50-state scope and joins them to the Census county
+Gazetteer file for county names, land area, and internal-point coordinates. Pass `--state ALL` to
+prepare all 50 states; the default remains `--state NC` for compatibility with the reviewed package.
+The 2024 county context files are:
 
 - `data/counties.csv`: access-engine county schema.
 - `data/census_county_context_2024.csv`: source-rich Census/Gazetteer context.
@@ -58,8 +65,8 @@ county names, land area, and internal-point coordinates. The 2024 county context
   for smoke testing.
 - `data/census_county_context_2024.metadata.json`: source URLs, derivation notes, and checksums.
 
-`radshock fetch-census-population-points` retrieves North Carolina tract indicators and joins them
-to the Census tract Gazetteer file for finer population-point inputs:
+`radshock fetch-census-population-points` retrieves tract indicators for the same state scope and
+joins them to the Census tract Gazetteer file for finer population-point inputs:
 
 - `data/population_points_tracts.csv`: tract-centroid population points weighted by eligible
   population.
@@ -68,10 +75,10 @@ to the Census tract Gazetteer file for finer population-point inputs:
 
 The eligible-population field is ACS female population age 50-74, summed from `B01001_040E`
 through `B01001_046E`, to align with the CDC PLACES mammography measure age band. The current
-`rurality_index` is an inverse min-max scaling of Census population density within NC counties.
-The current `high_risk_index` is a min-max scaling of ACS households with no vehicle available
-within NC counties, used as a provisional access-vulnerability proxy. These derived indexes are
-transparent analysis inputs, not clinically validated risk scores.
+`rurality_index` is an inverse min-max scaling of Census population density within the requested
+state scope. The current `high_risk_index` is a min-max scaling of ACS households with no vehicle
+available within the requested state scope, used as a provisional access-vulnerability proxy. These
+derived indexes are transparent analysis inputs, not clinically validated risk scores.
 
 County-centroid population points are acceptable for local smoke testing. Tract-centroid points are
 the preferred built-in public-data option for production review because they are finer than county
@@ -158,8 +165,9 @@ or fixed sites.
 
 For a documented real-source alternative, `radshock prepare-hrsa-candidate-review` converts the
 HRSA Health Center Program Service Delivery and Look-Alike Sites CSV into candidate review rows.
-The default filter keeps active state-matched rows whose `Health Center Type Description` includes
-service delivery, excluding administrative-only rows. HRSA `Permanent` rows become
+Use `--state ALL` to prepare active service-delivery candidates across all 50 states. The default
+filter keeps active state-matched rows whose `Health Center Type Description` includes service
+delivery, excluding administrative-only rows. HRSA `Permanent` rows become
 `fixed_site_assumption`, `Seasonal` rows become `seasonal_fixed_site_assumption`, and `Mobile Van`
 rows become `mobile_stop_assumption`.
 

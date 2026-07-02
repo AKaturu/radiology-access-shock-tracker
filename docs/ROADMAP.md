@@ -2,7 +2,8 @@
 
 ## MVP: access-shock surveillance
 
-- North Carolina mammography facility snapshots
+- 50-state FDA/MQSA, Census ACS/Gazetteer, CDC PLACES, and HRSA source-access workflows
+- reviewed North Carolina mammography facility snapshots
 - new listings, possible closures, relocations, and possible service reductions
 - population-weighted geographic access change
 - vulnerability-adjusted county alerts
@@ -19,7 +20,9 @@
 4. Configure source review owners and production-data credentials for ACS/routing workflows.
 5. Add multiple pre/post CMS periods and causal-study export tables.
 6. Add data-quality dashboards, geocoder confidence, and identifier crosswalks.
-7. Expand sensitivity-analysis reports beyond CSV outputs for reviewer signoff.
+7. Review, geocode, route, and readiness-audit additional state packages before publishing
+   findings outside North Carolina.
+8. Expand sensitivity-analysis reports beyond CSV outputs for reviewer signoff.
 
 ## Reserved future applications
 

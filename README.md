@@ -8,9 +8,9 @@ An open-source surveillance toolkit for detecting changes in mammography access,
 
 | Evidence | Status |
 |---|---|
-| Unit and integration tests | Complete (80 tests, ruff/mypy passing) |
+| Unit and integration tests | Complete (89 tests, ruff/mypy passing) |
 | Synthetic end-to-end evaluation | Complete |
-| Public-data evaluation | Partial (real NC FDA MQSA snapshot ingested, census data fetched, OSRM travel-time matrix generated for NC tracts) |
+| Public-data evaluation | Partial (50-state source access supported; reviewed NC package retained as the current validation artifact) |
 | Independent expert review | Not completed |
 | Institutional validation | Not completed |
 | Prospective clinical validation | Not completed |
@@ -40,6 +40,7 @@ Walkthrough footage and more screenshots are in [docs/GITHUB_PAGE_ASSETS.md](doc
 - Summarizes before/after screening utilization signals
 - Ranks hypothetical mobile or fixed-site locations by geographic access recovery
 - FDA MQSA source-refresh workflow with human-review gate
+- FDA MQSA, Census ACS/Gazetteer, CDC PLACES, and HRSA review inputs support a 50-state scope with `--state ALL`
 - Streamlit dashboard and Markdown policy brief exports
 
 ## Quick Start
@@ -68,7 +69,7 @@ The reviewed real NC no-observed-change validation package supports workflow and
 - Census ACS API queries require an API key
 - Desktop artifacts are unsigned; public releases may trigger SmartScreen/Gatekeeper warnings
 - Sensitivity scenarios test score robustness but do not clinically validate the score
-- The initial scope is mammography access in North Carolina
+- Reviewed real-data findings are currently limited to the North Carolina package; 50-state inputs still require state-by-state source review, geocoding, routing, and readiness approval before publication
 
 ## Documentation
 

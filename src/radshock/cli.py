@@ -11,10 +11,9 @@ import typer
 
 from radshock.access import compare_county_access, compare_county_travel_time_access
 from radshock.adapters.acs import (
-    NC_COUNTY_GAZETTEER_URL_TEMPLATE,
-    NC_TRACT_GAZETTEER_URL_TEMPLATE,
-    build_nc_county_analysis_context,
-    build_nc_tract_analysis_context,
+    build_county_analysis_context,
+    build_tract_analysis_context,
+    census_gazetteer_urls,
     to_analysis_counties,
     to_county_centroid_population_points,
     to_tract_population_points,
@@ -47,6 +46,7 @@ from radshock.schemas import validate_facilities
 from radshock.sensitivity import run_sensitivity_analysis
 from radshock.snapshots import file_sha256, store_snapshot
 from radshock.sources import archive_local_source, fetch_url_source
+from radshock.states import StateScope, resolve_state_scope
 from radshock.travel_times import (
     TRAVEL_TIME_ROUTE_STATUSES,
     build_travel_time_review_template,
@@ -185,17 +185,27 @@ def archive_source(
 def prepare_mqsa_review(
     input_path: Annotated[Path, typer.Argument(exists=True, readable=True)],
     output_csv: Annotated[Path, typer.Option()],
-    state: Annotated[str, typer.Option(help="Two-letter state filter.")] = "NC",
+    state: Annotated[
+        str,
+        typer.Option(help="Two-letter state filter, 50-state FIPS code, or ALL."),
+    ] = "NC",
     force: Annotated[bool, typer.Option(help="Overwrite an existing review CSV.")] = False,
 ) -> None:
     """Create a human-review CSV from the FDA MQSA fixed-width source file."""
     if output_csv.exists() and not force:
         raise typer.BadParameter(f"output already exists: {output_csv}")
-    raw = read_fda_mqsa_fixed_width(input_path, state=state)
+    scope = _parse_state_scope(state)
+    raw = read_fda_mqsa_fixed_width(
+        input_path,
+        state=None if scope.is_all_50_states else scope.states[0],
+    )
+    if scope.is_all_50_states:
+        raw = raw[raw["source_state"].isin(scope.states)].reset_index(drop=True)
     review = build_mqsa_review_template(raw)
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     review.to_csv(output_csv, index=False)
     typer.echo(f"Review template written: {output_csv.resolve()}")
+    typer.echo(f"State scope: {scope.label}; source rows: {len(raw)}")
     typer.echo(
         "Review required: facility_id, latitude, longitude, active, and review_status must be "
         "completed before snapshot ingestion. annual_capacity is optional and should stay blank "
@@ -390,6 +400,10 @@ def fetch_census_county_context_command(
         typer.Option(help="Optional source metadata JSON path."),
     ] = Path("data/census_county_context_2024.metadata.json"),
     year: Annotated[int, typer.Option(help="ACS/Gazetteer release year.")] = 2024,
+    state: Annotated[
+        str,
+        typer.Option(help="Two-letter state filter, 50-state FIPS code, or ALL."),
+    ] = "NC",
     api_key_env: Annotated[
         str,
         typer.Option(help="Environment variable containing the Census API key."),
@@ -401,16 +415,25 @@ def fetch_census_county_context_command(
     for path in [output_csv, raw_context_csv, population_points_csv, metadata_json]:
         if path is not None and path.exists() and not force:
             raise typer.BadParameter(f"output already exists: {path}")
+    scope = _parse_state_scope(state)
     api_key = os.getenv(api_key_env)
     if api_key is None or not api_key.strip():
         raise typer.BadParameter(f"{api_key_env} is not set")
-    context = build_nc_county_analysis_context(year=year, api_key=api_key, timeout=timeout)
+    context = build_county_analysis_context(
+        year=year,
+        state=scope.label,
+        api_key=api_key,
+        timeout=timeout,
+    )
     counties = to_analysis_counties(context)
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     counties.to_csv(output_csv, index=False)
     typer.echo(f"Census county context written: {output_csv.resolve()}")
     eligible_population = int(counties["eligible_population"].sum())
-    typer.echo(f"Counties: {len(counties)}; eligible population: {eligible_population}")
+    typer.echo(
+        f"State scope: {scope.label}; counties: {len(counties)}; "
+        f"eligible population: {eligible_population}"
+    )
     if raw_context_csv is not None:
         raw_context_csv.parent.mkdir(parents=True, exist_ok=True)
         context.to_csv(raw_context_csv, index=False)
@@ -430,6 +453,7 @@ def fetch_census_county_context_command(
             force=force,
             year=year,
             geography="county",
+            state_scope=scope,
             outputs={
                 "analysis_counties": output_csv,
                 "raw_context": raw_context_csv,
@@ -443,7 +467,7 @@ def fetch_census_county_context_command(
             },
             source_urls=[
                 f"https://api.census.gov/data/{year}/acs/acs5",
-                NC_COUNTY_GAZETTEER_URL_TEMPLATE.format(year=year),
+                *census_gazetteer_urls(year=year, state=scope.label, geography="county"),
             ],
             notes=[
                 "eligible_population is ACS female population age 50-74.",
@@ -469,6 +493,10 @@ def fetch_census_population_points_command(
         typer.Option(help="Optional source metadata JSON path."),
     ] = Path("data/census_tract_context_2024.metadata.json"),
     year: Annotated[int, typer.Option(help="ACS/Gazetteer release year.")] = 2024,
+    state: Annotated[
+        str,
+        typer.Option(help="Two-letter state filter, 50-state FIPS code, or ALL."),
+    ] = "NC",
     api_key_env: Annotated[
         str,
         typer.Option(help="Environment variable containing the Census API key."),
@@ -484,10 +512,16 @@ def fetch_census_population_points_command(
     for path in [output_csv, raw_context_csv, metadata_json]:
         if path is not None and path.exists() and not force:
             raise typer.BadParameter(f"output already exists: {path}")
+    scope = _parse_state_scope(state)
     api_key = os.getenv(api_key_env)
     if api_key is None or not api_key.strip():
         raise typer.BadParameter(f"{api_key_env} is not set")
-    context = build_nc_tract_analysis_context(year=year, api_key=api_key, timeout=timeout)
+    context = build_tract_analysis_context(
+        year=year,
+        state=scope.label,
+        api_key=api_key,
+        timeout=timeout,
+    )
     population_points = to_tract_population_points(
         context,
         include_zero_weight=include_zero_weight,
@@ -496,7 +530,10 @@ def fetch_census_population_points_command(
     population_points.to_csv(output_csv, index=False)
     typer.echo(f"Tract population points written: {output_csv.resolve()}")
     eligible_population = int(population_points["weight"].sum())
-    typer.echo(f"Points: {len(population_points)}; eligible population: {eligible_population}")
+    typer.echo(
+        f"State scope: {scope.label}; points: {len(population_points)}; "
+        f"eligible population: {eligible_population}"
+    )
     typer.echo(
         "Population points use Census tract internal points; "
         "route matrices should be regenerated before publication."
@@ -511,6 +548,7 @@ def fetch_census_population_points_command(
             force=force,
             year=year,
             geography="tract",
+            state_scope=scope,
             outputs={
                 "population_points": output_csv,
                 "raw_context": raw_context_csv,
@@ -521,7 +559,7 @@ def fetch_census_population_points_command(
             },
             source_urls=[
                 f"https://api.census.gov/data/{year}/acs/acs5",
-                NC_TRACT_GAZETTEER_URL_TEMPLATE.format(year=year),
+                *census_gazetteer_urls(year=year, state=scope.label, geography="tract"),
             ],
             notes=[
                 "eligible_population is ACS female population age 50-74.",
@@ -638,7 +676,10 @@ def prepare_hrsa_candidate_review_command(
         Path | None,
         typer.Option(help="Optional HRSA candidate-review metadata JSON path."),
     ] = None,
-    state: Annotated[str, typer.Option(help="Two-letter state filter.")] = "NC",
+    state: Annotated[
+        str,
+        typer.Option(help="Two-letter state filter, 50-state FIPS code, or ALL."),
+    ] = "NC",
     include_inactive: Annotated[
         bool,
         typer.Option(help="Include inactive HRSA sites in the review CSV."),
@@ -658,9 +699,10 @@ def prepare_hrsa_candidate_review_command(
         raise typer.BadParameter(f"output already exists: {output_csv}")
     if metadata_json is not None and metadata_json.exists() and not force:
         raise typer.BadParameter(f"output already exists: {metadata_json}")
+    scope = _parse_state_scope(state)
     review = build_hrsa_candidate_review_template(
         pd.read_csv(input_csv, dtype=str, keep_default_na=False),
-        state=state,
+        state=scope.label,
         active_only=not include_inactive,
         service_delivery_only=not include_administrative,
         review_status=review_status,
@@ -672,6 +714,7 @@ def prepare_hrsa_candidate_review_command(
         f"Candidate rows: {len(review)}; counties: "
         f"{int(review['county_fips'].nunique()) if len(review) else 0}"
     )
+    typer.echo(f"State scope: {scope.label}")
     typer.echo(
         "HRSA sites are real health-center service locations, but remain planning "
         "assumptions here and are not mammography-capability claims."
@@ -683,7 +726,7 @@ def prepare_hrsa_candidate_review_command(
             input_csv=input_csv,
             output_csv=output_csv,
             review=review,
-            state=state,
+            state_scope=scope,
             active_only=not include_inactive,
             service_delivery_only=not include_administrative,
         )
@@ -933,6 +976,13 @@ def _parse_optional_date(value: str | None, label: str) -> date | None:
         raise typer.BadParameter(f"{label} must use YYYY-MM-DD format") from exc
 
 
+def _parse_state_scope(value: str) -> StateScope:
+    try:
+        return resolve_state_scope(value)
+    except ValueError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+
+
 def _build_geocode_provider(
     provider_name: str,
     static_csv: Path | None,
@@ -963,6 +1013,7 @@ def _write_census_metadata(
     force: bool,
     year: int,
     geography: str,
+    state_scope: StateScope,
     outputs: dict[str, Path | None],
     row_counts: dict[str, int],
     source_urls: list[str],
@@ -982,8 +1033,10 @@ def _write_census_metadata(
     metadata = {
         "generated_at_utc": datetime.now(UTC).isoformat(),
         "source_name": "census-acs5-gazetteer",
-        "state": "NC",
-        "state_fips": "37",
+        "state": state_scope.label,
+        "state_fips": state_scope.fips_label,
+        "state_count": len(state_scope.states),
+        "states": list(state_scope.states),
         "year": year,
         "geography": geography,
         "outputs": output_metadata,
@@ -1219,7 +1272,7 @@ def _write_hrsa_candidate_review_metadata(
     input_csv: Path,
     output_csv: Path,
     review: pd.DataFrame,
-    state: str,
+    state_scope: StateScope,
     active_only: bool,
     service_delivery_only: bool,
 ) -> None:
@@ -1243,7 +1296,9 @@ def _write_hrsa_candidate_review_metadata(
             }
         },
         "filters": {
-            "state": state.strip().upper(),
+            "state": state_scope.label,
+            "state_count": len(state_scope.states),
+            "states": list(state_scope.states),
             "active_only": active_only,
             "service_delivery_only": service_delivery_only,
         },

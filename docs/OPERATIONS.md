@@ -4,7 +4,8 @@
 
 The GitHub Actions workflow `.github/workflows/quarterly-snapshot.yml` is enabled for both manual
 dispatch and the quarterly cron schedule. It fetches the FDA MQSA public ZIP, archives source
-metadata, prepares a state-filtered review CSV, and uploads those review artifacts.
+metadata, prepares a state-filtered review CSV, and uploads those review artifacts. Manual runs can
+use a two-letter state, a 50-state FIPS code, or `ALL` for a 50-state MQSA review worklist.
 
 This workflow intentionally stops before approval, snapshot finalization, analysis, or publication.
 The FDA refresh step does not require a repository secret.
@@ -81,7 +82,7 @@ The Census Bureau states that all Census Data API queries now require an API key
 After the key is issued and activated, store it locally as `CENSUS_API_KEY` or configure it as a
 GitHub repository/organization secret with the same name. Do not commit the key.
 
-Build the NC Census context CSVs:
+Build Census context CSVs for the reviewed NC package:
 
 ```powershell
 $env:CENSUS_API_KEY = "<your-census-key>"
@@ -89,6 +90,20 @@ radshock fetch-census-county-context `
   --output-csv data/counties.csv `
   --raw-context-csv data/census_county_context_2024.csv `
   --population-points-csv data/population_points.csv `
+  --state NC `
+  --year 2024
+```
+
+Use `--state ALL` to generate 50-state county context and county-centroid population points for
+review, preferably into separate output paths until the national package has been reviewed:
+
+```powershell
+radshock fetch-census-county-context `
+  --output-csv work/all-states/counties.csv `
+  --raw-context-csv work/all-states/census_county_context_2024.csv `
+  --population-points-csv work/all-states/population_points.csv `
+  --metadata-json work/all-states/census_county_context_2024.metadata.json `
+  --state ALL `
   --year 2024
 ```
 
@@ -100,6 +115,18 @@ radshock fetch-census-population-points `
   --output-csv data/population_points_tracts.csv `
   --raw-context-csv data/census_tract_context_2024.csv `
   --metadata-json data/census_tract_context_2024.metadata.json `
+  --state NC `
+  --year 2024
+```
+
+For all 50 states, use `--state ALL` and review the larger output before routing:
+
+```powershell
+radshock fetch-census-population-points `
+  --output-csv work/all-states/population_points_tracts.csv `
+  --raw-context-csv work/all-states/census_tract_context_2024.csv `
+  --metadata-json work/all-states/census_tract_context_2024.metadata.json `
+  --state ALL `
   --year 2024
 ```
 
@@ -226,6 +253,17 @@ radshock prepare-hrsa-candidate-review `
   --output-csv data/candidate_sites_review.csv `
   --metadata-json data/candidate_sites_review.metadata.json `
   --state NC
+```
+
+Use `--state ALL` with separate output paths to prepare a 50-state HRSA candidate-review sheet.
+Those rows still require review and approval before they can be finalized:
+
+```powershell
+radshock prepare-hrsa-candidate-review `
+  work/source-refresh-smoke/raw/hrsa-health-center-service-delivery-sites/2026-06-20/Health_Center_Service_Delivery_and_LookAlike_Sites.csv `
+  --output-csv work/all-states/candidate_sites_review.csv `
+  --metadata-json work/all-states/candidate_sites_review.metadata.json `
+  --state ALL
 ```
 
 By default the HRSA command keeps active service-delivery rows and excludes administrative-only

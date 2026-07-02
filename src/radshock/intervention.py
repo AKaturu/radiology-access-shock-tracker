@@ -21,12 +21,17 @@ def simulate_candidates(
     weights = current["weight"].to_numpy(dtype=float)
     rows: list[dict[str, object]] = []
 
-    for candidate in candidate_rows.itertuples(index=False):
+    for candidate in candidate_rows.to_dict(orient="records"):
+        candidate_id = str(candidate["candidate_id"])
+        candidate_name = str(candidate["candidate_name"])
+        county_fips = str(candidate["county_fips"]).zfill(5)
+        latitude = float(candidate["latitude"])
+        longitude = float(candidate["longitude"])
         candidate_distance = haversine_miles(
             current["latitude"].to_numpy(),
             current["longitude"].to_numpy(),
-            float(candidate.latitude),
-            float(candidate.longitude),
+            latitude,
+            longitude,
         )
         new_distance = np.minimum(current_distance, candidate_distance)
         reduction = np.maximum(0, current_distance - new_distance)
@@ -34,11 +39,11 @@ def simulate_candidates(
         improved = reduction > 0.1
         rows.append(
             {
-                "candidate_id": candidate.candidate_id,
-                "candidate_name": candidate.candidate_name,
-                "county_fips": str(candidate.county_fips).zfill(5),
-                "latitude": float(candidate.latitude),
-                "longitude": float(candidate.longitude),
+                "candidate_id": candidate_id,
+                "candidate_name": candidate_name,
+                "county_fips": county_fips,
+                "latitude": latitude,
+                "longitude": longitude,
                 "weighted_mean_distance_reduction": float(np.average(reduction, weights=weights)),
                 "person_miles_reduced": float(np.sum(reduction * weights)),
                 "population_brought_within_threshold": float(np.sum(weights[recovered])),
