@@ -8,7 +8,7 @@ An open-source surveillance toolkit for detecting changes in mammography access,
 
 | Evidence | Status |
 |---|---|
-| Unit and integration tests | Complete (89 tests, ruff/mypy passing) |
+| Unit and integration tests | Complete (90 tests, ruff/mypy passing) |
 | Synthetic end-to-end evaluation | Complete |
 | Public-data evaluation | Partial (50-state source access supported; reviewed NC package retained as the current validation artifact) |
 | Independent expert review | Not completed |
@@ -40,7 +40,7 @@ Walkthrough footage and more screenshots are in [docs/GITHUB_PAGE_ASSETS.md](doc
 - Summarizes before/after screening utilization signals
 - Ranks hypothetical mobile or fixed-site locations by geographic access recovery
 - FDA MQSA source-refresh workflow with human-review gate
-- FDA MQSA, Census ACS/Gazetteer, CDC PLACES, and HRSA review inputs support a 50-state scope with `--state ALL`
+- FDA MQSA, Census ACS/Gazetteer, CDC PLACES, CDC/ATSDR SVI, and HRSA review inputs support a 50-state scope
 - Streamlit dashboard and Markdown policy brief exports
 
 ## Quick Start
@@ -67,6 +67,7 @@ The reviewed real NC no-observed-change validation package supports workflow and
 - Facility disappearances are labeled `POSSIBLE_CLOSURE`, not confirmed closure
 - Great-circle distance is the default demo method; travel-time matrices require reviewed routing
 - Census ACS API queries require an API key
+- CDC/ATSDR SVI is contextual vulnerability data, not a mammography access or outcomes measure
 - Desktop artifacts are unsigned; public releases may trigger SmartScreen/Gatekeeper warnings
 - Sensitivity scenarios test score robustness but do not clinically validate the score
 - Reviewed real-data findings are currently limited to the North Carolina package; 50-state inputs still require state-by-state source review, geocoding, routing, and readiness approval before publication

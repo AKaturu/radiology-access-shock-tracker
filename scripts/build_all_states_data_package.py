@@ -30,6 +30,11 @@ from radshock.adapters.hrsa import (
     build_hrsa_candidate_review_template,
 )
 from radshock.adapters.places import PLACES_COUNTY_ENDPOINT, fetch_mammography
+from radshock.adapters.svi import (
+    CDC_ATSDR_SVI_2022_US_COUNTY_CSV_URL,
+    CDC_ATSDR_SVI_DOWNLOAD_PAGE,
+    read_svi_county_context,
+)
 from radshock.snapshots import file_sha256
 from radshock.sources import fetch_url_source
 from radshock.states import US_STATE_ABBRS, US_STATE_FIPS, state_abbr_from_fips
@@ -93,6 +98,17 @@ def build_all_states_data_package(
     tract_gazetteer_path = context_dir / "census_tracts_gazetteer_all_50.csv"
     _write_csv(tract_gazetteer, tract_gazetteer_path, force=force)
 
+    svi_archive = fetch_url_source(
+        CDC_ATSDR_SVI_2022_US_COUNTY_CSV_URL,
+        raw_dir,
+        "cdc-atsdr-svi-2022-us-county",
+        retrieved_on=run_date,
+        force=force,
+    )
+    svi_counties = read_svi_county_context(svi_archive, state="ALL")
+    svi_counties_path = context_dir / "cdc_atsdr_svi_counties_all_50.csv"
+    _write_csv(svi_counties, svi_counties_path, force=force)
+
     acs_outputs = _maybe_build_acs_outputs(
         context_dir,
         year=year,
@@ -106,6 +122,7 @@ def build_all_states_data_package(
         places,
         county_gazetteer,
         tract_gazetteer,
+        svi_counties,
         acs_counties=acs_outputs.get("counties_frame"),
         acs_tracts=acs_outputs.get("tracts_frame"),
     )
@@ -129,6 +146,8 @@ def build_all_states_data_package(
             "hrsa_health_center_sites": HRSA_HEALTH_CENTER_SITES_CSV_URL,
             "hrsa_download_page": HRSA_HEALTH_CENTER_SITES_DOWNLOAD_PAGE,
             "cdc_places_county": PLACES_COUNTY_ENDPOINT,
+            "cdc_atsdr_svi_download_page": CDC_ATSDR_SVI_DOWNLOAD_PAGE,
+            "cdc_atsdr_svi_2022_us_county": CDC_ATSDR_SVI_2022_US_COUNTY_CSV_URL,
             "census_county_gazetteer": census_gazetteer_urls(
                 year=year,
                 state="ALL",
@@ -148,6 +167,8 @@ def build_all_states_data_package(
                 "hrsa_archive": hrsa_archive,
                 "hrsa_candidate_review": hrsa_review_path,
                 "cdc_places_mammography": places_path,
+                "cdc_atsdr_svi_archive": svi_archive,
+                "cdc_atsdr_svi_counties": svi_counties_path,
                 "census_county_gazetteer": county_gazetteer_path,
                 "census_tract_gazetteer": tract_gazetteer_path,
                 "state_source_summary": state_summary_path,
@@ -160,6 +181,7 @@ def build_all_states_data_package(
             "hrsa_source_rows": int(len(hrsa_source)),
             "hrsa_candidate_review_rows": int(len(hrsa_review)),
             "places_mammography_rows": int(len(places)),
+            "cdc_atsdr_svi_counties": int(len(svi_counties)),
             "census_counties": int(len(county_gazetteer)),
             "census_tracts": int(len(tract_gazetteer)),
             **acs_outputs["row_counts"],
@@ -257,6 +279,7 @@ def _build_state_summary(
     places: pd.DataFrame,
     county_gazetteer: pd.DataFrame,
     tract_gazetteer: pd.DataFrame,
+    svi_counties: pd.DataFrame,
     *,
     acs_counties: pd.DataFrame | None,
     acs_tracts: pd.DataFrame | None,
@@ -309,6 +332,12 @@ def _build_state_summary(
         fips_column="county_fips",
         value_name="census_tracts",
     )
+    summary = _merge_fips_counts(
+        summary,
+        svi_counties,
+        fips_column="county_fips",
+        value_name="cdc_atsdr_svi_counties",
+    )
     if acs_counties is not None:
         summary = _merge_fips_counts(
             summary,
@@ -335,6 +364,7 @@ def _build_state_summary(
         + (summary["places_mammography_rows"] > 0).astype(int)
         + (summary["census_counties"] > 0).astype(int)
         + (summary["census_tracts"] > 0).astype(int)
+        + (summary["cdc_atsdr_svi_counties"] > 0).astype(int)
     )
     return summary.sort_values("state").reset_index(drop=True)
 
@@ -389,8 +419,11 @@ def _state_coverage_summary(state_summary: pd.DataFrame) -> dict[str, int]:
         "states_with_places_rows": int((state_summary["places_mammography_rows"] > 0).sum()),
         "states_with_census_counties": int((state_summary["census_counties"] > 0).sum()),
         "states_with_census_tracts": int((state_summary["census_tracts"] > 0).sum()),
+        "states_with_cdc_atsdr_svi_counties": int(
+            (state_summary["cdc_atsdr_svi_counties"] > 0).sum()
+        ),
         "states_with_all_public_no_secret_sources": int(
-            (state_summary["sources_present"] == 5).sum()
+            (state_summary["sources_present"] == 6).sum()
         ),
     }
 
@@ -426,6 +459,7 @@ Package directory: `{output_dir}`
 - HRSA source rows: `{row_counts["hrsa_source_rows"]}`
 - HRSA candidate review-template rows: `{row_counts["hrsa_candidate_review_rows"]}`
 - CDC PLACES mammography rows: `{row_counts["places_mammography_rows"]}`
+- CDC/ATSDR SVI county rows: `{row_counts["cdc_atsdr_svi_counties"]}`
 - Census county Gazetteer rows: `{row_counts["census_counties"]}`
 - Census tract Gazetteer rows: `{row_counts["census_tracts"]}`
 - ACS county context rows: `{row_counts["acs_county_context_rows"]}`
@@ -437,6 +471,7 @@ Package directory: `{output_dir}`
 - States with MQSA rows: `{coverage["states_with_mqsa_rows"]}`
 - States with HRSA candidate rows: `{coverage["states_with_hrsa_candidates"]}`
 - States with CDC PLACES mammography rows: `{coverage["states_with_places_rows"]}`
+- States with CDC/ATSDR SVI county rows: `{coverage["states_with_cdc_atsdr_svi_counties"]}`
 - States with Census counties: `{coverage["states_with_census_counties"]}`
 - States with Census tracts: `{coverage["states_with_census_tracts"]}`
 - States with all public no-secret sources present: `{all_public_sources}`
@@ -456,6 +491,7 @@ Package directory: `{output_dir}`
 - `review/fda_mqsa_all_50_review.csv`
 - `review/hrsa_candidate_sites_all_50_review.csv`
 - `context/cdc_places_mammography_all_50.csv`
+- `context/cdc_atsdr_svi_counties_all_50.csv`
 - `context/census_counties_gazetteer_all_50.csv`
 - `context/census_tracts_gazetteer_all_50.csv`
 - `summary/state_source_summary.csv`

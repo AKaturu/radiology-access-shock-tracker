@@ -51,6 +51,21 @@ remain visible in downstream products.
 
 Official dataset: <https://data.cdc.gov/resource/swc5-untb.json>
 
+## CDC/ATSDR Social Vulnerability Index
+
+The CDC/ATSDR Social Vulnerability Index (SVI) supplies county-level contextual vulnerability
+percentile rankings for all 50 states without a Census API key. The all-state package archives the
+2022 U.S. county CSV and writes a compact `cdc_atsdr_svi_counties_all_50.csv` with county FIPS,
+overall SVI percentile, theme percentiles, and directly relevant poverty, no-vehicle, and
+no-internet fields. These fields can support reviewer triage and sensitivity analysis, but they are
+not mammography utilization, facility-capacity, or clinical outcome measures.
+
+Official download page:
+<https://www.atsdr.cdc.gov/place-health/php/svi/svi-data-documentation-download.html>
+
+Official 2022 U.S. county CSV:
+<https://svi.cdc.gov/Documents/Data/2022/csv/states_counties/SVI_2022_US_county.csv>
+
 ## American Community Survey
 
 The ACS 5-year API supplies county socioeconomic context. `radshock fetch-census-county-context`

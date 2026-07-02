@@ -2,7 +2,7 @@
 
 ## MVP: access-shock surveillance
 
-- 50-state FDA/MQSA, Census ACS/Gazetteer, CDC PLACES, and HRSA source-access workflows
+- 50-state FDA/MQSA, Census ACS/Gazetteer, CDC PLACES, CDC/ATSDR SVI, and HRSA source-access workflows
 - reviewed North Carolina mammography facility snapshots
 - new listings, possible closures, relocations, and possible service reductions
 - population-weighted geographic access change

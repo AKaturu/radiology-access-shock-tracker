@@ -10,8 +10,8 @@ Add and use 50-state source access for the radiology access workflow while prese
 North Carolina validation package and keeping the public GitHub Pages documentation accurate.
 
 ### Current Status
-50-state public no-secret data package generated and validation complete on branch
-`codex/github-page-fixes`.
+50-state public no-secret data package generated with CDC/ATSDR SVI county context and validation
+complete on branch `codex/github-page-fixes`.
 
 ---
 
@@ -20,9 +20,9 @@ North Carolina validation package and keeping the public GitHub Pages documentat
 ### Feature: 50-State Source Access
 
 #### Validation
-- `python -m pytest -q`: passed, 89 tests.
+- `python -m pytest -q`: passed, 90 tests.
 - `ruff check .`: passed.
-- `mypy src/radshock`: passed with no issues in 26 source files.
+- `mypy src/radshock`: passed with no issues in 27 source files.
 - Rendered local Markdown link audit: passed for 12 Markdown files.
 
 #### Tests Added
@@ -35,12 +35,21 @@ North Carolina validation package and keeping the public GitHub Pages documentat
 #### Validation
 - Generated package at `work/all-states/2026-07-02`.
 - Public report written to `C:\Users\Abinav Katuru\Documents\Codex\2026-07-02\are\outputs\all_states_data_package.md`.
-- Manifest hash validation passed for all 8 generated output artifacts.
-- `state_source_summary.csv`: 50 state rows; every state has MQSA, HRSA, CDC PLACES, Census county
-  Gazetteer, and Census tract Gazetteer coverage.
+- Manifest hash validation passed for all 10 generated output artifacts.
+- `state_source_summary.csv`: 50 state rows; every state has MQSA, HRSA, CDC PLACES, CDC/ATSDR
+  SVI, Census county Gazetteer, and Census tract Gazetteer coverage.
 
 #### Tests Added
 - `tests/test_adapters.py`: stable CDC PLACES `MAMMOUSE` measure-ID assertion.
+
+### Feature: CDC/ATSDR SVI County Context
+
+#### Validation
+- Generated `context/cdc_atsdr_svi_counties_all_50.csv` with 3,143 county rows.
+- `state_source_summary.csv`: all 50 states have CDC/ATSDR SVI county coverage.
+
+#### Tests Added
+- `tests/test_adapters.py`: SVI all-50-state filtering and CDC `-999` missing-value handling.
 
 ---
 
@@ -53,17 +62,17 @@ None.
 All requested implementation, data gathering, docs, and validation updates are complete locally.
 
 ### Remaining Work
-Push the branch and open a PR if remote publication is desired.
+PR #8 is pushed and auto-merge is queued. GitHub still requires repository review approval before
+the queued squash merge can complete.
 
 ---
 
 ## Next Actions
 
-1. Review the local commits on `codex/github-page-fixes`.
-2. Push the branch to GitHub when ready.
-3. Set `CENSUS_API_KEY` and rerun `scripts/build_all_states_data_package.py` to add ACS
+1. Approve PR #8 so queued auto-merge can complete.
+2. Set `CENSUS_API_KEY` and rerun `scripts/build_all_states_data_package.py` to add ACS
    socioeconomic context and population points.
-4. Run human review, geocoding, route matrices, and readiness audits before
+3. Run human review, geocoding, route matrices, and readiness audits before
    publishing non-NC findings.
 
 ---
@@ -82,6 +91,8 @@ None for the local implementation.
   geocoding, route-matrix, and readiness gates required before publishing real findings.
 - ACS socioeconomic context is intentionally absent from the current generated package because
   `CENSUS_API_KEY` was not set in this environment.
+- CDC/ATSDR SVI is included as contextual vulnerability data only; it is not a mammography access,
+  facility-capacity, or clinical outcome measure.
 
 ---
 

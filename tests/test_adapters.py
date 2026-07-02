@@ -23,6 +23,7 @@ from radshock.adapters.facilities import (
 )
 from radshock.adapters.hrsa import build_hrsa_candidate_review_template
 from radshock.adapters.places import fetch_mammography, fetch_nc_mammography
+from radshock.adapters.svi import SVI_COUNTY_COLUMNS, read_svi_county_context
 from radshock.states import StateScope, resolve_state_scope
 
 
@@ -121,6 +122,45 @@ def test_places_adapter_can_fetch_all_50_states(monkeypatch: pytest.MonkeyPatch)
     assert "$limit" in calls[0]["params"]
     assert "stateabbr='NC'" not in calls[0]["params"]["$where"]
     assert "measureid='MAMMOUSE'" in calls[0]["params"]["$where"]
+
+
+def test_svi_county_context_filters_to_all_50_states(tmp_path: Path) -> None:
+    source = tmp_path / "svi_counties.csv"
+    rows = [
+        _svi_county_row("NC", "37001", "Alamance County", overall="0.25"),
+        _svi_county_row("SC", "45001", "Abbeville County", overall="-999"),
+        _svi_county_row("PR", "72001", "Adjuntas Municipio", overall="0.95"),
+    ]
+    pd.DataFrame(rows).to_csv(source, index=False)
+
+    result = read_svi_county_context(source, state="ALL")
+
+    assert set(result["state"]) == {"NC", "SC"}
+    assert list(result["county_fips"]) == ["37001", "45001"]
+    assert result.loc[result["county_fips"] == "37001", "svi_overall_percentile"].item() == 0.25
+    assert pd.isna(
+        result.loc[result["county_fips"] == "45001", "svi_overall_percentile"].item()
+    )
+
+
+def _svi_county_row(
+    state: str,
+    county_fips: str,
+    county_name: str,
+    *,
+    overall: str,
+) -> dict[str, str]:
+    row = {column: "1" for column in SVI_COUNTY_COLUMNS}
+    row.update(
+        {
+            "ST_ABBR": state,
+            "FIPS": county_fips,
+            "COUNTY": county_name,
+            "LOCATION": f"{county_name}, {state}",
+            "RPL_THEMES": overall,
+        }
+    )
+    return row
 
 
 def test_state_scope_accepts_all_50_and_fips() -> None:

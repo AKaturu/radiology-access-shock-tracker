@@ -116,10 +116,11 @@ python scripts/build_all_states_data_package.py `
   --force
 ```
 
-This collects FDA MQSA, HRSA candidate-source rows, CDC PLACES mammography rows, and Census county
-and tract Gazetteer context for all 50 states. If `CENSUS_API_KEY` is set, it also adds ACS county
-and tract socioeconomic context plus population-point files; otherwise the manifest marks ACS as
-skipped instead of creating inferred risk inputs.
+This collects FDA MQSA, HRSA candidate-source rows, CDC PLACES mammography rows, CDC/ATSDR SVI
+county vulnerability context, and Census county and tract Gazetteer context for all 50 states. If
+`CENSUS_API_KEY` is set, it also adds ACS county and tract socioeconomic context plus
+population-point files; otherwise the manifest marks ACS as skipped instead of creating inferred
+risk inputs.
 
 The command writes county-centroid population points for testing. Build finer tract-centroid
 population points before publication route review:

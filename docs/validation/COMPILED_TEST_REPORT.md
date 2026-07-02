@@ -8,9 +8,9 @@ Status: PASS
 
 ## Checks
 
-- `python -m pytest -q`: 89 passed.
+- `python -m pytest -q`: 90 passed.
 - `ruff check src tests`: passed.
-- `mypy src/radshock`: passed with no issues in 26 source files.
+- `mypy src/radshock`: passed with no issues in 27 source files.
 - `python -m pip wheel . -w work/dist`: built the project wheel.
 - `radshock readiness-audit --require-travel-time` on
   `work/source-refresh-smoke/analysis-tract-osrm-travel-time`: BLOCKED, 1 blocker, 0 warnings.

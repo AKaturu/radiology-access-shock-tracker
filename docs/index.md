@@ -12,8 +12,9 @@ screenshots is intentional: synthetic outputs are not real North Carolina findin
 by the readiness audit.
 
 The source-ingestion commands now support 50-state review inputs with `--state ALL` for FDA MQSA,
-Census ACS/Gazetteer, CDC PLACES, and HRSA candidate sources. The reviewed real-data package below
-remains North Carolina-only until each additional state is reviewed, routed, and readiness-audited.
+Census ACS/Gazetteer, CDC PLACES, CDC/ATSDR SVI, and HRSA candidate sources. The reviewed real-data
+package below remains North Carolina-only until each additional state is reviewed, routed, and
+readiness-audited.
 
 Synthetic demo signals:
 
@@ -54,9 +55,9 @@ Key references:
 Core validation:
 
 ```text
-python -m pytest: 89 passed
+python -m pytest: 90 passed
 ruff check: passed
-mypy src/radshock: passed with no issues in 26 source files
+mypy src/radshock: passed with no issues in 27 source files
 synthetic demo readiness audit: BLOCKED as expected
 reviewed real-data readiness audit: READY, 0 blockers, 0 warnings
 ```
