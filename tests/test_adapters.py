@@ -69,6 +69,7 @@ def test_places_adapter_uses_fixture_response(monkeypatch: pytest.MonkeyPatch) -
     assert result.loc[0, "county_fips"] == "37001"
     assert result.loc[0, "data_value"] == 71.2
     assert calls[0]["params"] is not None
+    assert "measureid='MAMMOUSE'" in calls[0]["params"]["$where"]
 
 
 def test_places_adapter_can_fetch_all_50_states(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -119,6 +120,7 @@ def test_places_adapter_can_fetch_all_50_states(monkeypatch: pytest.MonkeyPatch)
     assert set(result["stateabbr"]) == {"NC", "SC"}
     assert "$limit" in calls[0]["params"]
     assert "stateabbr='NC'" not in calls[0]["params"]["$where"]
+    assert "measureid='MAMMOUSE'" in calls[0]["params"]["$where"]
 
 
 def test_state_scope_accepts_all_50_and_fips() -> None:

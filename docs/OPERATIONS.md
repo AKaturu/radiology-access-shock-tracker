@@ -107,6 +107,20 @@ radshock fetch-census-county-context `
   --year 2024
 ```
 
+To gather the public no-secret 50-state staging package in one reproducible run, use:
+
+```powershell
+python scripts/build_all_states_data_package.py `
+  --output-dir work/all-states/2026-07-02 `
+  --public-report outputs/all_states_data_package.md `
+  --force
+```
+
+This collects FDA MQSA, HRSA candidate-source rows, CDC PLACES mammography rows, and Census county
+and tract Gazetteer context for all 50 states. If `CENSUS_API_KEY` is set, it also adds ACS county
+and tract socioeconomic context plus population-point files; otherwise the manifest marks ACS as
+skipped instead of creating inferred risk inputs.
+
 The command writes county-centroid population points for testing. Build finer tract-centroid
 population points before publication route review:
 
