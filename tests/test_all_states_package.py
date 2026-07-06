@@ -3,6 +3,7 @@ from pathlib import Path
 from types import ModuleType
 
 import pandas as pd
+import pytest
 
 PACKAGE_SCRIPT = (
     Path(__file__).resolve().parents[1] / "scripts" / "build_all_states_data_package.py"
@@ -77,9 +78,58 @@ def test_render_coverage_gaps_distinguishes_public_sources_from_optional_acs() -
     assert "missing_acs_tract_context: AL, AK" in report
 
 
+def test_required_acs_key_blocks_production_package(tmp_path: Path) -> None:
+    with pytest.raises(RuntimeError, match="CENSUS_API_KEY is required"):
+        PACKAGE_MODULE._maybe_build_acs_outputs(
+            tmp_path,
+            year=2024,
+            force=True,
+            census_api_key=None,
+            require_acs=True,
+        )
+
+
+def test_package_readiness_gates_only_include_acs_when_incomplete() -> None:
+    complete = pd.DataFrame([_state_row("AL"), _state_row("AK", state_fips="02")])
+    complete["sources_present"] = 6
+
+    complete_gates = PACKAGE_MODULE._build_package_readiness_gates(complete)
+
+    assert not any(gate.startswith("ACS") for gate in complete_gates)
+
+    incomplete = pd.DataFrame(
+        [_state_row("AL"), _state_row("AK", state_fips="02", acs_tract_context_rows=0)]
+    )
+    incomplete["sources_present"] = [6, 6]
+
+    incomplete_gates = PACKAGE_MODULE._build_package_readiness_gates(incomplete)
+
+    assert any(
+        gate.startswith("ACS county/tract context is incomplete") for gate in incomplete_gates
+    )
+
+
+def test_state_readiness_audit_marks_review_and_acs_gates_by_state() -> None:
+    summary = pd.DataFrame(
+        [
+            _state_row("AL", state_fips="01"),
+            _state_row("AK", state_fips="02", acs_county_context_rows=0),
+        ]
+    )
+
+    audit = PACKAGE_MODULE._build_state_readiness_audit(summary)
+    by_state = audit.set_index("state")
+
+    assert by_state.loc["AL", "overall_status"] == "BLOCKED"
+    assert by_state.loc["AL", "mqsa_review_status"] == "BLOCKER"
+    assert by_state.loc["AL", "acs_status"] == "PASS"
+    assert by_state.loc["AK", "acs_status"] == "BLOCKER"
+
+
 def _state_row(
     state: str,
     *,
+    state_fips: str = "01",
     mqsa_source_rows: int = 1,
     hrsa_candidate_review_rows: int = 1,
     places_mammography_rows: int = 1,
@@ -91,6 +141,7 @@ def _state_row(
 ) -> dict[str, int | str]:
     return {
         "state": state,
+        "state_fips": state_fips,
         "mqsa_source_rows": mqsa_source_rows,
         "hrsa_candidate_review_rows": hrsa_candidate_review_rows,
         "places_mammography_rows": places_mammography_rows,

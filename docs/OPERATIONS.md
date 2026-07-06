@@ -82,6 +82,11 @@ The Census Bureau states that all Census Data API queries now require an API key
 After the key is issued and activated, store it locally as `CENSUS_API_KEY` or configure it as a
 GitHub repository/organization secret with the same name. Do not commit the key.
 
+```powershell
+$env:CENSUS_API_KEY = "<your-census-key>"
+gh secret set CENSUS_API_KEY --repo AKaturu/radiology-access-shock-tracker --body $env:CENSUS_API_KEY
+```
+
 Build Census context CSVs for the reviewed NC package:
 
 ```powershell
@@ -107,7 +112,8 @@ radshock fetch-census-county-context `
   --year 2024
 ```
 
-To gather the public no-secret 50-state staging package in one reproducible run, use:
+To gather the 50-state package with ACS county and tract context in one reproducible production
+prep run, use:
 
 ```powershell
 python scripts/build_all_states_data_package.py `
@@ -118,13 +124,25 @@ python scripts/build_all_states_data_package.py `
 
 This collects FDA MQSA, HRSA candidate-source rows, CDC PLACES mammography rows, CDC/ATSDR SVI
 county vulnerability context, and Census county and tract Gazetteer context for all 50 states. If
-`CENSUS_API_KEY` is set, it also adds ACS county and tract socioeconomic context plus
-population-point files; otherwise the manifest marks ACS as skipped instead of creating inferred
-risk inputs.
+`CENSUS_API_KEY` is not set, the command fails before producing a production-prep package. For a
+staging-only package that documents missing ACS instead of blocking, pass `--allow-missing-acs`.
+
+The GitHub Actions workflow `.github/workflows/all-states-data-package.yml` runs the same
+ACS-required rebuild from `secrets.CENSUS_API_KEY` and uploads the raw, review, context, summary, and
+public-report artifacts:
+
+```powershell
+gh workflow run all-states-data-package.yml `
+  --repo AKaturu/radiology-access-shock-tracker `
+  -f acs_year=2024
+```
 
 The generated `summary/data_package_manifest.json` includes `state_coverage` counts and
 `state_coverage_gaps` lists for each source. Treat any public no-secret gap as a refresh or source
-review blocker before using the package for state comparisons.
+review blocker before using the package for state comparisons. The generated
+`summary/state_readiness_gates.csv` lists each state's MQSA review, HRSA candidate-review,
+geocoding, routing, ACS, and publication gates so non-NC findings stay blocked until each state's
+human review and readiness audit are complete.
 
 To combine owner, credential, all-state package, ACS, publication-gate, and analysis-readiness
 checks into one production completion report, run:

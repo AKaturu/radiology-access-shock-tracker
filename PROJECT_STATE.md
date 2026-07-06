@@ -11,7 +11,9 @@ North Carolina validation package and keeping the public GitHub Pages documentat
 
 ### Current Status
 50-state public no-secret data package, production completion auditing, and production data-quality
-reporting are implemented and validated on branch `codex/github-page-fixes`.
+reporting are implemented and validated on branch `codex/github-page-fixes`. Follow-up production
+hardening now requires ACS for production all-state rebuilds, adds a manual GitHub Actions
+all-state package workflow, and emits state-by-state readiness gates.
 
 ---
 
@@ -75,6 +77,20 @@ reporting are implemented and validated on branch `codex/github-page-fixes`.
 - `tests/test_quality.py`: CSV quality audit, geocoder confidence, identifier crosswalk, route uncertainty, bundled data-quality outputs.
 - `tests/test_cli.py`: `data-quality-report` and `route-uncertainty-check` command coverage.
 
+### Feature: All-State Production Rebuild Guardrails
+
+#### Validation
+- `python scripts/build_all_states_data_package.py --output-dir work\all-states\missing-key-smoke --force`: failed as expected because `CENSUS_API_KEY` is not visible locally.
+- `python scripts/build_all_states_data_package.py --output-dir work\all-states\2026-07-06 --public-report outputs\all_states_data_package.md --allow-missing-acs --force`: generated a staging package with public-source coverage for all 50 states and ACS marked missing.
+- Generated `work/all-states/2026-07-06/summary/state_readiness_gates.csv` with 50 state rows; all states remain blocked for human review, geocoding, routing, ACS, and publication.
+- `python -m pytest -q`: passed.
+- `python -m ruff check .`: passed.
+- `python -m mypy src`: passed with no issues in 30 source files.
+- `python -m radshock.cli production-audit --config-path config.example.toml --all-states-manifest work/all-states/2026-07-06/summary/data_package_manifest.json --readiness-json desktop_payload/analysis/readiness_audit.json --output-json outputs/production_audit.json --output-md outputs/production_audit.md --force`: generated a `BLOCKED` audit with 4 blockers and 0 warnings.
+
+#### Tests Added
+- `tests/test_all_states_package.py`: production ACS key requirement, ACS readiness-gate removal when complete, and state-by-state readiness gate output.
+
 ---
 
 ## Current Work
@@ -84,8 +100,9 @@ Production hardening.
 
 ### Progress
 The software now exposes explicit production completion gates plus data-quality reports for
-reviewed artifacts. Local and remote tests passed before this follow-up work; local full
-verification passes after the production audit and data-quality additions.
+reviewed artifacts. The all-state package builder now fails production ACS rebuilds when the Census
+key is missing, and the GitHub workflow `.github/workflows/all-states-data-package.yml` can rebuild
+the all-state package from `secrets.CENSUS_API_KEY` once that secret is configured.
 
 ### Remaining Work
 PR #8 is pushed and auto-merge is queued. GitHub still requires repository review approval before
@@ -97,7 +114,8 @@ the queued squash merge can complete. Full production launch remains blocked by 
 ## Next Actions
 
 1. Approve PR #8 so queued auto-merge can complete.
-2. Set `CENSUS_API_KEY` and rerun `scripts/build_all_states_data_package.py` to add ACS
+2. Set `CENSUS_API_KEY` locally and as a GitHub repository secret, then rerun
+   `scripts/build_all_states_data_package.py` or dispatch `all-states-data-package.yml` to add ACS
    socioeconomic context and population points.
 3. Resolve all all-state manifest readiness gates, then mark the data package publication status
    only after review evidence is complete.
@@ -123,7 +141,9 @@ None for the local implementation.
 - `--state ALL` prepares 50-state inputs, but it does not remove the existing human-review,
   geocoding, route-matrix, and readiness gates required before publishing real findings.
 - ACS socioeconomic context is intentionally absent from the current generated package because
-  `CENSUS_API_KEY` was not set in this environment.
+  `CENSUS_API_KEY` was not set in this environment. The key was not found in process/user/machine
+  environment variables, GitHub repository secrets, common local env/profile files, Codex global
+  state, or PowerShell history.
 - CDC/ATSDR SVI is included as contextual vulnerability data only; it is not a mammography access,
   facility-capacity, or clinical outcome measure.
 

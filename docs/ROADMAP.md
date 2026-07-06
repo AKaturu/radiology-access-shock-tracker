@@ -17,7 +17,8 @@
 1. Approve and merge the active 50-state source-access PR.
 2. Configure production-data credentials, especially `CENSUS_API_KEY`, in the local runner and
    GitHub secrets.
-3. Rebuild the all-state package with ACS county and tract context.
+3. Rebuild the all-state package with ACS county and tract context using the local builder or the
+   `all-states data package` GitHub Actions workflow.
 4. Resolve all all-state package readiness gates and mark publication status only after review
    evidence is complete.
 5. Add multiple pre/post CMS periods and causal-study export tables.

@@ -48,6 +48,7 @@ def build_all_states_data_package(
     year: int,
     force: bool,
     census_api_key: str | None,
+    require_acs: bool = False,
     public_report: Path | None = None,
 ) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -114,6 +115,7 @@ def build_all_states_data_package(
         year=year,
         force=force,
         census_api_key=census_api_key,
+        require_acs=require_acs,
     )
 
     state_summary = _build_state_summary(
@@ -128,19 +130,25 @@ def build_all_states_data_package(
     )
     state_summary_path = summary_dir / "state_source_summary.csv"
     _write_csv(state_summary, state_summary_path, force=force)
+    if require_acs:
+        _validate_required_acs_coverage(state_summary)
+    state_readiness = _build_state_readiness_audit(state_summary)
+    state_readiness_path = summary_dir / "state_readiness_gates.csv"
+    _write_csv(state_readiness, state_readiness_path, force=force)
 
     manifest = {
         "generated_at_utc": generated_at,
         "state_scope": ALL_STATES_LABEL,
         "year": year,
         "publication_status": "not_ready_for_publication",
-        "readiness_gates": [
-            "MQSA rows are review templates; coordinates, active status, and "
-            "review_status require approval.",
-            "HRSA rows are planning candidates; mammography capability is not claimed.",
-            "Travel-time matrices are not generated for this all-state staging package.",
-            acs_outputs["status_note"],
-        ],
+        "readiness_gates": _build_package_readiness_gates(state_summary),
+        "source_notes": {
+            "acs": acs_outputs["status_note"],
+            "state_readiness_audit": (
+                "State-by-state gates are emitted for reviewer tracking; they do not mark "
+                "human review, geocoding, routing, or publication approval as complete."
+            ),
+        },
         "sources": {
             "fda_mqsa_public": FDA_MQSA_PUBLIC_ZIP_URL,
             "hrsa_health_center_sites": HRSA_HEALTH_CENTER_SITES_CSV_URL,
@@ -172,6 +180,7 @@ def build_all_states_data_package(
                 "census_county_gazetteer": county_gazetteer_path,
                 "census_tract_gazetteer": tract_gazetteer_path,
                 "state_source_summary": state_summary_path,
+                "state_readiness_gates": state_readiness_path,
                 **acs_outputs["paths"],
             }
         ),
@@ -211,8 +220,14 @@ def _maybe_build_acs_outputs(
     year: int,
     force: bool,
     census_api_key: str | None,
+    require_acs: bool = False,
 ) -> dict[str, Any]:
     if census_api_key is None or not census_api_key.strip():
+        if require_acs:
+            raise RuntimeError(
+                "CENSUS_API_KEY is required for a production all-state ACS rebuild. "
+                "Set the environment variable or pass --allow-missing-acs for a staging-only run."
+            )
         return {
             "status_note": "ACS socioeconomic context skipped because CENSUS_API_KEY is not set.",
             "paths": {},
@@ -272,6 +287,80 @@ def _maybe_build_acs_outputs(
         "counties_frame": county_context,
         "tracts_frame": tract_context,
     }
+
+
+def _validate_required_acs_coverage(state_summary: pd.DataFrame) -> None:
+    missing_counties = _states_without_rows(state_summary, "acs_county_context_rows")
+    missing_tracts = _states_without_rows(state_summary, "acs_tract_context_rows")
+    if not missing_counties and not missing_tracts:
+        return
+    raise RuntimeError(
+        "ACS county and tract context is required but incomplete; "
+        f"missing county context for {_format_state_gap(missing_counties)}; "
+        f"missing tract context for {_format_state_gap(missing_tracts)}."
+    )
+
+
+def _build_package_readiness_gates(state_summary: pd.DataFrame) -> list[str]:
+    gates = [
+        "MQSA rows are review templates; coordinates, active status, and review_status require "
+        "approval.",
+        "HRSA rows are planning candidates; mammography capability is not claimed until "
+        "candidate review is approved.",
+        "Travel-time matrices are not generated for this all-state staging package.",
+    ]
+    missing_counties = _states_without_rows(state_summary, "acs_county_context_rows")
+    missing_tracts = _states_without_rows(state_summary, "acs_tract_context_rows")
+    if missing_counties or missing_tracts:
+        gates.append(
+            "ACS county/tract context is incomplete; "
+            f"missing county context for {_format_state_gap(missing_counties)}; "
+            f"missing tract context for {_format_state_gap(missing_tracts)}."
+        )
+    return gates
+
+
+def _build_state_readiness_audit(state_summary: pd.DataFrame) -> pd.DataFrame:
+    rows: list[dict[str, object]] = []
+    for row in state_summary.itertuples(index=False):
+        state = str(row.state)
+        acs_ready = row.acs_county_context_rows > 0 and row.acs_tract_context_rows > 0
+        rows.append(
+            {
+                "state": state,
+                "state_fips": str(row.state_fips).zfill(2),
+                "overall_status": "BLOCKED",
+                "mqsa_review_status": "BLOCKER",
+                "mqsa_review_detail": (
+                    f"{row.mqsa_source_rows} MQSA source row(s) require facility-id, "
+                    "coordinate, active-status, and review-status approval."
+                ),
+                "hrsa_candidate_review_status": "BLOCKER",
+                "hrsa_candidate_review_detail": (
+                    f"{row.hrsa_candidate_review_rows} HRSA candidate row(s) require "
+                    "planning-assumption review and approval."
+                ),
+                "geocoding_status": "BLOCKER",
+                "geocoding_detail": (
+                    "Non-NC MQSA review rows have not been approved as geocoded, "
+                    "snapshot-ready facilities."
+                ),
+                "routing_status": "BLOCKER",
+                "routing_detail": "All-state travel-time matrices are not present.",
+                "acs_status": "PASS" if acs_ready else "BLOCKER",
+                "acs_detail": (
+                    "ACS county and tract context present for this state."
+                    if acs_ready
+                    else "ACS county and/or tract context is missing for this state."
+                ),
+                "publication_status": "BLOCKER",
+                "publication_detail": (
+                    "Do not publish non-NC findings until this state's human review, "
+                    "geocoding, routing, and readiness audit pass."
+                ),
+            }
+        )
+    return pd.DataFrame(rows).sort_values("state").reset_index(drop=True)
 
 
 def _build_state_summary(
@@ -539,6 +628,7 @@ Package directory: `{output_dir}`
 - `context/census_counties_gazetteer_all_50.csv`
 - `context/census_tracts_gazetteer_all_50.csv`
 - `summary/state_source_summary.csv`
+- `summary/state_readiness_gates.csv`
 - `summary/data_package_manifest.json`
 """
 
@@ -618,6 +708,14 @@ def _parse_args() -> argparse.Namespace:
         help="Environment variable containing a Census API key for optional ACS pulls.",
     )
     parser.add_argument(
+        "--allow-missing-acs",
+        action="store_true",
+        help=(
+            "Build a staging-only package when the Census API key is unavailable. "
+            "By default, ACS county and tract context is required."
+        ),
+    )
+    parser.add_argument(
         "--public-report",
         type=Path,
         default=None,
@@ -634,6 +732,7 @@ def main() -> None:
         year=args.year,
         force=args.force,
         census_api_key=census_api_key,
+        require_acs=not args.allow_missing_acs,
         public_report=args.public_report,
     )
     print(json.dumps({"output_dir": str(args.output_dir), **manifest["row_counts"]}, indent=2))

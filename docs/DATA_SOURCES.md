@@ -101,7 +101,9 @@ centroids, but they remain centroid approximations and require regenerated route
 publication. Variable definitions and release-year changes must be reviewed whenever the configured
 ACS year changes. The Census developer documentation currently states that ACS API queries require
 an API key, so production workflows should read the key from local configuration or environment
-variables rather than committing it.
+variables rather than committing it. The one-shot all-state package builder requires
+`CENSUS_API_KEY` by default; use `--allow-missing-acs` only for staging packages that explicitly
+document missing ACS coverage.
 
 Official API documentation: <https://www.census.gov/data/developers/data-sets/acs-5year.html>
 
