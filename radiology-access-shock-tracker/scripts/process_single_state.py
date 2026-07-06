@@ -9,7 +9,6 @@ Usage:
 
 import argparse
 import subprocess
-import sys
 from datetime import date, datetime
 from pathlib import Path
 
@@ -46,7 +45,7 @@ def main() -> None:
             print(result.stderr)
         evidence_log.append(f"{label}: {'PASS' if result.returncode == 0 else 'FAIL'}")
 
-    radshock = [sys.executable, "-m", "radshock"]
+    radshock = ["radshock"]
 
     # Step 1: Fetch FDA MQSA
     if "fetch-fda-mqsa" in steps:

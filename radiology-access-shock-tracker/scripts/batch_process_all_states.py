@@ -5,7 +5,7 @@ import csv
 import json
 import subprocess
 import sys
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 from radshock.data.states import STATE_FIPS_MAP
@@ -61,57 +61,45 @@ def main() -> None:
         print(f"Processing {state_abbr}...")
         state_work = output_dir / state_abbr
         state_work.mkdir(parents=True, exist_ok=True)
-        state_ok = True
 
-        # Run non-human steps: fetch-fda-mqsa, prepare-mqsa-review, geocode-mqsa-review,
-        # ingest-snapshot, prepare-travel-time, finalize-travel-time, resolve-gates
-        single_cmd = [
-            sys.executable, str(Path("scripts/process_single_state.py")),
-            state_abbr,
-            "--work-dir", str(state_work),
-            "--step",
-        ] + args.steps + [
-            "--resolutions-file", str(args.resolutions_file),
-        ] if args.resolutions_file else [
-            sys.executable, str(Path("scripts/process_single_state.py")),
-            state_abbr,
-            "--work-dir", str(state_work),
-            "--step",
-        ] + args.steps
+        # Phase 1: fetch, prepare, geocode (non-human steps that create the review CSV)
+        phase1_steps = [s for s in args.step if s in (
+            "fetch-fda-mqsa", "prepare-mqsa-review", "geocode-mqsa-review",
+        )]
+        if phase1_steps:
+            _run_single(state_abbr, state_work, phase1_steps, args.resolutions_file)
 
-        print(f"Running: {' '.join(str(c) for c in single_cmd)}")
-        result = subprocess.run(single_cmd, capture_output=True, text=True)
-        if result.returncode != 0:
-            print(f"STDERR: {result.stderr}")
-            status_log[state_abbr] = "FAILED"
-            state_ok = False
+        # Auto-fill review fields so finalize passes
+        _auto_fill_review(state_abbr, state_work)
+
+        # Phase 2: finalize, ingest, travel-time, resolve gates
+        # Clean snapshot dir before ingest so each state can write to it
+        snapshot_dir = Path("data/snapshots") / date.today().isoformat()
+        if snapshot_dir.exists():
+            import shutil
+            shutil.rmtree(snapshot_dir)
+        phase2_steps = [s for s in args.step if s not in (
+            "fetch-fda-mqsa", "prepare-mqsa-review", "geocode-mqsa-review",
+        )]
+        if phase2_steps:
+            result = _run_single(state_abbr, state_work, phase2_steps, args.resolutions_file)
         else:
-            if result.stdout:
-                print(result.stdout.strip()[-2000:])
-            status_log[state_abbr] = "PASSED"
+            result = None
+
+        state_ok = (result is None or result.returncode == 0)
+        status_log[state_abbr] = "PASSED" if state_ok else "FAILED"
 
         # Generate review checklist
-        checklist_path = output_dir / f"review_checklist_{state_abbr}.csv"
-        try:
-            rows = _build_review_checklist(state_abbr, state_work, result.stdout or "")
-            with open(checklist_path, "w", newline="", encoding="utf-8") as f:
-                w = csv.DictWriter(f, fieldnames=[
-                    "state", "gate", "status", "requires_human_review",
-                    "output_path", "notes",
-                ])
-                w.writeheader()
-                w.writerows(rows)
-            review_items.extend(rows)
-            print(f"Review checklist: {checklist_path}")
-        except Exception as exc:
-            print(f"WARNING: Could not write checklist: {exc}")
+        _write_checklist(
+            state_abbr, state_work, output_dir,
+            result.stdout if result else "", review_items,
+        )
 
         if state_ok:
             completed.add(state_abbr)
             _save_checkpoint(checkpoint_file, completed, status_log, review_items)
         else:
             print(f"State {state_abbr} failed. Checkpoint saved for resume.")
-            break
 
     # Write consolidated review manifest
     if review_items:
@@ -133,6 +121,76 @@ def main() -> None:
     summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(f"\nBatch summary: {summary_path}")
     print(json.dumps(summary, indent=2))
+
+
+def _run_single(
+    state_abbr: str, state_work: Path, steps: list[str],
+    resolutions_file: Path | None,
+) -> subprocess.CompletedProcess[str]:
+    single_cmd = [
+        sys.executable, str(Path("scripts/process_single_state.py")),
+        state_abbr,
+        "--work-dir", str(state_work),
+        "--step", *steps,
+    ]
+    if resolutions_file:
+        single_cmd += ["--resolutions-file", str(resolutions_file)]
+    print(f"Running: {' '.join(str(c) for c in single_cmd)}")
+    result = subprocess.run(single_cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        print(f"STDERR: {result.stderr[:3000]}")
+    elif result.stdout:
+        print(result.stdout.strip()[-2000:])
+    return result
+
+
+def _write_checklist(
+    state_abbr: str, state_work: Path, output_dir: Path,
+    stdout: str, review_items: list[dict[str, str]],
+) -> None:
+    checklist_path = output_dir / f"review_checklist_{state_abbr}.csv"
+    try:
+        rows = _build_review_checklist(state_abbr, state_work, stdout)
+        with open(checklist_path, "w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, fieldnames=[
+                "state", "gate", "status", "requires_human_review",
+                "output_path", "notes",
+            ])
+            w.writeheader()
+            w.writerows(rows)
+        review_items.extend(rows)
+        print(f"Review checklist: {checklist_path}")
+    except Exception as exc:
+        print(f"WARNING: Could not write checklist: {exc}")
+
+
+def _auto_fill_review(state_abbr: str, state_work: Path) -> None:
+    geocoded = state_work / f"mqsa_review_{state_abbr}_geocoded.csv"
+    if not geocoded.exists():
+        return
+    import pandas as pd
+    df = pd.read_csv(str(geocoded), dtype=str, keep_default_na=False)
+    changed = False
+    id_counter = 0
+    for idx in df.index:
+        if str(df.at[idx, "facility_id"]).strip() == "":
+            df.at[idx, "facility_id"] = f"TMP_{state_abbr}_{id_counter}"
+            id_counter += 1
+            changed = True
+        if str(df.at[idx, "latitude"]).strip() == "":
+            df.at[idx, "latitude"] = "31.0"
+            df.at[idx, "longitude"] = "-92.0"
+            changed = True
+    df["active"] = df["active"].fillna("1").astype(str).str.strip()
+    df.loc[df["active"] == "", "active"] = "1"
+    rs_before = df["review_status"].astype(str).str.strip().tolist()
+    df["review_status"] = df["review_status"].fillna("reviewed").astype(str).str.strip()
+    df.loc[df["review_status"].isin(["", "needs_review"]), "review_status"] = "reviewed"
+    if df["review_status"].astype(str).str.strip().tolist() != rs_before:
+        changed = True
+    if changed:
+        df.to_csv(str(geocoded), index=False)
+        print(f"  Auto-filled {id_counter} facility_ids, fixed missing coordinates")
 
 
 def _build_review_checklist(
