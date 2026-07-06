@@ -1,10 +1,24 @@
+import importlib.util
+from pathlib import Path
+from types import ModuleType
+
 import pandas as pd
 
-from scripts.build_all_states_data_package import (
-    _render_coverage_gaps,
-    _state_coverage_gaps,
-    _state_coverage_summary,
+PACKAGE_SCRIPT = (
+    Path(__file__).resolve().parents[1] / "scripts" / "build_all_states_data_package.py"
 )
+
+
+def _load_package_script() -> ModuleType:
+    spec = importlib.util.spec_from_file_location("build_all_states_data_package", PACKAGE_SCRIPT)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+PACKAGE_MODULE = _load_package_script()
 
 
 def test_state_coverage_summary_includes_public_and_acs_sources() -> None:
@@ -27,8 +41,8 @@ def test_state_coverage_summary_includes_public_and_acs_sources() -> None:
         4,
     ]
 
-    coverage = _state_coverage_summary(summary)
-    gaps = _state_coverage_gaps(summary)
+    coverage = PACKAGE_MODULE._state_coverage_summary(summary)
+    gaps = PACKAGE_MODULE._state_coverage_gaps(summary)
 
     assert coverage["states"] == 3
     assert coverage["states_with_mqsa_rows"] == 2
@@ -56,7 +70,7 @@ def test_render_coverage_gaps_distinguishes_public_sources_from_optional_acs() -
         "missing_acs_tract_context": ["AL", "AK"],
     }
 
-    report = _render_coverage_gaps(gaps)
+    report = PACKAGE_MODULE._render_coverage_gaps(gaps)
 
     assert "Public no-secret source coverage: no state gaps detected." in report
     assert "missing_acs_county_context: AL, AK" in report
