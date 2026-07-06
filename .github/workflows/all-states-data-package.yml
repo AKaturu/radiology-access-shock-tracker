@@ -7,6 +7,11 @@ on:
         description: ACS 5-year vintage.
         default: "2024"
         required: true
+      mark_publication_ready:
+        description: Set publication_status to ready_for_publication.
+        type: boolean
+        default: false
+        required: false
 
 permissions:
   contents: read
@@ -38,10 +43,15 @@ jobs:
         shell: bash
         run: |
           mkdir -p outputs
+          PUBLICATION_FLAG=""
+          if [ "${{ inputs.mark_publication_ready }}" == "true" ]; then
+            PUBLICATION_FLAG="--mark-publication-ready"
+          fi
           python scripts/build_all_states_data_package.py \
             --output-dir "${PACKAGE_DIR}" \
             --year "${{ inputs.acs_year }}" \
             --public-report "${PUBLIC_REPORT}" \
+            ${PUBLICATION_FLAG} \
             --force
       - name: Summarize package manifest
         shell: bash

@@ -49,6 +49,7 @@ def build_all_states_data_package(
     force: bool,
     census_api_key: str | None,
     require_acs: bool = False,
+    mark_publication_ready: bool = False,
     public_report: Path | None = None,
 ) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -140,7 +141,9 @@ def build_all_states_data_package(
         "generated_at_utc": generated_at,
         "state_scope": ALL_STATES_LABEL,
         "year": year,
-        "publication_status": "not_ready_for_publication",
+        "publication_status": (
+            "ready_for_publication" if mark_publication_ready else "not_ready_for_publication"
+        ),
         "readiness_gates": _build_package_readiness_gates(state_summary),
         "source_notes": {
             "acs": acs_outputs["status_note"],
@@ -721,6 +724,15 @@ def _parse_args() -> argparse.Namespace:
         default=None,
         help="Optional extra Markdown report path for user-facing output.",
     )
+    parser.add_argument(
+        "--mark-publication-ready",
+        action="store_true",
+        help=(
+            "Set publication_status to ready_for_publication in the manifest. "
+            "Use only after all-state human review, geocoding, routing, and "
+            "readiness gates are resolved."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -733,6 +745,7 @@ def main() -> None:
         force=args.force,
         census_api_key=census_api_key,
         require_acs=not args.allow_missing_acs,
+        mark_publication_ready=args.mark_publication_ready,
         public_report=args.public_report,
     )
     print(json.dumps({"output_dir": str(args.output_dir), **manifest["row_counts"]}, indent=2))

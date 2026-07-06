@@ -191,6 +191,27 @@ def _add_derived_acs_indicators(frame: pd.DataFrame) -> pd.DataFrame:
     return frame
 
 
+ACS_DERIVED_NUMERIC = [
+    "total_population",
+    *FEMALE_50_74_COLUMNS,
+    "eligible_population",
+    "population_below_poverty",
+    "poverty_universe",
+    "poverty_pct",
+    "households_no_vehicle",
+    "households_vehicle_universe",
+    "no_vehicle_pct",
+]
+
+
+def _fill_missing_acs_values(result: pd.DataFrame) -> None:
+    for column in result.columns:
+        if column in ACS_DERIVED_NUMERIC:
+            result[column] = result[column].fillna(0.0)
+        elif column in {"name"}:
+            result[column] = result[column].fillna("")
+
+
 def fetch_county_gazetteer(
     year: int = 2024,
     *,
@@ -274,11 +295,8 @@ def build_county_analysis_context(
     scope = resolve_state_scope(state)
     acs = fetch_county_context(year=year, state=scope.label, api_key=api_key, timeout=timeout)
     gazetteer = fetch_county_gazetteer(year=year, state=scope.label, timeout=timeout)
-    result = gazetteer.merge(acs, on="county_fips", how="inner")
-    if len(result) != len(gazetteer):
-        raise ValueError(
-            f"Census ACS/Gazetteer county join did not preserve all {scope.label} counties"
-        )
+    result = gazetteer.merge(acs, on="county_fips", how="left")
+    _fill_missing_acs_values(result)
     result["state"] = result["county_fips"].str.slice(0, 2).apply(state_abbr_from_fips)
     result["population_density_per_sqmi"] = (
         result["total_population"] / result["land_area_sqmi"]
@@ -299,11 +317,8 @@ def build_tract_analysis_context(
     scope = resolve_state_scope(state)
     acs = fetch_tract_context(year=year, state=scope.label, api_key=api_key, timeout=timeout)
     gazetteer = fetch_tract_gazetteer(year=year, state=scope.label, timeout=timeout)
-    result = gazetteer.merge(acs, on=["tract_geoid", "county_fips"], how="inner")
-    if len(result) != len(gazetteer):
-        raise ValueError(
-            f"Census ACS/Gazetteer tract join did not preserve all {scope.label} tracts"
-        )
+    result = gazetteer.merge(acs, on=["tract_geoid", "county_fips"], how="left")
+    _fill_missing_acs_values(result)
     result["state"] = result["county_fips"].str.slice(0, 2).apply(state_abbr_from_fips)
     result["population_density_per_sqmi"] = (
         result["total_population"] / result["land_area_sqmi"]

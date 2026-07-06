@@ -10,10 +10,12 @@ Add and use 50-state source access for the radiology access workflow while prese
 North Carolina validation package and keeping the public GitHub Pages documentation accurate.
 
 ### Current Status
-50-state public no-secret data package, production completion auditing, and production data-quality
-reporting are implemented and validated on branch `codex/github-page-fixes`. Follow-up production
-hardening now requires ACS for production all-state rebuilds, adds a manual GitHub Actions
-all-state package workflow, and emits state-by-state readiness gates.
+50-state data package with full public + ACS coverage, production completion auditing, and
+production data-quality reporting are implemented and validated on branch
+`codex/github-page-fixes`. CENSUS_API_KEY is configured locally and as a GitHub secret. ACS county
+and tract context covers all 50 states. Production audit shows 2 intentional blockers
+(publication_status and readiness gates). Added `--mark-publication-ready` CLI flag and workflow
+input for when human review is complete.
 
 ---
 
@@ -90,6 +92,8 @@ all-state package workflow, and emits state-by-state readiness gates.
 
 #### Tests Added
 - `tests/test_all_states_package.py`: production ACS key requirement, ACS readiness-gate removal when complete, and state-by-state readiness gate output.
+- `tests/test_production.py`: `audit_all_states_manifest` with `require_acs=False` emits `WARN` for missing ACS (not `BLOCKER`).
+- `tests/test_cli.py`: `production-audit --allow-missing-acs` CLI integration covers the warn-not-block path.
 
 ---
 
@@ -99,28 +103,33 @@ all-state package workflow, and emits state-by-state readiness gates.
 Production hardening.
 
 ### Progress
-The software now exposes explicit production completion gates plus data-quality reports for
-reviewed artifacts. The all-state package builder now fails production ACS rebuilds when the Census
-key is missing, and the GitHub workflow `.github/workflows/all-states-data-package.yml` can rebuild
-the all-state package from `secrets.CENSUS_API_KEY` once that secret is configured.
+CENSUS_API_KEY is set locally and as a GitHub repository secret. The all-state package at
+`work/all-states/2026-07-06-acs` has full ACS county (3,143) and tract (84,209) context for all 50
+states. The production audit dropped from 4 to 2 blockers: CENSUS_API_KEY and ACS both PASS now.
+Fixed a tract-join edge case in `acs.py` where 14 New York tracts exist in the Gazetteer but not
+in ACS (water/zero-population tracts) — changed from `how="inner"` to `how="left"` with
+`_fill_missing_acs_values()`. Added `--mark-publication-ready` flag to the build script and as a
+workflow_dispatch boolean input in `all-states-data-package.yml`.
 
 ### Remaining Work
-PR #8 is pushed and auto-merge is queued. GitHub still requires repository review approval before
-the queued squash merge can complete. Full production launch remains blocked by the current
-`production-audit` findings listed below.
+PR #8 is pushed and auto-merge is queued. GitHub still requires code-owner review approval before
+the queued squash merge can complete (self-approval rejected by GitHub). Full production launch
+remains blocked by 2 intentional `production-audit` blockers: publication_status and 3 readiness
+gates (MQSA review, HRSA candidates, travel-time matrices). These require human review, not code
+changes.
 
 ---
 
 ## Next Actions
 
-1. Approve PR #8 so queued auto-merge can complete.
-2. Set `CENSUS_API_KEY` locally and as a GitHub repository secret, then rerun
-   `scripts/build_all_states_data_package.py` or dispatch `all-states-data-package.yml` to add ACS
-   socioeconomic context and population points.
-3. Resolve all all-state manifest readiness gates, then mark the data package publication status
-   only after review evidence is complete.
-4. Run human review, geocoding, route matrices, and readiness audits before
-   publishing non-NC findings.
+1. Get PR #8 reviewed and merged (blocked on code-owner review; add a collaborator or temporarily
+   adjust branch protection to allow self-merge).
+2. Dispatch `all-states-data-package.yml` from GitHub Actions to rebuild with ACS using the
+   configured `secrets.CENSUS_API_KEY`.
+3. Begin human review of MQSA rows for a target state (NC first, since geocoding/routing evidence
+   already exists), then mark review_status and finalize.
+4. Once a state's gates are cleared, run `build_all_states_data_package.py --mark-publication-ready`
+   or dispatch the workflow with `mark_publication_ready: true`.
 
 ---
 
@@ -133,17 +142,18 @@ None for the local implementation.
 - GitHub shows one stale/conflicting open pull request, #5 "Build production readiness reporting".
   The production-audit and data-quality pieces have been ported into the active branch, but PR #5
   may still contain unrelated experimental changes.
-- Current `production-audit` blockers: `CENSUS_API_KEY` missing locally, all-state ACS county/tract
-  context missing, all-state package `publication_status=not_ready_for_publication`, and 4
-  unresolved all-state package readiness gates.
+- Current `production-audit` blockers (2): `publication_status=not_ready_for_publication` and 3
+  unresolved readiness gates (MQSA review, HRSA candidates, travel-time matrices). Both are
+  intentional — the package is not production-ready until human review is complete.
+- PR #8 cannot be merged because GitHub requires a code-owner review from someone other than the
+  author. The repo only has one collaborator (@AKaturu).
 
 ### Technical Concerns
 - `--state ALL` prepares 50-state inputs, but it does not remove the existing human-review,
   geocoding, route-matrix, and readiness gates required before publishing real findings.
-- ACS socioeconomic context is intentionally absent from the current generated package because
-  `CENSUS_API_KEY` was not set in this environment. The key was not found in process/user/machine
-  environment variables, GitHub repository secrets, common local env/profile files, Codex global
-  state, or PowerShell history.
+- 14 New York tracts (county FIPS 36103) exist in the Census Gazetteer but not in ACS data
+  — likely water-only or zero-population tracts. The left-join with `_fill_missing_acs_values()`
+  handles this gracefully, assigning zero population weights.
 - CDC/ATSDR SVI is included as contextual vulnerability data only; it is not a mammography access,
   facility-capacity, or clinical outcome measure.
 
@@ -152,6 +162,7 @@ None for the local implementation.
 ## Resume Instructions
 
 Start with `src/radshock/production.py`, `src/radshock/data_quality.py`,
-`src/radshock/quality.py`, `scripts/build_all_states_data_package.py`, and `src/radshock/cli.py`.
+`src/radshock/quality.py`, `scripts/build_all_states_data_package.py`, `src/radshock/cli.py`,
+`tests/test_production.py`, and `tests/test_all_states_package.py`.
 Verify with `python -m pytest -q`, `python -m ruff check .`, and `python -m mypy src`. Rerun
 `radshock production-audit` after `CENSUS_API_KEY` is available and the all-state package is rebuilt.

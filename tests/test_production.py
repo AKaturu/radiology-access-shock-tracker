@@ -41,6 +41,35 @@ def test_audit_production_config_blocks_missing_owner_and_secret(tmp_path: Path)
     assert {"mqsa_snapshot", "MISSING_SECRET"} <= set(blockers["check"])
 
 
+def test_all_states_manifest_warns_on_missing_acs_when_not_required(tmp_path: Path) -> None:
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "state_scope": "ALL_50_STATES",
+                "publication_status": "not_ready_for_publication",
+                "readiness_gates": ["review required"],
+                "state_coverage": {
+                    "states": 50,
+                    "states_with_all_public_no_secret_sources": 50,
+                    "states_with_acs_county_context": 0,
+                    "states_with_acs_tract_context": 0,
+                },
+                "state_coverage_gaps": missing_acs_gaps(),
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = audit_all_states_manifest(manifest, require_acs=False)
+    statuses = dict(zip(report["check"], report["status"], strict=True))
+
+    assert statuses["acs_context_coverage"] == "WARN"
+    assert statuses["publication_status"] == "BLOCKER"
+    assert statuses["readiness_gates"] == "BLOCKER"
+
+
 def test_all_states_manifest_blocks_unresolved_acs_and_publication_gates(
     tmp_path: Path,
 ) -> None:
@@ -57,17 +86,7 @@ def test_all_states_manifest_blocks_unresolved_acs_and_publication_gates(
                     "states_with_acs_county_context": 0,
                     "states_with_acs_tract_context": 0,
                 },
-                "state_coverage_gaps": {
-                    "missing_mqsa_rows": [],
-                    "missing_hrsa_candidates": [],
-                    "missing_places_rows": [],
-                    "missing_census_counties": [],
-                    "missing_census_tracts": [],
-                    "missing_cdc_atsdr_svi_counties": [],
-                    "missing_any_public_no_secret_source": [],
-                    "missing_acs_county_context": ["AL"],
-                    "missing_acs_tract_context": ["AL"],
-                },
+                "state_coverage_gaps": missing_acs_gaps(),
             }
         )
         + "\n",
@@ -126,6 +145,20 @@ def test_run_production_audit_combines_config_package_and_readiness(
 
     assert production_overall_status(report) == "READY"
     assert set(report["status"]) == {"PASS"}
+
+
+def missing_acs_gaps() -> dict[str, list[str]]:
+    return {
+        "missing_mqsa_rows": [],
+        "missing_hrsa_candidates": [],
+        "missing_places_rows": [],
+        "missing_census_counties": [],
+        "missing_census_tracts": [],
+        "missing_cdc_atsdr_svi_counties": [],
+        "missing_any_public_no_secret_source": [],
+        "missing_acs_county_context": ["AL"],
+        "missing_acs_tract_context": ["AL"],
+    }
 
 
 def _config_toml(

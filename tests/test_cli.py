@@ -1033,3 +1033,89 @@ matrix_metadata_json = "matrix.metadata.json"
     assert "Production status: READY" in result.output
     assert json.loads(json_output.read_text())["overall_status"] == "READY"
     assert "Production Completion Audit" in md_output.read_text()
+
+
+def test_production_audit_with_allow_missing_acs_reports_warn(
+    tmp_path: Path, monkeypatch
+) -> None:
+    config = tmp_path / "config.toml"
+    config.write_text(
+        """
+[credentials]
+required_env = ["CENSUS_API_KEY"]
+
+[review.owners]
+mqsa_snapshot = ["@AKaturu"]
+geocoding = ["@AKaturu"]
+routing = ["@AKaturu"]
+candidate_sites = ["@AKaturu"]
+publication = ["@AKaturu"]
+
+[routing]
+provider = "self-hosted-osrm"
+profile = "driving"
+traffic_assumption = "free-flow"
+matrix_metadata_json = "matrix.metadata.json"
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CENSUS_API_KEY", "test-key")
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "state_scope": "ALL_50_STATES",
+                "publication_status": "not_ready_for_publication",
+                "readiness_gates": ["review required"],
+                "state_coverage": {
+                    "states": 50,
+                    "states_with_all_public_no_secret_sources": 50,
+                    "states_with_acs_county_context": 0,
+                    "states_with_acs_tract_context": 0,
+                },
+                "state_coverage_gaps": {
+                    "missing_mqsa_rows": [],
+                    "missing_hrsa_candidates": [],
+                    "missing_places_rows": [],
+                    "missing_census_counties": [],
+                    "missing_census_tracts": [],
+                    "missing_cdc_atsdr_svi_counties": [],
+                    "missing_any_public_no_secret_source": [],
+                    "missing_acs_county_context": ["AL"],
+                    "missing_acs_tract_context": ["AL"],
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    readiness = tmp_path / "readiness.json"
+    readiness.write_text(
+        json.dumps({"overall_status": "READY", "checks": []}) + "\n",
+        encoding="utf-8",
+    )
+    json_output = tmp_path / "production.json"
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "production-audit",
+            "--config-path",
+            str(config),
+            "--all-states-manifest",
+            str(manifest),
+            "--readiness-json",
+            str(readiness),
+            "--output-json",
+            str(json_output),
+            "--allow-missing-acs",
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(json_output.read_text())
+    assert payload["overall_status"] == "BLOCKED"
+    package_checks = [c for c in payload["checks"] if c["domain"] == "all_states_package"]
+    acs_check = [c for c in package_checks if c["check"] == "acs_context_coverage"][0]
+    assert acs_check["status"] == "WARN"
