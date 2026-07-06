@@ -1,6 +1,6 @@
 # Compiled Test Report
 
-Generated from the local validation run on 2026-06-20.
+Generated from the local validation run on 2026-07-02.
 
 ## Result
 
@@ -8,9 +8,9 @@ Status: PASS
 
 ## Checks
 
-- `python -m pytest`: 80 passed in 4.61s.
-- `python -m ruff check .`: passed.
-- `python -m mypy src/radshock`: passed with no issues in 25 source files.
+- `python -m pytest -q`: 90 passed.
+- `ruff check src tests`: passed.
+- `mypy src/radshock`: passed with no issues in 27 source files.
 - `python -m pip wheel . -w work/dist`: built the project wheel.
 - `radshock readiness-audit --require-travel-time` on
   `work/source-refresh-smoke/analysis-tract-osrm-travel-time`: BLOCKED, 1 blocker, 0 warnings.

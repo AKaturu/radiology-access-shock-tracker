@@ -6,6 +6,7 @@ import pandas as pd
 
 from radshock.candidates import CANDIDATE_REVIEW_COLUMNS
 from radshock.schemas import require_columns
+from radshock.states import resolve_state_scope
 
 HRSA_HEALTH_CENTER_SITES_CSV_URL = (
     "https://data.hrsa.gov/DataDownload/DD_Files/"
@@ -38,13 +39,15 @@ def build_hrsa_candidate_review_template(
     review_status: str = "needs_review",
 ) -> pd.DataFrame:
     """Build candidate assumptions from HRSA health-center service delivery sites."""
+    scope = resolve_state_scope(state)
     require_columns(sites, HRSA_HEALTH_CENTER_REQUIRED_COLUMNS, "HRSA health center sites")
     result = sites.copy()
     for column in HRSA_HEALTH_CENTER_REQUIRED_COLUMNS:
         result[column] = result[column].astype(str).str.strip()
 
-    state_filter = state.strip().upper()
-    result = result[result["Site State Abbreviation"].str.upper() == state_filter].copy()
+    result = result[
+        result["Site State Abbreviation"].str.upper().isin(scope.states)
+    ].copy()
     if active_only:
         result = result[result["Site Status Description"].str.lower() == "active"].copy()
     if service_delivery_only:

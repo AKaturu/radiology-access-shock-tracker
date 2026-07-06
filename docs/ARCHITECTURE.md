@@ -2,9 +2,10 @@
 
 ## Scope
 
-Radiology Access Shock Tracker is a North Carolina mammography access surveillance toolkit. It
-compares dated facility snapshots, estimates population-weighted access changes, prioritizes county
-alerts, evaluates candidate response sites, and generates cautious reports.
+Radiology Access Shock Tracker is a mammography access surveillance toolkit with 50-state source
+access and a reviewed North Carolina validation package. It compares dated facility snapshots,
+estimates population-weighted access changes, prioritizes county alerts, evaluates candidate
+response sites, and generates cautious reports.
 
 ## Components
 

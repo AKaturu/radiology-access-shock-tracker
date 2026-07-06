@@ -30,6 +30,32 @@ def test_validate_snapshot_command(tmp_path: Path) -> None:
     assert "Snapshot valid: 1 records, 1 active" in result.output
 
 
+def test_data_quality_report_command_writes_single_dataset_reports(tmp_path: Path) -> None:
+    snapshot = tmp_path / "snapshot.csv"
+    output_json = tmp_path / "quality.json"
+    output_md = tmp_path / "quality.md"
+    _snapshot(snapshot, [["F1", "Facility", 35.0, -78.0, 1000, True]])
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "data-quality-report",
+            str(snapshot),
+            "--dataset-type",
+            "facilities",
+            "--output-json",
+            str(output_json),
+            "--output-md",
+            str(output_md),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Data quality: PASS" in result.output
+    assert json.loads(output_json.read_text())["status"] == "PASS"
+    assert "Data Quality Report" in output_md.read_text()
+
+
 def test_compare_snapshots_command_writes_possible_closure(tmp_path: Path) -> None:
     before = tmp_path / "before.csv"
     after = tmp_path / "after.csv"
@@ -77,6 +103,26 @@ def test_prepare_mqsa_review_command(tmp_path: Path) -> None:
     assert review.loc[0, "source_facility_name"] == "Demo Facility"
     assert review.loc[0, "facility_id"] == ""
     assert review.loc[0, "active"] == ""
+
+
+def test_prepare_mqsa_review_command_accepts_all_50_states(tmp_path: Path) -> None:
+    source = tmp_path / "public.txt"
+    source.write_text(
+        "NC Facility|100 Main St|||Raleigh|NC|27601|919-555-0100|\n"
+        "SC Facility|200 Main St|||Columbia|SC|29201|803-555-0100|\n"
+        "PR Facility|300 Main St|||San Juan|PR|00901|787-555-0100|\n"
+    )
+    output = tmp_path / "review.csv"
+    result = CliRunner().invoke(
+        app,
+        ["prepare-mqsa-review", str(source), "--output-csv", str(output), "--state", "ALL"],
+    )
+
+    assert result.exit_code == 0
+    assert "State scope: ALL_50_STATES" in result.output
+    review = pd.read_csv(output, dtype=str).fillna("")
+    assert set(review["source_state"]) == {"NC", "SC"}
+    assert "PR Facility" not in set(review["source_facility_name"])
 
 
 def test_archive_source_command_accepts_retrieved_on(tmp_path: Path) -> None:
@@ -261,7 +307,7 @@ def test_fetch_census_population_points_command_writes_metadata(
     metadata = tmp_path / "metadata.json"
     monkeypatch.setenv("CENSUS_API_KEY", "test-key")
     monkeypatch.setattr(
-        "radshock.cli.build_nc_tract_analysis_context",
+        "radshock.cli.build_tract_analysis_context",
         lambda **kwargs: pd.DataFrame(
             [
                 {
@@ -301,6 +347,9 @@ def test_fetch_census_population_points_command_writes_metadata(
     assert len(points) == 1
     assert points.loc[0, "point_id"] == "tract-37001020100"
     assert payload["geography"] == "tract"
+    assert payload["state"] == "NC"
+    assert payload["state_fips"] == "37"
+    assert payload["state_count"] == 1
     assert payload["row_counts"]["tracts"] == 2
     assert payload["row_counts"]["population_points"] == 1
     assert payload["outputs"]["population_points"]["sha256"]
@@ -437,6 +486,8 @@ def test_prepare_hrsa_candidate_review_command_writes_metadata(tmp_path: Path) -
     assert set(review_frame["review_status"]) == {"reviewed"}
     assert payload["row_counts"]["candidate_rows"] == 2
     assert payload["row_counts"]["candidate_types"]["mobile_stop_assumption"] == 1
+    assert payload["filters"]["state"] == "NC"
+    assert payload["filters"]["state_count"] == 1
     assert payload["filters"]["active_only"] is True
     assert payload["filters"]["service_delivery_only"] is True
     assert "data.hrsa.gov/data/download" in payload["source_urls"][0]
@@ -562,6 +613,45 @@ def test_prepare_and_finalize_travel_time_review_commands(tmp_path: Path) -> Non
     assert output.loc[0, "travel_time_minutes"] == 18.5
     assert matrix_payload["route_metadata"]["route_providers"] == ["fixture"]
     assert matrix_payload["route_metadata"]["route_source_urls"] == ["https://example.test/routes"]
+
+
+def test_route_uncertainty_check_command_writes_report(tmp_path: Path) -> None:
+    review = tmp_path / "travel_time_review.csv"
+    output = tmp_path / "route_uncertainty.csv"
+    pd.DataFrame(
+        [
+            {
+                "point_id": "P1",
+                "county_fips": "37001",
+                "point_latitude": "35.0",
+                "point_longitude": "-78.0",
+                "point_weight": "100",
+                "facility_id": "F1",
+                "facility_name": "Facility",
+                "facility_latitude": "36.0",
+                "facility_longitude": "-79.0",
+                "active": "true",
+                "straight_line_miles": "100",
+                "travel_time_minutes": "30",
+                "route_status": "routed",
+                "route_provider": "self-hosted-osrm",
+                "route_source_url": "http://127.0.0.1:5000/table/v1/driving",
+                "route_retrieved_at_utc": "2026-06-20T00:00:00+00:00",
+                "route_error": "",
+                "review_status": "approved",
+            }
+        ],
+        columns=TRAVEL_TIME_REVIEW_COLUMNS,
+    ).to_csv(review, index=False)
+
+    result = CliRunner().invoke(
+        app,
+        ["route-uncertainty-check", str(review), "--output-csv", str(output)],
+    )
+
+    assert result.exit_code == 0
+    report = pd.read_csv(output)
+    assert "high_implied_speed_flags" in set(report["metric"])
 
 
 def test_fill_travel_time_review_openrouteservice_requires_env(
@@ -859,3 +949,173 @@ def test_readiness_audit_command_writes_reports(tmp_path: Path) -> None:
     payload = json.loads(json_output.read_text())
     assert payload["overall_status"] == "BLOCKED"
     assert "Production Readiness Audit" in md_output.read_text()
+
+
+def test_production_audit_command_writes_reports(tmp_path: Path, monkeypatch) -> None:
+    config = tmp_path / "config.toml"
+    config.write_text(
+        """
+[credentials]
+required_env = ["CENSUS_API_KEY"]
+
+[review.owners]
+mqsa_snapshot = ["@AKaturu"]
+geocoding = ["@AKaturu"]
+routing = ["@AKaturu"]
+candidate_sites = ["@AKaturu"]
+publication = ["@AKaturu"]
+
+[routing]
+provider = "self-hosted-osrm"
+profile = "driving"
+traffic_assumption = "free-flow"
+matrix_metadata_json = "matrix.metadata.json"
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CENSUS_API_KEY", "test-key")
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "state_scope": "ALL_50_STATES",
+                "publication_status": "ready_for_publication",
+                "readiness_gates": [],
+                "state_coverage": {
+                    "states": 50,
+                    "states_with_all_public_no_secret_sources": 50,
+                    "states_with_acs_county_context": 50,
+                    "states_with_acs_tract_context": 50,
+                },
+                "state_coverage_gaps": {
+                    "missing_mqsa_rows": [],
+                    "missing_hrsa_candidates": [],
+                    "missing_places_rows": [],
+                    "missing_census_counties": [],
+                    "missing_census_tracts": [],
+                    "missing_cdc_atsdr_svi_counties": [],
+                    "missing_any_public_no_secret_source": [],
+                    "missing_acs_county_context": [],
+                    "missing_acs_tract_context": [],
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    readiness = tmp_path / "readiness.json"
+    readiness.write_text(
+        json.dumps({"overall_status": "READY", "checks": []}) + "\n",
+        encoding="utf-8",
+    )
+    json_output = tmp_path / "production.json"
+    md_output = tmp_path / "production.md"
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "production-audit",
+            "--config-path",
+            str(config),
+            "--all-states-manifest",
+            str(manifest),
+            "--readiness-json",
+            str(readiness),
+            "--output-json",
+            str(json_output),
+            "--output-md",
+            str(md_output),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Production status: READY" in result.output
+    assert json.loads(json_output.read_text())["overall_status"] == "READY"
+    assert "Production Completion Audit" in md_output.read_text()
+
+
+def test_production_audit_with_allow_missing_acs_reports_warn(
+    tmp_path: Path, monkeypatch
+) -> None:
+    config = tmp_path / "config.toml"
+    config.write_text(
+        """
+[credentials]
+required_env = ["CENSUS_API_KEY"]
+
+[review.owners]
+mqsa_snapshot = ["@AKaturu"]
+geocoding = ["@AKaturu"]
+routing = ["@AKaturu"]
+candidate_sites = ["@AKaturu"]
+publication = ["@AKaturu"]
+
+[routing]
+provider = "self-hosted-osrm"
+profile = "driving"
+traffic_assumption = "free-flow"
+matrix_metadata_json = "matrix.metadata.json"
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CENSUS_API_KEY", "test-key")
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "state_scope": "ALL_50_STATES",
+                "publication_status": "not_ready_for_publication",
+                "readiness_gates": ["review required"],
+                "state_coverage": {
+                    "states": 50,
+                    "states_with_all_public_no_secret_sources": 50,
+                    "states_with_acs_county_context": 0,
+                    "states_with_acs_tract_context": 0,
+                },
+                "state_coverage_gaps": {
+                    "missing_mqsa_rows": [],
+                    "missing_hrsa_candidates": [],
+                    "missing_places_rows": [],
+                    "missing_census_counties": [],
+                    "missing_census_tracts": [],
+                    "missing_cdc_atsdr_svi_counties": [],
+                    "missing_any_public_no_secret_source": [],
+                    "missing_acs_county_context": ["AL"],
+                    "missing_acs_tract_context": ["AL"],
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    readiness = tmp_path / "readiness.json"
+    readiness.write_text(
+        json.dumps({"overall_status": "READY", "checks": []}) + "\n",
+        encoding="utf-8",
+    )
+    json_output = tmp_path / "production.json"
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "production-audit",
+            "--config-path",
+            str(config),
+            "--all-states-manifest",
+            str(manifest),
+            "--readiness-json",
+            str(readiness),
+            "--output-json",
+            str(json_output),
+            "--allow-missing-acs",
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(json_output.read_text())
+    assert payload["overall_status"] == "BLOCKED"
+    package_checks = [c for c in payload["checks"] if c["domain"] == "all_states_package"]
+    acs_check = [c for c in package_checks if c["check"] == "acs_context_coverage"][0]
+    assert acs_check["status"] == "WARN"

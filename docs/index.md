@@ -11,6 +11,11 @@ The public GitHub demo uses synthetic North Carolina-like data. The warning bann
 screenshots is intentional: synthetic outputs are not real North Carolina findings and are blocked
 by the readiness audit.
 
+The source-ingestion commands now support 50-state review inputs with `--state ALL` for FDA MQSA,
+Census ACS/Gazetteer, CDC PLACES, CDC/ATSDR SVI, and HRSA candidate sources. The reviewed real-data
+package below remains North Carolina-only until each additional state is reviewed, routed, and
+readiness-audited.
+
 Synthetic demo signals:
 
 - 4 synthetic facility event signals.
@@ -50,9 +55,9 @@ Key references:
 Core validation:
 
 ```text
-python -m pytest: 80 passed
+python -m pytest: 90 passed
 ruff check: passed
-mypy src/radshock: passed
+mypy src/radshock: passed with no issues in 27 source files
 synthetic demo readiness audit: BLOCKED as expected
 reviewed real-data readiness audit: READY, 0 blockers, 0 warnings
 ```

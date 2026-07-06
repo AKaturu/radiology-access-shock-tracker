@@ -107,7 +107,7 @@ def summarize_county_access(
             over = 1.0
         rows.append(
             {
-                "county_fips": county_fips,
+                "county_fips": str(county_fips),
                 "population_weight": float(weights.sum()),
                 "mean_distance_miles": mean_distance,
                 "p90_distance_miles": p90_distance,
@@ -142,7 +142,7 @@ def summarize_county_travel_time_access(
             coverage = 0.0
         rows.append(
             {
-                "county_fips": county_fips,
+                "county_fips": str(county_fips),
                 "population_weight": total_weight,
                 "mean_travel_time_minutes": mean_time,
                 "p90_travel_time_minutes": p90_time,
@@ -281,7 +281,7 @@ def summarize_access_change(
             "nearest_facility_id_after"
         ].astype(str)
         row: dict[str, float | str] = {
-            "county_fips": county_fips,
+            "county_fips": str(county_fips),
             "population_nearest_facility_changed": float(weights[changed.to_numpy()].sum()),
         }
         before_distance = group["distance_miles_before"].to_numpy(dtype=float)
@@ -331,7 +331,7 @@ def summarize_travel_time_access_change(
             "nearest_facility_id_after"
         ].astype(str)
         row: dict[str, float | str] = {
-            "county_fips": county_fips,
+            "county_fips": str(county_fips),
             "population_nearest_facility_changed": float(weights[changed.to_numpy()].sum()),
         }
         before_time = group["travel_time_minutes_before"].to_numpy(dtype=float)

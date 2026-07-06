@@ -10,6 +10,7 @@ build/
 *.egg-info/
 outputs/
 work/
+nonexistent/
 data/cache/
 data/raw/
 data/snapshots/*

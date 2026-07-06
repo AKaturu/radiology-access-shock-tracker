@@ -1,0 +1,70 @@
+name: all-states data package
+
+on:
+  workflow_dispatch:
+    inputs:
+      acs_year:
+        description: ACS 5-year vintage.
+        default: "2024"
+        required: true
+      mark_publication_ready:
+        description: Set publication_status to ready_for_publication.
+        type: boolean
+        default: false
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-all-states-data-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+      PACKAGE_DIR: work/all-states/${{ github.run_id }}
+      PUBLIC_REPORT: outputs/all_states_data_package.md
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[dev]"
+      - name: Verify Census API key
+        shell: bash
+        run: |
+          if [ -z "${CENSUS_API_KEY}" ]; then
+            echo "CENSUS_API_KEY repository secret is required for the ACS all-state rebuild."
+            exit 1
+          fi
+      - name: Build all-state package with ACS context
+        shell: bash
+        run: |
+          mkdir -p outputs
+          PUBLICATION_FLAG=""
+          if [ "${{ inputs.mark_publication_ready }}" == "true" ]; then
+            PUBLICATION_FLAG="--mark-publication-ready"
+          fi
+          python scripts/build_all_states_data_package.py \
+            --output-dir "${PACKAGE_DIR}" \
+            --year "${{ inputs.acs_year }}" \
+            --public-report "${PUBLIC_REPORT}" \
+            ${PUBLICATION_FLAG} \
+            --force
+      - name: Summarize package manifest
+        shell: bash
+        run: |
+          python -c "import json, pathlib; manifest = json.loads(pathlib.Path('${PACKAGE_DIR}/summary/data_package_manifest.json').read_text()); print(json.dumps({'row_counts': manifest['row_counts'], 'state_coverage': manifest['state_coverage'], 'readiness_gates': manifest['readiness_gates']}, indent=2))"
+      - name: Upload all-state package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: all-states-data-package
+          path: |
+            ${{ env.PACKAGE_DIR }}/raw/**
+            ${{ env.PACKAGE_DIR }}/review/**
+            ${{ env.PACKAGE_DIR }}/context/**
+            ${{ env.PACKAGE_DIR }}/summary/**
+            ${{ env.PUBLIC_REPORT }}
+          if-no-files-found: error

@@ -11,10 +11,9 @@ import typer
 
 from radshock.access import compare_county_access, compare_county_travel_time_access
 from radshock.adapters.acs import (
-    NC_COUNTY_GAZETTEER_URL_TEMPLATE,
-    NC_TRACT_GAZETTEER_URL_TEMPLATE,
-    build_nc_county_analysis_context,
-    build_nc_tract_analysis_context,
+    build_county_analysis_context,
+    build_tract_analysis_context,
+    census_gazetteer_urls,
     to_analysis_counties,
     to_county_centroid_population_points,
     to_tract_population_points,
@@ -34,7 +33,18 @@ from radshock.adapters.hrsa import (
 from radshock.briefs import generate_policy_brief, generate_policy_brief_html
 from radshock.candidates import build_county_candidate_review_template, finalize_candidate_review
 from radshock.changes import detect_changes
+from radshock.data_quality import audit_csv_quality, render_quality_markdown
 from radshock.demo import build_demo
+from radshock.gates import (
+    DEFAULT_RESOLUTIONS_PATH,
+    KNOWN_GATES,
+    get_active_gate_strings,
+    get_state_gate_status,
+    load_resolutions,
+    resolve_gate,
+    save_resolutions,
+    unresolve_gate,
+)
 from radshock.geocoding import (
     CensusGeocoder,
     GeocodeCache,
@@ -42,11 +52,25 @@ from radshock.geocoding import (
     geocode_mqsa_review,
 )
 from radshock.intervention import simulate_candidates
+from radshock.production import (
+    production_audit_to_json,
+    production_overall_status,
+    render_production_audit_markdown,
+    run_production_audit,
+)
+from radshock.quality import build_data_quality_reports, build_route_uncertainty_report
 from radshock.readiness import audit_to_json, render_readiness_markdown, run_readiness_audit
 from radshock.schemas import validate_facilities
 from radshock.sensitivity import run_sensitivity_analysis
 from radshock.snapshots import file_sha256, store_snapshot
 from radshock.sources import archive_local_source, fetch_url_source
+from radshock.states import (
+    US_STATE_ABBR_TO_FIPS,
+    US_STATE_FIPS_TO_ABBR,
+    StateScope,
+    resolve_state_scope,
+    state_abbr_from_fips,
+)
 from radshock.travel_times import (
     TRAVEL_TIME_ROUTE_STATUSES,
     build_travel_time_review_template,
@@ -185,17 +209,27 @@ def archive_source(
 def prepare_mqsa_review(
     input_path: Annotated[Path, typer.Argument(exists=True, readable=True)],
     output_csv: Annotated[Path, typer.Option()],
-    state: Annotated[str, typer.Option(help="Two-letter state filter.")] = "NC",
+    state: Annotated[
+        str,
+        typer.Option(help="Two-letter state filter, 50-state FIPS code, or ALL."),
+    ] = "NC",
     force: Annotated[bool, typer.Option(help="Overwrite an existing review CSV.")] = False,
 ) -> None:
     """Create a human-review CSV from the FDA MQSA fixed-width source file."""
     if output_csv.exists() and not force:
         raise typer.BadParameter(f"output already exists: {output_csv}")
-    raw = read_fda_mqsa_fixed_width(input_path, state=state)
+    scope = _parse_state_scope(state)
+    raw = read_fda_mqsa_fixed_width(
+        input_path,
+        state=None if scope.is_all_50_states else scope.states[0],
+    )
+    if scope.is_all_50_states:
+        raw = raw[raw["source_state"].isin(scope.states)].reset_index(drop=True)
     review = build_mqsa_review_template(raw)
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     review.to_csv(output_csv, index=False)
     typer.echo(f"Review template written: {output_csv.resolve()}")
+    typer.echo(f"State scope: {scope.label}; source rows: {len(raw)}")
     typer.echo(
         "Review required: facility_id, latitude, longitude, active, and review_status must be "
         "completed before snapshot ingestion. annual_capacity is optional and should stay blank "
@@ -322,6 +356,103 @@ def validate_snapshot(
     typer.echo(f"Snapshot valid: {len(frame)} records, {int(frame['active'].sum())} active")
 
 
+@app.command("data-quality-report")
+def data_quality_report_command(
+    input_csv: Annotated[Path | None, typer.Argument(exists=True, readable=True)] = None,
+    dataset_type: Annotated[
+        str,
+        typer.Option(
+            help=(
+                "Dataset type: auto, facilities, counties, population_points, "
+                "candidates, travel_time_matrix."
+            )
+        ),
+    ] = "auto",
+    output_json: Annotated[Path | None, typer.Option()] = None,
+    output_md: Annotated[Path | None, typer.Option()] = None,
+    output_dir: Annotated[Path | None, typer.Option()] = None,
+    facilities_csv: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    population_csv: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    mqsa_review_csv: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    travel_time_review_csv: Annotated[
+        Path | None,
+        typer.Option(exists=True, readable=True),
+    ] = None,
+    force: Annotated[bool, typer.Option(help="Overwrite existing report files.")] = False,
+) -> None:
+    """Write data-quality reports for CSV inputs and production review bundles."""
+    wrote_report = False
+    if input_csv is not None or output_json is not None or output_md is not None:
+        if input_csv is None:
+            raise typer.BadParameter("input_csv is required when writing JSON/Markdown reports")
+        for path in [output_json, output_md]:
+            if path is not None and path.exists() and not force:
+                raise typer.BadParameter(f"output already exists: {path}")
+        audit = audit_csv_quality(input_csv, dataset_type=dataset_type)
+        if output_json is not None:
+            output_json.parent.mkdir(parents=True, exist_ok=True)
+            output_json.write_text(
+                json.dumps(audit, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            typer.echo(f"Data-quality JSON written: {output_json.resolve()}")
+        if output_md is not None:
+            output_md.parent.mkdir(parents=True, exist_ok=True)
+            output_md.write_text(render_quality_markdown(audit), encoding="utf-8")
+            typer.echo(f"Data-quality Markdown written: {output_md.resolve()}")
+        typer.echo(
+            f"Data quality: {audit['status']} ({audit['dataset_type']}, "
+            f"{audit['row_count']} rows)"
+        )
+        wrote_report = True
+
+    bundle_requested = any(
+        path is not None
+        for path in [
+            output_dir,
+            facilities_csv,
+            population_csv,
+            mqsa_review_csv,
+            travel_time_review_csv,
+        ]
+    )
+    if bundle_requested:
+        if output_dir is None:
+            raise typer.BadParameter("output_dir is required for production data-quality tables")
+        reports = build_data_quality_reports(
+            facilities=pd.read_csv(facilities_csv) if facilities_csv is not None else None,
+            population_points=pd.read_csv(
+                population_csv,
+                dtype={"point_id": str, "county_fips": str},
+            )
+            if population_csv is not None
+            else None,
+            mqsa_review=pd.read_csv(mqsa_review_csv, dtype=str, keep_default_na=False)
+            if mqsa_review_csv is not None
+            else None,
+            travel_time_review=pd.read_csv(
+                travel_time_review_csv,
+                dtype=str,
+                keep_default_na=False,
+            )
+            if travel_time_review_csv is not None
+            else None,
+        )
+        output_dir.mkdir(parents=True, exist_ok=True)
+        for name, frame in reports.items():
+            path = output_dir / f"{name}.csv"
+            if path.exists() and not force:
+                raise typer.BadParameter(f"output already exists: {path}")
+            frame.to_csv(path, index=False)
+            typer.echo(f"{name} written: {path.resolve()}")
+        wrote_report = True
+
+    if not wrote_report:
+        raise typer.BadParameter(
+            "provide input_csv for a single report or --output-dir with at least one source CSV"
+        )
+
+
 @app.command("compare-snapshots")
 def compare_snapshots(
     before_csv: Annotated[Path, typer.Option(exists=True)],
@@ -390,6 +521,10 @@ def fetch_census_county_context_command(
         typer.Option(help="Optional source metadata JSON path."),
     ] = Path("data/census_county_context_2024.metadata.json"),
     year: Annotated[int, typer.Option(help="ACS/Gazetteer release year.")] = 2024,
+    state: Annotated[
+        str,
+        typer.Option(help="Two-letter state filter, 50-state FIPS code, or ALL."),
+    ] = "NC",
     api_key_env: Annotated[
         str,
         typer.Option(help="Environment variable containing the Census API key."),
@@ -401,16 +536,25 @@ def fetch_census_county_context_command(
     for path in [output_csv, raw_context_csv, population_points_csv, metadata_json]:
         if path is not None and path.exists() and not force:
             raise typer.BadParameter(f"output already exists: {path}")
+    scope = _parse_state_scope(state)
     api_key = os.getenv(api_key_env)
     if api_key is None or not api_key.strip():
         raise typer.BadParameter(f"{api_key_env} is not set")
-    context = build_nc_county_analysis_context(year=year, api_key=api_key, timeout=timeout)
+    context = build_county_analysis_context(
+        year=year,
+        state=scope.label,
+        api_key=api_key,
+        timeout=timeout,
+    )
     counties = to_analysis_counties(context)
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     counties.to_csv(output_csv, index=False)
     typer.echo(f"Census county context written: {output_csv.resolve()}")
     eligible_population = int(counties["eligible_population"].sum())
-    typer.echo(f"Counties: {len(counties)}; eligible population: {eligible_population}")
+    typer.echo(
+        f"State scope: {scope.label}; counties: {len(counties)}; "
+        f"eligible population: {eligible_population}"
+    )
     if raw_context_csv is not None:
         raw_context_csv.parent.mkdir(parents=True, exist_ok=True)
         context.to_csv(raw_context_csv, index=False)
@@ -430,6 +574,7 @@ def fetch_census_county_context_command(
             force=force,
             year=year,
             geography="county",
+            state_scope=scope,
             outputs={
                 "analysis_counties": output_csv,
                 "raw_context": raw_context_csv,
@@ -443,7 +588,7 @@ def fetch_census_county_context_command(
             },
             source_urls=[
                 f"https://api.census.gov/data/{year}/acs/acs5",
-                NC_COUNTY_GAZETTEER_URL_TEMPLATE.format(year=year),
+                *census_gazetteer_urls(year=year, state=scope.label, geography="county"),
             ],
             notes=[
                 "eligible_population is ACS female population age 50-74.",
@@ -469,6 +614,10 @@ def fetch_census_population_points_command(
         typer.Option(help="Optional source metadata JSON path."),
     ] = Path("data/census_tract_context_2024.metadata.json"),
     year: Annotated[int, typer.Option(help="ACS/Gazetteer release year.")] = 2024,
+    state: Annotated[
+        str,
+        typer.Option(help="Two-letter state filter, 50-state FIPS code, or ALL."),
+    ] = "NC",
     api_key_env: Annotated[
         str,
         typer.Option(help="Environment variable containing the Census API key."),
@@ -484,10 +633,16 @@ def fetch_census_population_points_command(
     for path in [output_csv, raw_context_csv, metadata_json]:
         if path is not None and path.exists() and not force:
             raise typer.BadParameter(f"output already exists: {path}")
+    scope = _parse_state_scope(state)
     api_key = os.getenv(api_key_env)
     if api_key is None or not api_key.strip():
         raise typer.BadParameter(f"{api_key_env} is not set")
-    context = build_nc_tract_analysis_context(year=year, api_key=api_key, timeout=timeout)
+    context = build_tract_analysis_context(
+        year=year,
+        state=scope.label,
+        api_key=api_key,
+        timeout=timeout,
+    )
     population_points = to_tract_population_points(
         context,
         include_zero_weight=include_zero_weight,
@@ -496,7 +651,10 @@ def fetch_census_population_points_command(
     population_points.to_csv(output_csv, index=False)
     typer.echo(f"Tract population points written: {output_csv.resolve()}")
     eligible_population = int(population_points["weight"].sum())
-    typer.echo(f"Points: {len(population_points)}; eligible population: {eligible_population}")
+    typer.echo(
+        f"State scope: {scope.label}; points: {len(population_points)}; "
+        f"eligible population: {eligible_population}"
+    )
     typer.echo(
         "Population points use Census tract internal points; "
         "route matrices should be regenerated before publication."
@@ -511,6 +669,7 @@ def fetch_census_population_points_command(
             force=force,
             year=year,
             geography="tract",
+            state_scope=scope,
             outputs={
                 "population_points": output_csv,
                 "raw_context": raw_context_csv,
@@ -521,7 +680,7 @@ def fetch_census_population_points_command(
             },
             source_urls=[
                 f"https://api.census.gov/data/{year}/acs/acs5",
-                NC_TRACT_GAZETTEER_URL_TEMPLATE.format(year=year),
+                *census_gazetteer_urls(year=year, state=scope.label, geography="tract"),
             ],
             notes=[
                 "eligible_population is ACS female population age 50-74.",
@@ -638,7 +797,10 @@ def prepare_hrsa_candidate_review_command(
         Path | None,
         typer.Option(help="Optional HRSA candidate-review metadata JSON path."),
     ] = None,
-    state: Annotated[str, typer.Option(help="Two-letter state filter.")] = "NC",
+    state: Annotated[
+        str,
+        typer.Option(help="Two-letter state filter, 50-state FIPS code, or ALL."),
+    ] = "NC",
     include_inactive: Annotated[
         bool,
         typer.Option(help="Include inactive HRSA sites in the review CSV."),
@@ -658,9 +820,10 @@ def prepare_hrsa_candidate_review_command(
         raise typer.BadParameter(f"output already exists: {output_csv}")
     if metadata_json is not None and metadata_json.exists() and not force:
         raise typer.BadParameter(f"output already exists: {metadata_json}")
+    scope = _parse_state_scope(state)
     review = build_hrsa_candidate_review_template(
         pd.read_csv(input_csv, dtype=str, keep_default_na=False),
-        state=state,
+        state=scope.label,
         active_only=not include_inactive,
         service_delivery_only=not include_administrative,
         review_status=review_status,
@@ -672,6 +835,7 @@ def prepare_hrsa_candidate_review_command(
         f"Candidate rows: {len(review)}; counties: "
         f"{int(review['county_fips'].nunique()) if len(review) else 0}"
     )
+    typer.echo(f"State scope: {scope.label}")
     typer.echo(
         "HRSA sites are real health-center service locations, but remain planning "
         "assumptions here and are not mammography-capability claims."
@@ -683,7 +847,7 @@ def prepare_hrsa_candidate_review_command(
             input_csv=input_csv,
             output_csv=output_csv,
             review=review,
-            state=state,
+            state_scope=scope,
             active_only=not include_inactive,
             service_delivery_only=not include_administrative,
         )
@@ -889,6 +1053,26 @@ def sensitivity_analysis_command(
         typer.echo(sensitivity.to_csv(index=False))
 
 
+@app.command("route-uncertainty-check")
+def route_uncertainty_check_command(
+    travel_time_review_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    output_csv: Annotated[Path | None, typer.Option()] = None,
+    force: Annotated[bool, typer.Option(help="Overwrite existing output CSV.")] = False,
+) -> None:
+    """Summarize route-review uncertainty, coverage, and plausibility flags."""
+    if output_csv is not None and output_csv.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    report = build_route_uncertainty_report(
+        pd.read_csv(travel_time_review_csv, dtype=str, keep_default_na=False)
+    )
+    if output_csv is None:
+        typer.echo(report.to_csv(index=False))
+        return
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    report.to_csv(output_csv, index=False)
+    typer.echo(f"Route uncertainty report written: {output_csv.resolve()}")
+
+
 @app.command("readiness-audit")
 def readiness_audit_command(
     analysis_dir: Annotated[Path, typer.Option()] = Path("outputs/demo/analysis"),
@@ -924,6 +1108,215 @@ def readiness_audit_command(
     )
 
 
+@app.command("production-audit")
+def production_audit_command(
+    config_path: Annotated[Path, typer.Option(exists=True, readable=True)] = Path(
+        "config.example.toml"
+    ),
+    all_states_manifest: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    readiness_json: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    output_csv: Annotated[Path | None, typer.Option()] = None,
+    output_json: Annotated[Path | None, typer.Option()] = None,
+    output_md: Annotated[Path | None, typer.Option()] = None,
+    require_acs: Annotated[
+        bool,
+        typer.Option(
+            "--require-acs/--allow-missing-acs",
+            help="Block production if all-state ACS county or tract context is incomplete.",
+        ),
+    ] = True,
+    force: Annotated[bool, typer.Option(help="Overwrite existing report files.")] = False,
+) -> None:
+    """Audit project-level production completion gates."""
+    checks = run_production_audit(
+        config_path=config_path,
+        all_states_manifest=all_states_manifest,
+        readiness_json=readiness_json,
+        require_acs=require_acs,
+    )
+    if output_csv is not None:
+        if output_csv.exists() and not force:
+            raise typer.BadParameter(f"output already exists: {output_csv}")
+        output_csv.parent.mkdir(parents=True, exist_ok=True)
+        checks.to_csv(output_csv, index=False)
+        typer.echo(f"Production audit CSV written: {output_csv.resolve()}")
+    if output_json is not None:
+        _write_report(output_json, production_audit_to_json(checks), force)
+        typer.echo(f"Production audit JSON written: {output_json.resolve()}")
+    if output_md is not None:
+        _write_report(output_md, render_production_audit_markdown(checks), force)
+        typer.echo(f"Production audit report written: {output_md.resolve()}")
+    blocker_count = int((checks["status"] == "BLOCKER").sum())
+    warning_count = int((checks["status"] == "WARN").sum())
+    typer.echo(
+        f"Production status: {production_overall_status(checks)}; "
+        f"blockers: {blocker_count}; warnings: {warning_count}"
+    )
+
+
+@app.command("resolve-gate")
+def resolve_gate_command(
+    gate_name: Annotated[str, typer.Argument(help="Gate to resolve")],
+    state: Annotated[str, typer.Argument(help="2-letter state abbreviation or FIPS code")],
+    evidence: Annotated[
+        str, typer.Option(help="Reference for the resolution evidence")
+    ],
+    resolved_by: Annotated[
+        str,
+        typer.Option(
+            help="Who performed the resolution (default: git config user.name or env USERNAME)"
+        ),
+    ] = "",
+    resolutions_file: Annotated[
+        Path,
+        typer.Option(help="Path to the gate resolutions tracking file"),
+    ] = DEFAULT_RESOLUTIONS_PATH,
+) -> None:
+    """Mark a production gate as resolved for a state."""
+    if gate_name not in KNOWN_GATES:
+        typer.echo(
+            f"Unknown gate: {gate_name!r}. Known gates: {', '.join(KNOWN_GATES)}",
+            err=True,
+        )
+        raise typer.Exit(code=1)
+    if not resolved_by:
+        resolved_by = os.environ.get("USERNAME", os.environ.get("USER", "unknown"))
+    resolutions = load_resolutions(resolutions_file)
+    resolve_gate(
+        resolutions,
+        gate_name=gate_name,
+        state=state,
+        resolved_by=resolved_by,
+        evidence=evidence,
+    )
+    save_resolutions(resolutions, resolutions_file)
+    fips = US_STATE_ABBR_TO_FIPS.get(state.upper(), state)
+    typer.echo(f"Resolved {gate_name!r} gate for state {state} (FIPS {fips}).")
+
+
+@app.command("unresolve-gate")
+def unresolve_gate_command(
+    gate_name: Annotated[str, typer.Argument(help="Gate to unresolve")],
+    state: Annotated[str, typer.Argument(help="2-letter state abbreviation or FIPS code")],
+    resolutions_file: Annotated[
+        Path,
+        typer.Option(help="Path to the gate resolutions tracking file"),
+    ] = DEFAULT_RESOLUTIONS_PATH,
+) -> None:
+    """Undo a gate resolution for a state."""
+    if gate_name not in KNOWN_GATES:
+        typer.echo(
+            f"Unknown gate: {gate_name!r}. Known gates: {', '.join(KNOWN_GATES)}",
+            err=True,
+        )
+        raise typer.Exit(code=1)
+    resolutions = load_resolutions(resolutions_file)
+    unresolve_gate(resolutions, gate_name=gate_name, state=state)
+    save_resolutions(resolutions, resolutions_file)
+    typer.echo(f"Unresolved {gate_name!r} gate for state {state}.")
+
+
+@app.command("gate-status")
+def gate_status_command(
+    state: Annotated[
+        str | None,
+        typer.Option(help="Filter to a single state abbreviation or FIPS code"),
+    ] = None,
+    resolutions_file: Annotated[
+        Path,
+        typer.Option(help="Path to the gate resolutions tracking file"),
+    ] = DEFAULT_RESOLUTIONS_PATH,
+    output_json: Annotated[Path | None, typer.Option()] = None,
+    output_md: Annotated[Path | None, typer.Option()] = None,
+) -> None:
+    """Show gate resolution status for all states or a single state."""
+    resolutions = load_resolutions(resolutions_file)
+    active = get_active_gate_strings(resolutions)
+
+    if state:
+        fips = US_STATE_ABBR_TO_FIPS.get(state.upper(), state)
+        abbr = state_abbr_from_fips(fips) if fips in US_STATE_FIPS_TO_ABBR else state
+        status = get_state_gate_status(resolutions, fips)
+        rows = []
+        for gate_name in KNOWN_GATES:
+            s = status.get(gate_name, {})
+            rows.append(
+                {
+                    "state": abbr,
+                    "state_fips": fips,
+                    "gate": gate_name,
+                    "status": s.get("status", "UNRESOLVED"),
+                    "resolved_by": s.get("resolved_by", ""),
+                    "resolved_at": s.get("resolved_at", ""),
+                    "evidence": s.get("evidence", ""),
+                }
+            )
+        status_df = pd.DataFrame(rows)
+    else:
+        all_rows = []
+        for fips in sorted(US_STATE_FIPS_TO_ABBR):
+            abbr = state_abbr_from_fips(fips)
+            status = get_state_gate_status(resolutions, fips)
+            for gate_name in KNOWN_GATES:
+                s = status.get(gate_name, {})
+                all_rows.append(
+                    {
+                        "state": abbr,
+                        "state_fips": fips,
+                        "gate": gate_name,
+                        "status": s.get("status", "UNRESOLVED"),
+                        "resolved_by": s.get("resolved_by", ""),
+                        "resolved_at": s.get("resolved_at", ""),
+                        "evidence": s.get("evidence", ""),
+                    }
+                )
+        status_df = pd.DataFrame(all_rows)
+
+    total_resolved = int((status_df["status"] == "RESOLVED").sum())
+    total_gates = len(status_df)
+    typer.echo(
+        f"Gate status: {total_resolved}/{total_gates} state-gate pairs resolved; "
+        f"{len(active)} of {len(KNOWN_GATES)} gates still active in manifest."
+    )
+    if active:
+        typer.echo("Active gates:")
+        for g in active:
+            typer.echo(f"  - {g}")
+
+    if output_json is not None:
+        output_json.parent.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "active_gates": active,
+            "state_status": status_df.to_dict(orient="records"),
+        }
+        output_json.write_text(
+            json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        typer.echo(f"Gate status JSON written: {output_json.resolve()}")
+    if output_md is not None:
+        output_md.parent.mkdir(parents=True, exist_ok=True)
+        lines = [
+            "# Gate Resolution Status",
+            "",
+            f"**Active gates in manifest:** {len(active)} of {len(KNOWN_GATES)}",
+            "",
+        ]
+        if active:
+            lines.append("| Gate | Status |")
+            lines.append("|---|---|")
+            for g in active:
+                lines.append(f"| {g} | Active |")
+        else:
+            lines.append("All gates resolved.")
+        lines.append("")
+        lines.append("## Per-State Gate Status")
+        lines.append("")
+        lines.append(status_df.to_string(index=False))
+        lines.append("")
+        output_md.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        typer.echo(f"Gate status report written: {output_md.resolve()}")
+
+
 def _parse_optional_date(value: str | None, label: str) -> date | None:
     if value is None or not value.strip():
         return None
@@ -931,6 +1324,13 @@ def _parse_optional_date(value: str | None, label: str) -> date | None:
         return date.fromisoformat(value)
     except ValueError as exc:
         raise typer.BadParameter(f"{label} must use YYYY-MM-DD format") from exc
+
+
+def _parse_state_scope(value: str) -> StateScope:
+    try:
+        return resolve_state_scope(value)
+    except ValueError as exc:
+        raise typer.BadParameter(str(exc)) from exc
 
 
 def _build_geocode_provider(
@@ -963,6 +1363,7 @@ def _write_census_metadata(
     force: bool,
     year: int,
     geography: str,
+    state_scope: StateScope,
     outputs: dict[str, Path | None],
     row_counts: dict[str, int],
     source_urls: list[str],
@@ -982,8 +1383,10 @@ def _write_census_metadata(
     metadata = {
         "generated_at_utc": datetime.now(UTC).isoformat(),
         "source_name": "census-acs5-gazetteer",
-        "state": "NC",
-        "state_fips": "37",
+        "state": state_scope.label,
+        "state_fips": state_scope.fips_label,
+        "state_count": len(state_scope.states),
+        "states": list(state_scope.states),
         "year": year,
         "geography": geography,
         "outputs": output_metadata,
@@ -1219,7 +1622,7 @@ def _write_hrsa_candidate_review_metadata(
     input_csv: Path,
     output_csv: Path,
     review: pd.DataFrame,
-    state: str,
+    state_scope: StateScope,
     active_only: bool,
     service_delivery_only: bool,
 ) -> None:
@@ -1243,7 +1646,9 @@ def _write_hrsa_candidate_review_metadata(
             }
         },
         "filters": {
-            "state": state.strip().upper(),
+            "state": state_scope.label,
+            "state_count": len(state_scope.states),
+            "states": list(state_scope.states),
             "active_only": active_only,
             "service_delivery_only": service_delivery_only,
         },

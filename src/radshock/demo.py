@@ -142,16 +142,20 @@ def _counties() -> pd.DataFrame:
 def _population_points(counties: pd.DataFrame) -> pd.DataFrame:
     rng = np.random.default_rng(20260619)
     rows: list[dict[str, object]] = []
-    for county in counties.itertuples(index=False):
+    for county in counties.to_dict(orient="records"):
+        county_fips = str(county["county_fips"])
+        centroid_lat = float(county["centroid_lat"])
+        centroid_lon = float(county["centroid_lon"])
+        eligible_population = float(county["eligible_population"])
         shares = rng.dirichlet(np.ones(6))
         for index, share in enumerate(shares, start=1):
             rows.append(
                 {
-                    "point_id": f"{county.county_fips}-P{index}",
-                    "county_fips": county.county_fips,
-                    "latitude": county.centroid_lat + rng.normal(0, 0.12),
-                    "longitude": county.centroid_lon + rng.normal(0, 0.14),
-                    "weight": round(county.eligible_population * share, 2),
+                    "point_id": f"{county_fips}-P{index}",
+                    "county_fips": county_fips,
+                    "latitude": centroid_lat + rng.normal(0, 0.12),
+                    "longitude": centroid_lon + rng.normal(0, 0.14),
+                    "weight": round(eligible_population * share, 2),
                 }
             )
     return pd.DataFrame(rows)
@@ -210,19 +214,22 @@ def _utilization(counties: pd.DataFrame) -> pd.DataFrame:
     rng = np.random.default_rng(41)
     rows: list[dict[str, object]] = []
     declining = {"37007": -0.18, "37013": -0.12, "37009": -0.06}
-    for county in counties.itertuples(index=False):
-        base_rate = 105 - 60 * county.rurality_index + rng.normal(0, 3)
-        beneficiaries = max(2500, round(county.eligible_population * 0.32))
+    for county in counties.to_dict(orient="records"):
+        county_fips = str(county["county_fips"])
+        rurality_index = float(county["rurality_index"])
+        eligible_population = float(county["eligible_population"])
+        base_rate = 105 - 60 * rurality_index + rng.normal(0, 3)
+        beneficiaries = max(2500, round(eligible_population * 0.32))
         periods = [
             ("2025Q4", 1.0),
-            ("2026Q2", 1.0 + declining.get(county.county_fips, 0.01)),
+            ("2026Q2", 1.0 + declining.get(county_fips, 0.01)),
         ]
         for period, multiplier in periods:
             services = max(0, round(base_rate * multiplier * beneficiaries / 1000))
             rows.append(
                 {
                     "period": period,
-                    "county_fips": county.county_fips,
+                    "county_fips": county_fips,
                     "screening_services": services,
                     "eligible_beneficiaries": beneficiaries,
                 }

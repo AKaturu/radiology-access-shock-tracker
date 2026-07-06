@@ -4,7 +4,8 @@
 
 The GitHub Actions workflow `.github/workflows/quarterly-snapshot.yml` is enabled for both manual
 dispatch and the quarterly cron schedule. It fetches the FDA MQSA public ZIP, archives source
-metadata, prepares a state-filtered review CSV, and uploads those review artifacts.
+metadata, prepares a state-filtered review CSV, and uploads those review artifacts. Manual runs can
+use a two-letter state, a 50-state FIPS code, or `ALL` for a 50-state MQSA review worklist.
 
 This workflow intentionally stops before approval, snapshot finalization, analysis, or publication.
 The FDA refresh step does not require a repository secret.
@@ -81,7 +82,12 @@ The Census Bureau states that all Census Data API queries now require an API key
 After the key is issued and activated, store it locally as `CENSUS_API_KEY` or configure it as a
 GitHub repository/organization secret with the same name. Do not commit the key.
 
-Build the NC Census context CSVs:
+```powershell
+$env:CENSUS_API_KEY = "<your-census-key>"
+gh secret set CENSUS_API_KEY --repo AKaturu/radiology-access-shock-tracker --body $env:CENSUS_API_KEY
+```
+
+Build Census context CSVs for the reviewed NC package:
 
 ```powershell
 $env:CENSUS_API_KEY = "<your-census-key>"
@@ -89,8 +95,93 @@ radshock fetch-census-county-context `
   --output-csv data/counties.csv `
   --raw-context-csv data/census_county_context_2024.csv `
   --population-points-csv data/population_points.csv `
+  --state NC `
   --year 2024
 ```
+
+Use `--state ALL` to generate 50-state county context and county-centroid population points for
+review, preferably into separate output paths until the national package has been reviewed:
+
+```powershell
+radshock fetch-census-county-context `
+  --output-csv work/all-states/counties.csv `
+  --raw-context-csv work/all-states/census_county_context_2024.csv `
+  --population-points-csv work/all-states/population_points.csv `
+  --metadata-json work/all-states/census_county_context_2024.metadata.json `
+  --state ALL `
+  --year 2024
+```
+
+To gather the 50-state package with ACS county and tract context in one reproducible production
+prep run, use:
+
+```powershell
+python scripts/build_all_states_data_package.py `
+  --output-dir work/all-states/2026-07-02 `
+  --public-report outputs/all_states_data_package.md `
+  --force
+```
+
+This collects FDA MQSA, HRSA candidate-source rows, CDC PLACES mammography rows, CDC/ATSDR SVI
+county vulnerability context, and Census county and tract Gazetteer context for all 50 states. If
+`CENSUS_API_KEY` is not set, the command fails before producing a production-prep package. For a
+staging-only package that documents missing ACS instead of blocking, pass `--allow-missing-acs`.
+
+The GitHub Actions workflow `.github/workflows/all-states-data-package.yml` runs the same
+ACS-required rebuild from `secrets.CENSUS_API_KEY` and uploads the raw, review, context, summary, and
+public-report artifacts:
+
+```powershell
+gh workflow run all-states-data-package.yml `
+  --repo AKaturu/radiology-access-shock-tracker `
+  -f acs_year=2024
+```
+
+The generated `summary/data_package_manifest.json` includes `state_coverage` counts and
+`state_coverage_gaps` lists for each source. Treat any public no-secret gap as a refresh or source
+review blocker before using the package for state comparisons. The generated
+`summary/state_readiness_gates.csv` lists each state's MQSA review, HRSA candidate-review,
+geocoding, routing, ACS, and publication gates so non-NC findings stay blocked until each state's
+human review and readiness audit are complete.
+
+To combine owner, credential, all-state package, ACS, publication-gate, and analysis-readiness
+checks into one production completion report, run:
+
+```powershell
+radshock production-audit `
+  --config-path config.example.toml `
+  --all-states-manifest work/all-states/2026-07-02/summary/data_package_manifest.json `
+  --readiness-json desktop_payload/analysis/readiness_audit.json `
+  --output-json outputs/production_audit.json `
+  --output-md outputs/production_audit.md `
+  --force
+```
+
+The command reports `BLOCKED` until the all-state package has ACS context when required, no
+manifest readiness gates, a publication-ready package status, and a `READY` analysis readiness
+report.
+
+For production data-quality review, generate single-file reports or a review bundle:
+
+```powershell
+radshock data-quality-report data/snapshots/2026-06-20/facilities.csv `
+  --dataset-type facilities `
+  --output-json outputs/facilities_quality.json `
+  --output-md outputs/facilities_quality.md `
+  --force
+
+radshock data-quality-report `
+  --output-dir outputs/data_quality `
+  --facilities-csv data/snapshots/2026-06-20/facilities.csv `
+  --population-csv data/population_points_tracts.csv `
+  --mqsa-review-csv work/mqsa_review.csv `
+  --travel-time-review-csv data/travel_times/2026-06-20_tract_nearest20_osrm_review.csv `
+  --force
+```
+
+The bundle emits `data_quality.csv`, `geocoder_confidence.csv`, `identifier_crosswalk.csv`, and
+`route_uncertainty.csv` when the corresponding inputs are supplied. Use
+`radshock route-uncertainty-check` for a route-review-only plausibility report.
 
 The command writes county-centroid population points for testing. Build finer tract-centroid
 population points before publication route review:
@@ -100,6 +191,18 @@ radshock fetch-census-population-points `
   --output-csv data/population_points_tracts.csv `
   --raw-context-csv data/census_tract_context_2024.csv `
   --metadata-json data/census_tract_context_2024.metadata.json `
+  --state NC `
+  --year 2024
+```
+
+For all 50 states, use `--state ALL` and review the larger output before routing:
+
+```powershell
+radshock fetch-census-population-points `
+  --output-csv work/all-states/population_points_tracts.csv `
+  --raw-context-csv work/all-states/census_tract_context_2024.csv `
+  --metadata-json work/all-states/census_tract_context_2024.metadata.json `
+  --state ALL `
   --year 2024
 ```
 
@@ -226,6 +329,17 @@ radshock prepare-hrsa-candidate-review `
   --output-csv data/candidate_sites_review.csv `
   --metadata-json data/candidate_sites_review.metadata.json `
   --state NC
+```
+
+Use `--state ALL` with separate output paths to prepare a 50-state HRSA candidate-review sheet.
+Those rows still require review and approval before they can be finalized:
+
+```powershell
+radshock prepare-hrsa-candidate-review `
+  work/source-refresh-smoke/raw/hrsa-health-center-service-delivery-sites/2026-06-20/Health_Center_Service_Delivery_and_LookAlike_Sites.csv `
+  --output-csv work/all-states/candidate_sites_review.csv `
+  --metadata-json work/all-states/candidate_sites_review.metadata.json `
+  --state ALL
 ```
 
 By default the HRSA command keeps active service-delivery rows and excludes administrative-only
