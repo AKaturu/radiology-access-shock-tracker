@@ -157,6 +157,7 @@ def _state_row(
 
 
 def test_mark_publication_ready_rejects_unresolved_gates(tmp_path: Path) -> None:
+    rp = tmp_path / "nonexistent.json"
     with pytest.raises(RuntimeError, match="Cannot mark publication ready"):
         PACKAGE_MODULE.build_all_states_data_package(
             tmp_path / "output",
@@ -165,7 +166,7 @@ def test_mark_publication_ready_rejects_unresolved_gates(tmp_path: Path) -> None
             census_api_key=None,
             require_acs=False,
             mark_publication_ready=True,
-            resolutions_file=Path("nonexistent.json"),
+            resolutions_file=rp,
         )
 
 
