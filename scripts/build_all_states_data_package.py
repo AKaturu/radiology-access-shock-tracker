@@ -36,6 +36,7 @@ from radshock.adapters.svi import (
     read_svi_county_context,
 )
 from radshock.gates import (
+    DEFAULT_RESOLUTIONS_PATH,
     KNOWN_GATES,
     get_active_gate_strings,
     load_resolutions,
@@ -56,6 +57,7 @@ def build_all_states_data_package(
     require_acs: bool = False,
     mark_publication_ready: bool = False,
     public_report: Path | None = None,
+    resolutions_file: Path | None = None,
 ) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
     raw_dir = output_dir / "raw"
@@ -138,7 +140,16 @@ def build_all_states_data_package(
     _write_csv(state_summary, state_summary_path, force=force)
     if require_acs:
         _validate_required_acs_coverage(state_summary)
-    gate_resolutions = load_resolutions()
+    gate_resolutions = load_resolutions(resolutions_file)
+    if mark_publication_ready:
+        active_gates = get_active_gate_strings(gate_resolutions)
+        if active_gates:
+            raise RuntimeError(
+                f"Cannot mark publication ready: {len(active_gates)} gate(s) remain "
+                f"unresolved. Resolve all gates first via `radshock resolve-gate` or "
+                f"inspect with `radshock gate-status`.\n"
+                + "\n".join(f"  - {g}" for g in active_gates)
+            )
     state_readiness = _build_state_readiness_audit(state_summary, gate_resolutions)
     state_readiness_path = summary_dir / "state_readiness_gates.csv"
     _write_csv(state_readiness, state_readiness_path, force=force)
@@ -780,6 +791,15 @@ def _parse_args() -> argparse.Namespace:
             "readiness gates are resolved."
         ),
     )
+    parser.add_argument(
+        "--resolutions-file",
+        type=Path,
+        default=None,
+        help=(
+            "Path to gate resolutions tracking file. "
+            f"Defaults to {DEFAULT_RESOLUTIONS_PATH}."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -794,6 +814,7 @@ def main() -> None:
         require_acs=not args.allow_missing_acs,
         mark_publication_ready=args.mark_publication_ready,
         public_report=args.public_report,
+        resolutions_file=args.resolutions_file,
     )
     print(json.dumps({"output_dir": str(args.output_dir), **manifest["row_counts"]}, indent=2))
 

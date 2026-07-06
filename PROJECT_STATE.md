@@ -142,7 +142,13 @@ NC gate integration:
   - HRSA: candidate_assumptions with 771 rows, 92 counties, HRSA source cited (manifest.json).
   - Travel-time: 100.0% route coverage, self-hosted OSRM, Geofabrik NC (readiness_audit.json).
 
-Tests: 120 pass, ruff clean, mypy clean on 31 source files.
+Build script enhancements:
+- Added `--resolutions-file` CLI argument to `build_all_states_data_package.py` (defaults to
+  `work/gate_resolutions.json`) for custom gate resolution file paths.
+- Added gate check on `--mark-publication-ready`: the build now raises RuntimeError if any
+  gates remain unresolved, preventing accidental premature publication.
+
+Tests: 123 pass, ruff clean, mypy clean on 31 source files.
 
 ### Remaining Work
 PR #8 is pushed and auto-merge is queued. GitHub still requires code-owner review approval before
@@ -161,10 +167,10 @@ system; 49 states per gate remain. Gate tracking at `work/gate_resolutions.json`
    configured `secrets.CENSUS_API_KEY`.
 3. Continue per-state gate resolution by running human review for additional states, then:
    `radshock resolve-gate <gate_name> <state> --evidence "<review reference>"`
-4. Once a gate is resolved for all 50 states, it will automatically drop from the manifest on next
-   package rebuild. Run `build_all_states_data_package.py --mark-publication-ready` when all gates
-   are resolved to flip `publication_status` to `ready_for_publication`.
-5. Track gate resolution progress: `radshock gate-status` or inspect `work/gate_resolutions.json`.
+4. Once all gates are fully resolved (all 50 states), run the build script with
+   `--mark-publication-ready` — it now rejects with an error if any gates remain unresolved.
+   Pass `--resolutions-file <path>` to use a non-default gate resolution file.
+5. PR #5 is already closed — no action needed.
 
 ---
 

@@ -1,9 +1,12 @@
 import importlib.util
+import json
 from pathlib import Path
 from types import ModuleType
 
 import pandas as pd
 import pytest
+
+from radshock.gates import ALL_STATES_FIPS_LIST, load_resolutions, resolve_gate
 
 PACKAGE_SCRIPT = (
     Path(__file__).resolve().parents[1] / "scripts" / "build_all_states_data_package.py"
@@ -151,3 +154,119 @@ def _state_row(
         "acs_county_context_rows": acs_county_context_rows,
         "acs_tract_context_rows": acs_tract_context_rows,
     }
+
+
+def test_mark_publication_ready_rejects_unresolved_gates(tmp_path: Path) -> None:
+    with pytest.raises(RuntimeError, match="Cannot mark publication ready"):
+        PACKAGE_MODULE.build_all_states_data_package(
+            tmp_path / "output",
+            year=2024,
+            force=True,
+            census_api_key=None,
+            require_acs=False,
+            mark_publication_ready=True,
+            resolutions_file=Path("nonexistent.json"),
+        )
+
+
+def test_mark_publication_ready_accepts_when_all_gates_resolved(
+    tmp_path: Path, monkeypatch
+) -> None:
+    rp = tmp_path / "resolutions.json"
+    resolutions = load_resolutions(rp)
+    for fips in ALL_STATES_FIPS_LIST:
+        resolve_gate(
+            resolutions,
+            gate_name="mqsa_review",
+            state=fips,
+            resolved_by="@test",
+            evidence="all resolved",
+        )
+        resolve_gate(
+            resolutions,
+            gate_name="hrsa_candidate_review",
+            state=fips,
+            resolved_by="@test",
+            evidence="all resolved",
+        )
+        resolve_gate(
+            resolutions,
+            gate_name="travel_time_matrices",
+            state=fips,
+            resolved_by="@test",
+            evidence="all resolved",
+        )
+    from radshock.gates import save_resolutions
+    save_resolutions(resolutions, rp)
+
+    def _fake_acs(*args, **kwargs):
+        import pandas as pd
+        county_fips = sorted(f"{s}001" for s in ALL_STATES_FIPS_LIST)
+        tract_fips = sorted(f"{s}001020100" for s in ALL_STATES_FIPS_LIST)
+        from radshock.states import US_STATE_FIPS_TO_ABBR
+        return {
+            "status_note": "mocked ACS",
+            "paths": {},
+            "row_counts": {
+                "acs_county_context_rows": 50,
+                "acs_tract_context_rows": 50,
+                "acs_county_population_points": 50,
+                "acs_tract_population_points": 50,
+            },
+            "counties_frame": pd.DataFrame({
+                "county_fips": county_fips,
+                "state": [US_STATE_FIPS_TO_ABBR[f[:2]] for f in county_fips],
+                "total_population": [50000] * 50,
+            }),
+            "tracts_frame": pd.DataFrame({
+                "tract_geoid": tract_fips,
+                "county_fips": [f[:5] for f in tract_fips],
+                "state": [US_STATE_FIPS_TO_ABBR[f[:2]] for f in tract_fips],
+                "total_population": [5000] * 50,
+            }),
+        }
+    monkeypatch.setattr(PACKAGE_MODULE, "_maybe_build_acs_outputs", _fake_acs)
+
+    manifest = PACKAGE_MODULE.build_all_states_data_package(
+        tmp_path / "output",
+        year=2024,
+        force=True,
+        census_api_key=None,
+        require_acs=False,
+        mark_publication_ready=True,
+        resolutions_file=rp,
+    )
+
+    assert manifest["publication_status"] == "ready_for_publication"
+    assert manifest["readiness_gates"] == []
+
+
+def test_resolutions_file_arg_passed_to_readiness_gates(tmp_path: Path) -> None:
+    rp = tmp_path / "custom.json"
+    rp.write_text(
+        json.dumps({
+            "version": 1,
+            "gates": {
+                "mqsa_review": {
+                    "label": "MQSA review",
+                    "resolved_states": {
+                        fips: {"resolved_by": "@test", "resolved_at": "now", "evidence": "x"}
+                        for fips in ALL_STATES_FIPS_LIST
+                    },
+                },
+                "hrsa_candidate_review": {"label": "HRSA candidate review", "resolved_states": {}},
+                "travel_time_matrices": {"label": "Travel-time matrices", "resolved_states": {}},
+            },
+        }) + "\n",
+        encoding="utf-8",
+    )
+
+    summary = pd.DataFrame([_state_row("AL"), _state_row("AK", state_fips="02")])
+    summary["sources_present"] = 6
+
+    gates = PACKAGE_MODULE._build_package_readiness_gates(
+        summary, PACKAGE_MODULE.load_resolutions(rp)
+    )
+
+    mqsa_gates = [g for g in gates if "MQSA" in g]
+    assert len(mqsa_gates) == 0
