@@ -10,8 +10,8 @@ Add and use 50-state source access for the radiology access workflow while prese
 North Carolina validation package and keeping the public GitHub Pages documentation accurate.
 
 ### Current Status
-50-state public no-secret data package generated with CDC/ATSDR SVI county context and validation
-complete on branch `codex/github-page-fixes`.
+50-state public no-secret data package, production completion auditing, and production data-quality
+reporting are implemented and validated on branch `codex/github-page-fixes`.
 
 ---
 
@@ -51,19 +51,46 @@ complete on branch `codex/github-page-fixes`.
 #### Tests Added
 - `tests/test_adapters.py`: SVI all-50-state filtering and CDC `-999` missing-value handling.
 
+### Feature: Production Completion Audit
+
+#### Validation
+- `python -m pytest tests/test_production.py tests/test_cli.py::test_production_audit_command_writes_reports -q`: passed.
+- `python -m radshock.cli production-audit --config-path config.example.toml --all-states-manifest work/all-states/2026-07-02/summary/data_package_manifest.json --readiness-json desktop_payload/analysis/readiness_audit.json --output-json outputs/production_audit.json --output-md outputs/production_audit.md --force`: generated a `BLOCKED` audit with 4 blockers and 0 warnings.
+
+#### Tests Added
+- `tests/test_production.py`: owner/credential checks, all-state package gates, readiness JSON gate, combined audit READY path.
+- `tests/test_cli.py`: `production-audit` JSON/Markdown command coverage.
+
+### Feature: Production Data-Quality Reporting
+
+#### Validation
+- `python -m pytest tests/test_quality.py tests/test_cli.py::test_data_quality_report_command_writes_single_dataset_reports tests/test_cli.py::test_route_uncertainty_check_command_writes_report -q`: passed.
+- `python -m radshock.cli data-quality-report data/snapshots/2026-06-20/facilities.csv --dataset-type facilities --output-json outputs/facilities_quality.json --output-md outputs/facilities_quality.md --force`: PASS for 289 facility rows.
+- `python -m radshock.cli route-uncertainty-check data/travel_times/2026-06-20_tract_nearest20_osrm_review.csv --output-csv outputs/route_uncertainty.csv --force`: PASS for 52,680 routed rows, 2,634 origins, 0 high-speed flags, and 0 missing-provider rows.
+- `python -m pytest -q`: passed.
+- `python -m ruff check .`: passed.
+- `python -m mypy src`: passed with no issues in 30 source files.
+
+#### Tests Added
+- `tests/test_quality.py`: CSV quality audit, geocoder confidence, identifier crosswalk, route uncertainty, bundled data-quality outputs.
+- `tests/test_cli.py`: `data-quality-report` and `route-uncertainty-check` command coverage.
+
 ---
 
 ## Current Work
 
 ### Active Feature
-None.
+Production hardening.
 
 ### Progress
-All requested implementation, data gathering, docs, and validation updates are complete locally.
+The software now exposes explicit production completion gates plus data-quality reports for
+reviewed artifacts. Local and remote tests passed before this follow-up work; local full
+verification passes after the production audit and data-quality additions.
 
 ### Remaining Work
 PR #8 is pushed and auto-merge is queued. GitHub still requires repository review approval before
-the queued squash merge can complete.
+the queued squash merge can complete. Full production launch remains blocked by the current
+`production-audit` findings listed below.
 
 ---
 
@@ -72,7 +99,9 @@ the queued squash merge can complete.
 1. Approve PR #8 so queued auto-merge can complete.
 2. Set `CENSUS_API_KEY` and rerun `scripts/build_all_states_data_package.py` to add ACS
    socioeconomic context and population points.
-3. Run human review, geocoding, route matrices, and readiness audits before
+3. Resolve all all-state manifest readiness gates, then mark the data package publication status
+   only after review evidence is complete.
+4. Run human review, geocoding, route matrices, and readiness audits before
    publishing non-NC findings.
 
 ---
@@ -83,8 +112,12 @@ the queued squash merge can complete.
 None for the local implementation.
 
 ### Known Issues
-- GitHub shows one open pull request, #5 "Build production readiness reporting"; no open issue was
-  found for the Pages repo.
+- GitHub shows one stale/conflicting open pull request, #5 "Build production readiness reporting".
+  The production-audit and data-quality pieces have been ported into the active branch, but PR #5
+  may still contain unrelated experimental changes.
+- Current `production-audit` blockers: `CENSUS_API_KEY` missing locally, all-state ACS county/tract
+  context missing, all-state package `publication_status=not_ready_for_publication`, and 4
+  unresolved all-state package readiness gates.
 
 ### Technical Concerns
 - `--state ALL` prepares 50-state inputs, but it does not remove the existing human-review,
@@ -98,7 +131,7 @@ None for the local implementation.
 
 ## Resume Instructions
 
-Start with `scripts/build_all_states_data_package.py`, `src/radshock/states.py`,
-`src/radshock/adapters/acs.py`, and `src/radshock/cli.py`. Verify with `python -m pytest -q`,
-`ruff check .`, and `mypy src/radshock`. The single next step is to push
-`codex/github-page-fixes` and open a PR if the GitHub repo should receive these changes.
+Start with `src/radshock/production.py`, `src/radshock/data_quality.py`,
+`src/radshock/quality.py`, `scripts/build_all_states_data_package.py`, and `src/radshock/cli.py`.
+Verify with `python -m pytest -q`, `python -m ruff check .`, and `python -m mypy src`. Rerun
+`radshock production-audit` after `CENSUS_API_KEY` is available and the all-state package is rebuilt.

@@ -10,19 +10,20 @@
 - CMS screening utilization signal
 - mobile/fixed candidate response ranking
 - reproducible policy brief generation
+- production completion, data-quality, geocoder-confidence, identifier-crosswalk, and route-uncertainty reporting
 
 ## Next production steps
 
-1. Complete the first reviewed FDA/MQSA snapshot using the documented acquisition and adjudication
-   workflow.
-2. Replace synthetic population points with Census-derived small-area populations.
-3. Generate reviewed road-network travel-time matrices and uncertainty checks.
-4. Configure source review owners and production-data credentials for ACS/routing workflows.
+1. Approve and merge the active 50-state source-access PR.
+2. Configure production-data credentials, especially `CENSUS_API_KEY`, in the local runner and
+   GitHub secrets.
+3. Rebuild the all-state package with ACS county and tract context.
+4. Resolve all all-state package readiness gates and mark publication status only after review
+   evidence is complete.
 5. Add multiple pre/post CMS periods and causal-study export tables.
-6. Add data-quality dashboards, geocoder confidence, and identifier crosswalks.
-7. Review, geocode, route, and readiness-audit additional state packages before publishing
+6. Review, geocode, route, and readiness-audit additional state packages before publishing
    findings outside North Carolina.
-8. Expand sensitivity-analysis reports beyond CSV outputs for reviewer signoff.
+7. Expand sensitivity-analysis reports beyond CSV outputs for reviewer signoff.
 
 ## Reserved future applications
 

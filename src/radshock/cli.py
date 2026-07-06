@@ -33,6 +33,7 @@ from radshock.adapters.hrsa import (
 from radshock.briefs import generate_policy_brief, generate_policy_brief_html
 from radshock.candidates import build_county_candidate_review_template, finalize_candidate_review
 from radshock.changes import detect_changes
+from radshock.data_quality import audit_csv_quality, render_quality_markdown
 from radshock.demo import build_demo
 from radshock.geocoding import (
     CensusGeocoder,
@@ -41,6 +42,13 @@ from radshock.geocoding import (
     geocode_mqsa_review,
 )
 from radshock.intervention import simulate_candidates
+from radshock.production import (
+    production_audit_to_json,
+    production_overall_status,
+    render_production_audit_markdown,
+    run_production_audit,
+)
+from radshock.quality import build_data_quality_reports, build_route_uncertainty_report
 from radshock.readiness import audit_to_json, render_readiness_markdown, run_readiness_audit
 from radshock.schemas import validate_facilities
 from radshock.sensitivity import run_sensitivity_analysis
@@ -330,6 +338,103 @@ def validate_snapshot(
     """Validate a normalized facility snapshot CSV."""
     frame = validate_facilities(pd.read_csv(snapshot_csv))
     typer.echo(f"Snapshot valid: {len(frame)} records, {int(frame['active'].sum())} active")
+
+
+@app.command("data-quality-report")
+def data_quality_report_command(
+    input_csv: Annotated[Path | None, typer.Argument(exists=True, readable=True)] = None,
+    dataset_type: Annotated[
+        str,
+        typer.Option(
+            help=(
+                "Dataset type: auto, facilities, counties, population_points, "
+                "candidates, travel_time_matrix."
+            )
+        ),
+    ] = "auto",
+    output_json: Annotated[Path | None, typer.Option()] = None,
+    output_md: Annotated[Path | None, typer.Option()] = None,
+    output_dir: Annotated[Path | None, typer.Option()] = None,
+    facilities_csv: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    population_csv: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    mqsa_review_csv: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    travel_time_review_csv: Annotated[
+        Path | None,
+        typer.Option(exists=True, readable=True),
+    ] = None,
+    force: Annotated[bool, typer.Option(help="Overwrite existing report files.")] = False,
+) -> None:
+    """Write data-quality reports for CSV inputs and production review bundles."""
+    wrote_report = False
+    if input_csv is not None or output_json is not None or output_md is not None:
+        if input_csv is None:
+            raise typer.BadParameter("input_csv is required when writing JSON/Markdown reports")
+        for path in [output_json, output_md]:
+            if path is not None and path.exists() and not force:
+                raise typer.BadParameter(f"output already exists: {path}")
+        audit = audit_csv_quality(input_csv, dataset_type=dataset_type)
+        if output_json is not None:
+            output_json.parent.mkdir(parents=True, exist_ok=True)
+            output_json.write_text(
+                json.dumps(audit, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            typer.echo(f"Data-quality JSON written: {output_json.resolve()}")
+        if output_md is not None:
+            output_md.parent.mkdir(parents=True, exist_ok=True)
+            output_md.write_text(render_quality_markdown(audit), encoding="utf-8")
+            typer.echo(f"Data-quality Markdown written: {output_md.resolve()}")
+        typer.echo(
+            f"Data quality: {audit['status']} ({audit['dataset_type']}, "
+            f"{audit['row_count']} rows)"
+        )
+        wrote_report = True
+
+    bundle_requested = any(
+        path is not None
+        for path in [
+            output_dir,
+            facilities_csv,
+            population_csv,
+            mqsa_review_csv,
+            travel_time_review_csv,
+        ]
+    )
+    if bundle_requested:
+        if output_dir is None:
+            raise typer.BadParameter("output_dir is required for production data-quality tables")
+        reports = build_data_quality_reports(
+            facilities=pd.read_csv(facilities_csv) if facilities_csv is not None else None,
+            population_points=pd.read_csv(
+                population_csv,
+                dtype={"point_id": str, "county_fips": str},
+            )
+            if population_csv is not None
+            else None,
+            mqsa_review=pd.read_csv(mqsa_review_csv, dtype=str, keep_default_na=False)
+            if mqsa_review_csv is not None
+            else None,
+            travel_time_review=pd.read_csv(
+                travel_time_review_csv,
+                dtype=str,
+                keep_default_na=False,
+            )
+            if travel_time_review_csv is not None
+            else None,
+        )
+        output_dir.mkdir(parents=True, exist_ok=True)
+        for name, frame in reports.items():
+            path = output_dir / f"{name}.csv"
+            if path.exists() and not force:
+                raise typer.BadParameter(f"output already exists: {path}")
+            frame.to_csv(path, index=False)
+            typer.echo(f"{name} written: {path.resolve()}")
+        wrote_report = True
+
+    if not wrote_report:
+        raise typer.BadParameter(
+            "provide input_csv for a single report or --output-dir with at least one source CSV"
+        )
 
 
 @app.command("compare-snapshots")
@@ -932,6 +1037,26 @@ def sensitivity_analysis_command(
         typer.echo(sensitivity.to_csv(index=False))
 
 
+@app.command("route-uncertainty-check")
+def route_uncertainty_check_command(
+    travel_time_review_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    output_csv: Annotated[Path | None, typer.Option()] = None,
+    force: Annotated[bool, typer.Option(help="Overwrite existing output CSV.")] = False,
+) -> None:
+    """Summarize route-review uncertainty, coverage, and plausibility flags."""
+    if output_csv is not None and output_csv.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {output_csv}")
+    report = build_route_uncertainty_report(
+        pd.read_csv(travel_time_review_csv, dtype=str, keep_default_na=False)
+    )
+    if output_csv is None:
+        typer.echo(report.to_csv(index=False))
+        return
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    report.to_csv(output_csv, index=False)
+    typer.echo(f"Route uncertainty report written: {output_csv.resolve()}")
+
+
 @app.command("readiness-audit")
 def readiness_audit_command(
     analysis_dir: Annotated[Path, typer.Option()] = Path("outputs/demo/analysis"),
@@ -963,6 +1088,52 @@ def readiness_audit_command(
     warning_count = sum(check.status == "WARN" for check in audit.checks)
     typer.echo(
         f"Readiness status: {audit.overall_status}; "
+        f"blockers: {blocker_count}; warnings: {warning_count}"
+    )
+
+
+@app.command("production-audit")
+def production_audit_command(
+    config_path: Annotated[Path, typer.Option(exists=True, readable=True)] = Path(
+        "config.example.toml"
+    ),
+    all_states_manifest: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    readiness_json: Annotated[Path | None, typer.Option(exists=True, readable=True)] = None,
+    output_csv: Annotated[Path | None, typer.Option()] = None,
+    output_json: Annotated[Path | None, typer.Option()] = None,
+    output_md: Annotated[Path | None, typer.Option()] = None,
+    require_acs: Annotated[
+        bool,
+        typer.Option(
+            "--require-acs/--allow-missing-acs",
+            help="Block production if all-state ACS county or tract context is incomplete.",
+        ),
+    ] = True,
+    force: Annotated[bool, typer.Option(help="Overwrite existing report files.")] = False,
+) -> None:
+    """Audit project-level production completion gates."""
+    checks = run_production_audit(
+        config_path=config_path,
+        all_states_manifest=all_states_manifest,
+        readiness_json=readiness_json,
+        require_acs=require_acs,
+    )
+    if output_csv is not None:
+        if output_csv.exists() and not force:
+            raise typer.BadParameter(f"output already exists: {output_csv}")
+        output_csv.parent.mkdir(parents=True, exist_ok=True)
+        checks.to_csv(output_csv, index=False)
+        typer.echo(f"Production audit CSV written: {output_csv.resolve()}")
+    if output_json is not None:
+        _write_report(output_json, production_audit_to_json(checks), force)
+        typer.echo(f"Production audit JSON written: {output_json.resolve()}")
+    if output_md is not None:
+        _write_report(output_md, render_production_audit_markdown(checks), force)
+        typer.echo(f"Production audit report written: {output_md.resolve()}")
+    blocker_count = int((checks["status"] == "BLOCKER").sum())
+    warning_count = int((checks["status"] == "WARN").sum())
+    typer.echo(
+        f"Production status: {production_overall_status(checks)}; "
         f"blockers: {blocker_count}; warnings: {warning_count}"
     )
 

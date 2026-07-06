@@ -9,9 +9,11 @@
 - Population-weighted distance and reviewed travel-time access analysis
 - Vulnerability-adjusted county shock scores with sensitivity analysis
 - Production readiness auditing (JSON and Markdown reports)
+- Project-level production completion auditing for owners, credentials, all-state data coverage, and analysis readiness
 - FDA MQSA public-source refresh workflow with human-review gate
 - MQSA geocoding assistance (Census and static providers)
 - Reviewed travel-time matrix comparison with route-review templates
+- Data-quality, geocoder-confidence, identifier-crosswalk, and route-uncertainty reporting
 - Candidate-site review workflow and intervention ranking
 - Census ACS county and tract population-point generation
 - HRSA health-center service-delivery candidate site assumptions

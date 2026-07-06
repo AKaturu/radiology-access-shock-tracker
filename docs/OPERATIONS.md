@@ -126,6 +126,45 @@ The generated `summary/data_package_manifest.json` includes `state_coverage` cou
 `state_coverage_gaps` lists for each source. Treat any public no-secret gap as a refresh or source
 review blocker before using the package for state comparisons.
 
+To combine owner, credential, all-state package, ACS, publication-gate, and analysis-readiness
+checks into one production completion report, run:
+
+```powershell
+radshock production-audit `
+  --config-path config.example.toml `
+  --all-states-manifest work/all-states/2026-07-02/summary/data_package_manifest.json `
+  --readiness-json desktop_payload/analysis/readiness_audit.json `
+  --output-json outputs/production_audit.json `
+  --output-md outputs/production_audit.md `
+  --force
+```
+
+The command reports `BLOCKED` until the all-state package has ACS context when required, no
+manifest readiness gates, a publication-ready package status, and a `READY` analysis readiness
+report.
+
+For production data-quality review, generate single-file reports or a review bundle:
+
+```powershell
+radshock data-quality-report data/snapshots/2026-06-20/facilities.csv `
+  --dataset-type facilities `
+  --output-json outputs/facilities_quality.json `
+  --output-md outputs/facilities_quality.md `
+  --force
+
+radshock data-quality-report `
+  --output-dir outputs/data_quality `
+  --facilities-csv data/snapshots/2026-06-20/facilities.csv `
+  --population-csv data/population_points_tracts.csv `
+  --mqsa-review-csv work/mqsa_review.csv `
+  --travel-time-review-csv data/travel_times/2026-06-20_tract_nearest20_osrm_review.csv `
+  --force
+```
+
+The bundle emits `data_quality.csv`, `geocoder_confidence.csv`, `identifier_crosswalk.csv`, and
+`route_uncertainty.csv` when the corresponding inputs are supplied. Use
+`radshock route-uncertainty-check` for a route-review-only plausibility report.
+
 The command writes county-centroid population points for testing. Build finer tract-centroid
 population points before publication route review:
 

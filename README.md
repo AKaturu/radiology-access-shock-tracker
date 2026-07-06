@@ -37,6 +37,8 @@ Walkthrough footage and more screenshots are in [docs/GITHUB_PAGE_ASSETS.md](doc
 - Produces vulnerability-adjusted county shock score and alert level
 - Re-scores under alternative weighting assumptions for sensitivity review
 - Audits analysis packages for publication-readiness blockers and provenance gaps
+- Audits project-level production completion gates for owners, credentials, all-state coverage, ACS context, and readiness reports
+- Generates data-quality, geocoder-confidence, identifier-crosswalk, and route-uncertainty reports for production review
 - Summarizes before/after screening utilization signals
 - Ranks hypothetical mobile or fixed-site locations by geographic access recovery
 - FDA MQSA source-refresh workflow with human-review gate
