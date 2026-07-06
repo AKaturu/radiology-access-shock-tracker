@@ -6,6 +6,9 @@ from pathlib import Path
 
 import pandas as pd
 
+from radshock.data.states import STATE_FIPS_MAP
+from radshock.gates import KNOWN_GATES, load_gate_resolutions
+
 
 def audit_production_config(config_path: Path) -> pd.DataFrame:
     """Audit review-owner and production credential configuration.
@@ -69,6 +72,30 @@ def audit_production_config(config_path: Path) -> pd.DataFrame:
                     else "Configure before production route publication.",
                 )
             )
+
+    gate_resolutions_file = payload.get("gate_resolutions_file")
+    if gate_resolutions_file:
+        resolutions_path = Path(str(gate_resolutions_file))
+        if resolutions_path.exists():
+            resolutions = load_gate_resolutions(resolutions_path)
+        else:
+            resolutions = None
+        if resolutions is not None:
+            for gate in KNOWN_GATES:
+                unresolved = resolutions.unresolved_states(gate)
+                state_count = len(STATE_FIPS_MAP) - 1
+                resolved_count = state_count - len(unresolved)
+                rows.append(
+                    _row(
+                        "readiness_gates",
+                        gate,
+                        f"{resolved_count}/{state_count}",
+                        "BLOCKER" if unresolved else "PASS",
+                        f"Gate '{gate}' has {len(unresolved)} unresolved state(s)."
+                        if unresolved
+                        else "Gate is fully resolved.",
+                    )
+                )
     return pd.DataFrame(rows, columns=["domain", "check", "value", "status", "details"])
 
 

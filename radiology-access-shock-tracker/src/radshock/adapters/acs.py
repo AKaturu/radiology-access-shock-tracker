@@ -5,6 +5,8 @@ from io import StringIO
 import pandas as pd
 import requests
 
+import radshock.data.states as st
+
 ACS_VARIABLES = {
     "NAME": "name",
     "B01001_001E": "total_population",
@@ -29,6 +31,7 @@ FEMALE_50_74_COLUMNS = [
     "female_67_69",
     "female_70_74",
 ]
+
 NC_STATE_FIPS = "37"
 NC_STATE_ABBR = "NC"
 NC_COUNTY_GAZETTEER_URL_TEMPLATE = (
@@ -219,6 +222,144 @@ def build_nc_tract_analysis_context(
     return result.sort_values("tract_geoid").reset_index(drop=True)
 
 
+def fetch_state_county_context(
+    state_abbr: str,
+    year: int = 2024,
+    *,
+    api_key: str | None = None,
+    timeout: int = 30,
+) -> pd.DataFrame:
+    """Fetch county ACS context for any US state."""
+    fips = st.STATE_FIPS_MAP[state_abbr.upper()]
+    frame = _fetch_acs_context(
+        year,
+        geography="county:*",
+        in_clause=f"state:{fips}",
+        api_key=api_key,
+        timeout=timeout,
+    )
+    frame["county_fips"] = frame["state"] + frame["county"]
+    return _add_derived_acs_indicators(frame).sort_values("county_fips").reset_index(drop=True)
+
+
+def fetch_state_tract_context(
+    state_abbr: str,
+    year: int = 2024,
+    *,
+    api_key: str | None = None,
+    timeout: int = 30,
+) -> pd.DataFrame:
+    """Fetch tract ACS context for any US state."""
+    fips = st.STATE_FIPS_MAP[state_abbr.upper()]
+    frame = _fetch_acs_context(
+        year,
+        geography="tract:*",
+        in_clause=f"state:{fips} county:*",
+        api_key=api_key,
+        timeout=timeout,
+    )
+    frame["county_fips"] = frame["state"] + frame["county"]
+    frame["tract_geoid"] = frame["county_fips"] + frame["tract"]
+    return _add_derived_acs_indicators(frame).sort_values("tract_geoid").reset_index(drop=True)
+
+
+def fetch_state_county_gazetteer(
+    state_abbr: str,
+    year: int = 2024,
+    timeout: int = 30,
+) -> pd.DataFrame:
+    """Fetch county Gazetteer for any US state."""
+    fips = st.STATE_FIPS_MAP[state_abbr.upper()]
+    url = st.GAZETTEER_COUNTY_URL_TEMPLATE.format(year=year, fips=fips)
+    response = requests.get(url, timeout=timeout)
+    response.raise_for_status()
+    frame = pd.read_csv(StringIO(response.text), sep="\t", dtype=str)
+    frame.columns = [column.strip() for column in frame.columns]
+    result = frame.rename(
+        columns={
+            "GEOID": "county_fips",
+            "NAME": "county_name",
+            "ALAND_SQMI": "land_area_sqmi",
+            "INTPTLAT": "centroid_lat",
+            "INTPTLONG": "centroid_lon",
+        }
+    )
+    numeric = ["land_area_sqmi", "centroid_lat", "centroid_lon"]
+    result[numeric] = result[numeric].apply(pd.to_numeric, errors="raise")
+    return result[["county_fips", "county_name", "land_area_sqmi", "centroid_lat", "centroid_lon"]]
+
+
+def fetch_state_tract_gazetteer(
+    state_abbr: str,
+    year: int = 2024,
+    timeout: int = 30,
+) -> pd.DataFrame:
+    """Fetch tract Gazetteer for any US state."""
+    fips = st.STATE_FIPS_MAP[state_abbr.upper()]
+    url = st.GAZETTEER_TRACT_URL_TEMPLATE.format(year=year, fips=fips)
+    response = requests.get(url, timeout=timeout)
+    response.raise_for_status()
+    frame = pd.read_csv(StringIO(response.text), sep="\t", dtype=str)
+    frame.columns = [column.strip() for column in frame.columns]
+    result = frame.rename(
+        columns={
+            "GEOID": "tract_geoid",
+            "NAME": "tract_name",
+            "ALAND_SQMI": "land_area_sqmi",
+            "INTPTLAT": "centroid_lat",
+            "INTPTLONG": "centroid_lon",
+        }
+    )
+    numeric = ["land_area_sqmi", "centroid_lat", "centroid_lon"]
+    result[numeric] = result[numeric].apply(pd.to_numeric, errors="raise")
+    result["county_fips"] = result["tract_geoid"].str.slice(0, 5)
+    if "tract_name" not in result.columns:
+        result["tract_name"] = ""
+    cols = ["tract_geoid", "county_fips", "tract_name", "land_area_sqmi",
+            "centroid_lat", "centroid_lon"]
+    return result[cols]
+
+
+def build_state_county_analysis_context(
+    state_abbr: str,
+    year: int = 2024,
+    *,
+    api_key: str | None = None,
+    timeout: int = 30,
+) -> pd.DataFrame:
+    """Build analysis-ready county context for any US state."""
+    acs = fetch_state_county_context(state_abbr, year=year, api_key=api_key, timeout=timeout)
+    gazetteer = fetch_state_county_gazetteer(state_abbr, year=year, timeout=timeout)
+    result = gazetteer.merge(acs, on="county_fips", how="left")
+    result["state"] = state_abbr.upper()
+    result["population_density_per_sqmi"] = (
+        result["total_population"] / result["land_area_sqmi"]
+    )
+    result["rurality_index"] = _inverse_min_max(result["population_density_per_sqmi"])
+    result["high_risk_index"] = _min_max(result["no_vehicle_pct"])
+    result = _fill_missing_acs_values(result)
+    return result.sort_values("county_fips").reset_index(drop=True)
+
+
+def build_state_tract_analysis_context(
+    state_abbr: str,
+    year: int = 2024,
+    *,
+    api_key: str | None = None,
+    timeout: int = 30,
+) -> pd.DataFrame:
+    """Build source-rich tract context for any US state."""
+    acs = fetch_state_tract_context(state_abbr, year=year, api_key=api_key, timeout=timeout)
+    gazetteer = fetch_state_tract_gazetteer(state_abbr, year=year, timeout=timeout)
+    result = gazetteer.merge(acs, on=["tract_geoid", "county_fips"], how="left")
+    result["state"] = state_abbr.upper()
+    result["population_density_per_sqmi"] = (
+        result["total_population"] / result["land_area_sqmi"]
+    )
+    result = _fill_missing_acs_values(result)
+    return result.sort_values("tract_geoid").reset_index(drop=True)
+
+
 def to_analysis_counties(context: pd.DataFrame) -> pd.DataFrame:
     """Select the strict county schema expected by the access engine."""
     result = context[
@@ -272,6 +413,16 @@ def to_tract_population_points(
     if not include_zero_weight:
         result = result.loc[result["weight"] > 0].copy()
     return result.sort_values("point_id").reset_index(drop=True)
+
+
+def _fill_missing_acs_values(frame: pd.DataFrame) -> pd.DataFrame:
+    acs_columns = list(ACS_VARIABLES.values()) + [
+        "eligible_population", "poverty_pct", "no_vehicle_pct"
+    ]
+    for col in acs_columns:
+        if col in frame.columns:
+            frame[col] = frame[col].fillna(0)
+    return frame
 
 
 def _min_max(series: pd.Series) -> pd.Series:

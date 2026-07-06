@@ -36,6 +36,7 @@ from radshock.candidates import build_county_candidate_review_template, finalize
 from radshock.causal import build_causal_study_exports, write_causal_export_metadata
 from radshock.changes import detect_changes
 from radshock.demo import build_demo
+from radshock.gates import KNOWN_GATES, load_gate_resolutions, save_gate_resolutions
 from radshock.geocoding import (
     CensusGeocoder,
     GeocodeCache,
@@ -1616,6 +1617,112 @@ def _infer_snapshot_dir(snapshot_csv: Path) -> Path | None:
     if snapshot_csv.name == "facilities.csv" and (snapshot_csv.parent / "metadata.json").exists():
         return snapshot_csv.parent
     return None
+
+
+@app.command("resolve-gate")
+def resolve_gate_command(
+    gate_name: Annotated[str, typer.Argument(help="Gate name. One of: " + ", ".join(KNOWN_GATES))],
+    state: Annotated[str, typer.Argument(help="Two-letter state abbreviation.")],
+    evidence: Annotated[str, typer.Option(help="Reference evidence for the resolution.")],
+    resolutions_file: Annotated[
+        Path, typer.Option(help="Path to the gate resolutions JSON file.")
+    ] = Path("work/gate_resolutions.json"),
+    resolved_by: Annotated[str, typer.Option(help="Who or what resolved this gate.")] = "cli",
+) -> None:
+    """Mark a readiness gate as resolved for a given state."""
+    state = state.upper()
+    normalized_gate = gate_name.strip().lower()
+    if normalized_gate not in KNOWN_GATES:
+        raise typer.BadParameter(
+            f"Unknown gate '{gate_name}'. Must be one of: {', '.join(KNOWN_GATES)}"
+        )
+    resolutions = load_gate_resolutions(resolutions_file)
+    resolution = resolutions.resolve(normalized_gate, state, evidence, resolved_by=resolved_by)
+    save_gate_resolutions(resolutions_file, resolutions)
+    typer.echo(
+        f"Gate '{normalized_gate}' resolved for {state}: "
+        f"evidence={evidence}, by={resolved_by}, at={resolution.resolved_at}"
+    )
+
+
+@app.command("unresolve-gate")
+def unresolve_gate_command(
+    gate_name: Annotated[str, typer.Argument(help="Gate name.")],
+    state: Annotated[str, typer.Argument(help="Two-letter state abbreviation.")],
+    resolutions_file: Annotated[
+        Path, typer.Option(help="Path to the gate resolutions JSON file.")
+    ] = Path("work/gate_resolutions.json"),
+) -> None:
+    """Reverse a gate resolution for a given state."""
+    state = state.upper()
+    normalized_gate = gate_name.strip().lower()
+    resolutions = load_gate_resolutions(resolutions_file)
+    resolutions.unresolve(normalized_gate, state)
+    save_gate_resolutions(resolutions_file, resolutions)
+    typer.echo(f"Gate '{normalized_gate}' unresolved for {state}.")
+
+
+@app.command("gate-status")
+def gate_status_command(
+    state: Annotated[str | None, typer.Option(help="Optional two-letter state filter.")] = None,
+    resolutions_file: Annotated[
+        Path, typer.Option(help="Path to the gate resolutions JSON file.")
+    ] = Path("work/gate_resolutions.json"),
+    output_json: Annotated[Path | None, typer.Option(help="Write status as JSON.")] = None,
+    output_md: Annotated[Path | None, typer.Option(help="Write status as Markdown.")] = None,
+) -> None:
+    """Show readiness-gate resolution status per state."""
+    resolutions = load_gate_resolutions(resolutions_file)
+    if state is not None:
+        status = resolutions.state_summary(state.upper())
+        typer.echo(f"Gate status for {state.upper()}:")
+        for gate, resolved in status.items():
+            typer.echo(f"  {gate}: {'RESOLVED' if resolved else 'PENDING'}")
+        return
+    active = resolutions.active_gates()
+    if not active:
+        typer.echo("All readiness gates are fully resolved across all states.")
+        return
+    resolved_ct = resolutions.resolved_count()
+    total_ct = resolutions.total_state_gate_pairs()
+    typer.echo(f"Resolved: {resolved_ct}/{total_ct} state-gate pairs")
+    typer.echo("")
+    for g in active:
+        typer.echo(f"  {g['gate_name']}: {g['resolved_states']}/{g['total_states']} states")
+        if output_json is None and output_md is None:
+            for s in g["unresolved_states"][:10]:
+                typer.echo(f"    - {s}")
+            remaining = len(g["unresolved_states"]) - 10
+            if remaining > 0:
+                typer.echo(f"    ... and {remaining} more")
+    if output_json is not None:
+        payload = {
+            "resolved_count": resolved_ct,
+            "total_pairs": total_ct,
+            "active_gates": active,
+        }
+        output_json.parent.mkdir(parents=True, exist_ok=True)
+        output_json.write_text(
+            json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        typer.echo(f"Gate status JSON written: {output_json.resolve()}")
+    if output_md is not None:
+        lines = [
+            "# Readiness Gate Status",
+            "",
+            f"Resolved: {resolved_ct}/{total_ct}",
+            "",
+        ]
+        for g in active:
+            lines.append(f"## {g['gate_name']}")
+            lines.append(f"Resolved: {g['resolved_states']}/{g['total_states']} states")
+            lines.append("")
+            for s in g["unresolved_states"]:
+                lines.append(f"- [ ] {s}")
+            lines.append("")
+        output_md.parent.mkdir(parents=True, exist_ok=True)
+        output_md.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        typer.echo(f"Gate status MD written: {output_md.resolve()}")
 
 
 if __name__ == "__main__":
