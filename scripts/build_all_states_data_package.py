@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
+import requests
 
 from radshock.adapters.acs import (
     build_county_analysis_context,
@@ -46,6 +47,7 @@ from radshock.sources import fetch_url_source
 from radshock.states import US_STATE_ABBRS, US_STATE_FIPS, state_abbr_from_fips
 
 ALL_STATES_LABEL = "ALL_50_STATES"
+NBER_FDA_MQSA_PUBLIC_ZIP_URL = "https://data.nber.org/fda/mqsa/public.zip"
 
 
 def build_all_states_data_package(
@@ -70,13 +72,7 @@ def build_all_states_data_package(
     run_date = date.today()
     generated_at = datetime.now(UTC).isoformat()
 
-    fda_archive = fetch_url_source(
-        FDA_MQSA_PUBLIC_ZIP_URL,
-        raw_dir,
-        "fda-mqsa-public",
-        retrieved_on=run_date,
-        force=force,
-    )
+    fda_archive, mqsa_source_note = _fetch_mqsa_archive(raw_dir, run_date=run_date, force=force)
     mqsa_raw = read_fda_mqsa_fixed_width(fda_archive, state=None)
     mqsa_raw = mqsa_raw[mqsa_raw["source_state"].isin(US_STATE_ABBRS)].reset_index(drop=True)
     mqsa_review = build_mqsa_review_template(mqsa_raw)
@@ -163,6 +159,7 @@ def build_all_states_data_package(
         ),
         "readiness_gates": _build_package_readiness_gates(state_summary, gate_resolutions),
         "source_notes": {
+            "mqsa": mqsa_source_note,
             "acs": acs_outputs["status_note"],
             "state_readiness_audit": (
                 "State-by-state gates are emitted for reviewer tracking; they do not mark "
@@ -171,6 +168,7 @@ def build_all_states_data_package(
         },
         "sources": {
             "fda_mqsa_public": FDA_MQSA_PUBLIC_ZIP_URL,
+            "nber_fda_mqsa_public_mirror": NBER_FDA_MQSA_PUBLIC_ZIP_URL,
             "hrsa_health_center_sites": HRSA_HEALTH_CENTER_SITES_CSV_URL,
             "hrsa_download_page": HRSA_HEALTH_CENTER_SITES_DOWNLOAD_PAGE,
             "cdc_places_county": PLACES_COUNTY_ENDPOINT,
@@ -232,6 +230,47 @@ def build_all_states_data_package(
         _write_text(public_report, package_readme, force=True)
 
     return manifest
+
+
+def _fetch_mqsa_archive(
+    raw_dir: Path,
+    *,
+    run_date: date,
+    force: bool,
+) -> tuple[Path, dict[str, str]]:
+    try:
+        archive = fetch_url_source(
+            FDA_MQSA_PUBLIC_ZIP_URL,
+            raw_dir,
+            "fda-mqsa-public",
+            retrieved_on=run_date,
+            force=force,
+        )
+        return archive, {
+            "selected_source": "fda_mqsa_public",
+            "selected_url": FDA_MQSA_PUBLIC_ZIP_URL,
+            "primary_status": "downloaded",
+            "fallback_status": "not_used",
+        }
+    except requests.RequestException as exc:
+        archive = fetch_url_source(
+            NBER_FDA_MQSA_PUBLIC_ZIP_URL,
+            raw_dir,
+            "nber-fda-mqsa-public-mirror",
+            retrieved_on=run_date,
+            force=force,
+        )
+        return archive, {
+            "selected_source": "nber_fda_mqsa_public_mirror",
+            "selected_url": NBER_FDA_MQSA_PUBLIC_ZIP_URL,
+            "primary_status": f"failed: {_summarize_request_exception(exc)}",
+            "fallback_status": "downloaded",
+        }
+
+
+def _summarize_request_exception(exc: requests.RequestException) -> str:
+    summary = f"{type(exc).__name__}: {exc}"
+    return summary if len(summary) <= 300 else summary[:297] + "..."
 
 
 def _maybe_build_acs_outputs(
