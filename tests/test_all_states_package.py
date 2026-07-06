@@ -7,6 +7,7 @@ import pandas as pd
 import pytest
 
 from radshock.gates import ALL_STATES_FIPS_LIST, load_resolutions, resolve_gate
+from radshock.states import US_STATE_FIPS_TO_ABBR
 
 PACKAGE_SCRIPT = (
     Path(__file__).resolve().parents[1] / "scripts" / "build_all_states_data_package.py"
@@ -156,7 +157,10 @@ def _state_row(
     }
 
 
-def test_mark_publication_ready_rejects_unresolved_gates(tmp_path: Path) -> None:
+def test_mark_publication_ready_rejects_unresolved_gates(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _mock_package_sources(monkeypatch, tmp_path)
     rp = tmp_path / "nonexistent.json"
     with pytest.raises(RuntimeError, match="Cannot mark publication ready"):
         PACKAGE_MODULE.build_all_states_data_package(
@@ -171,8 +175,9 @@ def test_mark_publication_ready_rejects_unresolved_gates(tmp_path: Path) -> None
 
 
 def test_mark_publication_ready_accepts_when_all_gates_resolved(
-    tmp_path: Path, monkeypatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    _mock_package_sources(monkeypatch, tmp_path)
     rp = tmp_path / "resolutions.json"
     resolutions = load_resolutions(rp)
     for fips in ALL_STATES_FIPS_LIST:
@@ -201,10 +206,8 @@ def test_mark_publication_ready_accepts_when_all_gates_resolved(
     save_resolutions(resolutions, rp)
 
     def _fake_acs(*args, **kwargs):
-        import pandas as pd
         county_fips = sorted(f"{s}001" for s in ALL_STATES_FIPS_LIST)
         tract_fips = sorted(f"{s}001020100" for s in ALL_STATES_FIPS_LIST)
-        from radshock.states import US_STATE_FIPS_TO_ABBR
         return {
             "status_note": "mocked ACS",
             "paths": {},
@@ -271,3 +274,59 @@ def test_resolutions_file_arg_passed_to_readiness_gates(tmp_path: Path) -> None:
 
     mqsa_gates = [g for g in gates if "MQSA" in g]
     assert len(mqsa_gates) == 0
+
+
+def _mock_package_sources(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    county_fips = sorted(f"{state_fips}001" for state_fips in ALL_STATES_FIPS_LIST)
+    states = [US_STATE_FIPS_TO_ABBR[fips[:2]] for fips in county_fips]
+
+    def _fake_fetch_url_source(
+        url: str,
+        output_dir: Path,
+        source_name: str,
+        **kwargs: object,
+    ) -> Path:
+        path = tmp_path / f"{source_name}.csv"
+        path.write_text("placeholder\nvalue\n", encoding="utf-8")
+        return path
+
+    monkeypatch.setattr(PACKAGE_MODULE, "fetch_url_source", _fake_fetch_url_source)
+    monkeypatch.setattr(
+        PACKAGE_MODULE,
+        "read_fda_mqsa_fixed_width",
+        lambda *args, **kwargs: pd.DataFrame(
+            {"source_state": states, "is_mobile_name_hint": [False] * len(states)}
+        ),
+    )
+    monkeypatch.setattr(
+        PACKAGE_MODULE,
+        "build_mqsa_review_template",
+        lambda frame: pd.DataFrame({"source_state": frame["source_state"]}),
+    )
+    monkeypatch.setattr(
+        PACKAGE_MODULE,
+        "build_hrsa_candidate_review_template",
+        lambda *args, **kwargs: pd.DataFrame({"county_fips": county_fips}),
+    )
+    monkeypatch.setattr(
+        PACKAGE_MODULE,
+        "fetch_mammography",
+        lambda *args, **kwargs: pd.DataFrame(
+            {"stateabbr": states, "county_fips": county_fips}
+        ),
+    )
+    monkeypatch.setattr(
+        PACKAGE_MODULE,
+        "fetch_county_gazetteer",
+        lambda *args, **kwargs: pd.DataFrame({"county_fips": county_fips}),
+    )
+    monkeypatch.setattr(
+        PACKAGE_MODULE,
+        "fetch_tract_gazetteer",
+        lambda *args, **kwargs: pd.DataFrame({"county_fips": county_fips}),
+    )
+    monkeypatch.setattr(
+        PACKAGE_MODULE,
+        "read_svi_county_context",
+        lambda *args, **kwargs: pd.DataFrame({"county_fips": county_fips}),
+    )

@@ -18,6 +18,8 @@
 - Census ACS county and tract population-point generation
 - HRSA health-center service-delivery candidate site assumptions
 - 50-state public-source staging package with per-source coverage-gap reporting
+- ACS-backed all-state package rebuild workflow using `CENSUS_API_KEY`
+- Per-state gate tracking and batch review-worklist preparation
 - Streamlit dashboard with demo and readiness views
 - Synthetic end-to-end demo with blocked readiness audit by default
 - OSRM self-hosted travel-time routing workflow
@@ -27,7 +29,7 @@
 ## Validation Status
 - **Automated tests**: pytest, ruff, and mypy passing on the active branch
 - **Synthetic end-to-end test**: Complete (demo generates synthetic data, analysis, readiness audit, and dashboard)
-- **Public-data evaluation**: Partial (reviewed NC FDA MQSA snapshots, Census context, and self-hosted OSRM tract travel-time package are complete; 50-state staging inputs are supported but require state-by-state review, geocoding, routing, and readiness approval before publication)
+- **Public-data evaluation**: Partial (reviewed NC FDA MQSA snapshots, Census context, and self-hosted OSRM tract travel-time package are complete; 50-state staging inputs and review-worklist generation are supported but require state-by-state human review, geocoding validation, routing, and readiness approval before publication)
 - **Expert review**: Not completed
 - **Institutional validation**: Not completed
 - **Prospective clinical validation**: Not completed
