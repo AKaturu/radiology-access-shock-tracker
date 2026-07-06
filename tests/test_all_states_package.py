@@ -1,10 +1,12 @@
 import importlib.util
 import json
+from datetime import date
 from pathlib import Path
 from types import ModuleType
 
 import pandas as pd
 import pytest
+import requests
 
 from radshock.gates import ALL_STATES_FIPS_LIST, load_resolutions, resolve_gate
 from radshock.states import US_STATE_FIPS_TO_ABBR
@@ -274,6 +276,43 @@ def test_resolutions_file_arg_passed_to_readiness_gates(tmp_path: Path) -> None:
 
     mqsa_gates = [g for g in gates if "MQSA" in g]
     assert len(mqsa_gates) == 0
+
+
+def test_fetch_mqsa_archive_falls_back_to_nber_mirror(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[str, str]] = []
+
+    def _fake_fetch_url_source(
+        url: str,
+        output_dir: Path,
+        source_name: str,
+        **kwargs: object,
+    ) -> Path:
+        calls.append((url, source_name))
+        if len(calls) == 1:
+            raise requests.HTTPError("primary FDA blocked")
+        path = tmp_path / "public.zip"
+        path.write_bytes(b"mirror archive")
+        return path
+
+    monkeypatch.setattr(PACKAGE_MODULE, "fetch_url_source", _fake_fetch_url_source)
+
+    archive, source_note = PACKAGE_MODULE._fetch_mqsa_archive(
+        tmp_path,
+        run_date=date(2026, 7, 6),
+        force=True,
+    )
+
+    assert archive.read_bytes() == b"mirror archive"
+    assert calls == [
+        (PACKAGE_MODULE.FDA_MQSA_PUBLIC_ZIP_URL, "fda-mqsa-public"),
+        (PACKAGE_MODULE.NBER_FDA_MQSA_PUBLIC_ZIP_URL, "nber-fda-mqsa-public-mirror"),
+    ]
+    assert source_note["selected_source"] == "nber_fda_mqsa_public_mirror"
+    assert source_note["fallback_status"] == "downloaded"
+    assert source_note["primary_status"].startswith("failed: HTTPError")
 
 
 def _mock_package_sources(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
