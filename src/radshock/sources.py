@@ -11,6 +11,11 @@ import requests
 
 from radshock.snapshots import file_sha256
 
+SOURCE_DOWNLOAD_USER_AGENT = (
+    "radiology-access-shock-tracker/0.1 "
+    "(+https://github.com/AKaturu/radiology-access-shock-tracker)"
+)
+
 
 def archive_local_source(
     input_path: Path,
@@ -51,7 +56,15 @@ def fetch_url_source(
     filename = _filename_from_url(url)
     destination = _source_destination(destination_dir, source_name, retrieval_date, filename)
     _ensure_destination(destination, force)
-    response = requests.get(url, timeout=timeout, stream=True)
+    response = requests.get(
+        url,
+        timeout=timeout,
+        stream=True,
+        headers={
+            "Accept": "*/*",
+            "User-Agent": SOURCE_DOWNLOAD_USER_AGENT,
+        },
+    )
     response.raise_for_status()
     with destination.open("wb") as handle:
         for chunk in response.iter_content(chunk_size=1024 * 1024):
