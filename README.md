@@ -8,7 +8,7 @@ An open-source surveillance toolkit for detecting changes in mammography access,
 
 | Evidence | Status |
 |---|---|
-| Unit and integration tests | Complete (90 tests, ruff/mypy passing) |
+| Unit and integration tests | Complete (pytest, ruff, and mypy passing) |
 | Synthetic end-to-end evaluation | Complete |
 | Public-data evaluation | Partial (50-state source access supported; reviewed NC package retained as the current validation artifact) |
 | Independent expert review | Not completed |

@@ -187,6 +187,7 @@ def build_all_states_data_package(
             **acs_outputs["row_counts"],
         },
         "state_coverage": _state_coverage_summary(state_summary),
+        "state_coverage_gaps": _state_coverage_gaps(state_summary),
     }
     manifest_path = summary_dir / "data_package_manifest.json"
     _write_text(manifest_path, json.dumps(manifest, indent=2, sort_keys=True) + "\n", force=force)
@@ -422,10 +423,46 @@ def _state_coverage_summary(state_summary: pd.DataFrame) -> dict[str, int]:
         "states_with_cdc_atsdr_svi_counties": int(
             (state_summary["cdc_atsdr_svi_counties"] > 0).sum()
         ),
+        "states_with_acs_county_context": int(
+            (state_summary["acs_county_context_rows"] > 0).sum()
+        ),
+        "states_with_acs_tract_context": int(
+            (state_summary["acs_tract_context_rows"] > 0).sum()
+        ),
         "states_with_all_public_no_secret_sources": int(
             (state_summary["sources_present"] == 6).sum()
         ),
     }
+
+
+def _state_coverage_gaps(state_summary: pd.DataFrame) -> dict[str, list[str]]:
+    return {
+        "missing_mqsa_rows": _states_without_rows(state_summary, "mqsa_source_rows"),
+        "missing_hrsa_candidates": _states_without_rows(
+            state_summary, "hrsa_candidate_review_rows"
+        ),
+        "missing_places_rows": _states_without_rows(state_summary, "places_mammography_rows"),
+        "missing_census_counties": _states_without_rows(state_summary, "census_counties"),
+        "missing_census_tracts": _states_without_rows(state_summary, "census_tracts"),
+        "missing_cdc_atsdr_svi_counties": _states_without_rows(
+            state_summary, "cdc_atsdr_svi_counties"
+        ),
+        "missing_acs_county_context": _states_without_rows(
+            state_summary, "acs_county_context_rows"
+        ),
+        "missing_acs_tract_context": _states_without_rows(
+            state_summary, "acs_tract_context_rows"
+        ),
+        "missing_any_public_no_secret_source": state_summary.loc[
+            state_summary["sources_present"] < 6, "state"
+        ]
+        .astype(str)
+        .tolist(),
+    }
+
+
+def _states_without_rows(state_summary: pd.DataFrame, column: str) -> list[str]:
+    return state_summary.loc[state_summary[column] <= 0, "state"].astype(str).tolist()
 
 
 def _render_report(
@@ -446,6 +483,7 @@ def _render_report(
     )
     gates = "\n".join(f"- {gate}" for gate in manifest["readiness_gates"])
     all_public_sources = coverage["states_with_all_public_no_secret_sources"]
+    coverage_gaps = _render_coverage_gaps(manifest["state_coverage_gaps"])
     return f"""# All-States Data Package
 
 Generated: `{manifest["generated_at_utc"]}`
@@ -475,6 +513,12 @@ Package directory: `{output_dir}`
 - States with Census counties: `{coverage["states_with_census_counties"]}`
 - States with Census tracts: `{coverage["states_with_census_tracts"]}`
 - States with all public no-secret sources present: `{all_public_sources}`
+- States with ACS county context: `{coverage["states_with_acs_county_context"]}`
+- States with ACS tract context: `{coverage["states_with_acs_tract_context"]}`
+
+## Coverage Gaps
+
+{coverage_gaps}
 
 ## Highest MQSA Row Counts
 
@@ -497,6 +541,39 @@ Package directory: `{output_dir}`
 - `summary/state_source_summary.csv`
 - `summary/data_package_manifest.json`
 """
+
+
+def _render_coverage_gaps(gaps: dict[str, list[str]]) -> str:
+    public_gap_keys = [
+        "missing_mqsa_rows",
+        "missing_hrsa_candidates",
+        "missing_places_rows",
+        "missing_census_counties",
+        "missing_census_tracts",
+        "missing_cdc_atsdr_svi_counties",
+        "missing_any_public_no_secret_source",
+    ]
+    lines: list[str] = []
+    if not any(gaps[key] for key in public_gap_keys):
+        lines.append("- Public no-secret source coverage: no state gaps detected.")
+    else:
+        for key in public_gap_keys:
+            if gaps[key]:
+                lines.append(f"- {key}: {_format_state_gap(gaps[key])}")
+    for key in ["missing_acs_county_context", "missing_acs_tract_context"]:
+        if gaps[key]:
+            lines.append(f"- {key}: {_format_state_gap(gaps[key])}")
+    return "\n".join(lines)
+
+
+def _format_state_gap(states: list[str]) -> str:
+    if not states:
+        return "none"
+    preview = ", ".join(states[:12])
+    remaining = len(states) - 12
+    if remaining > 0:
+        return f"{preview}, and {remaining} more"
+    return preview
 
 
 def _output_metadata(paths: dict[str, Path]) -> dict[str, dict[str, str | int]]:

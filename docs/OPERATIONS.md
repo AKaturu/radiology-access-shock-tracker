@@ -122,6 +122,10 @@ county vulnerability context, and Census county and tract Gazetteer context for 
 population-point files; otherwise the manifest marks ACS as skipped instead of creating inferred
 risk inputs.
 
+The generated `summary/data_package_manifest.json` includes `state_coverage` counts and
+`state_coverage_gaps` lists for each source. Treat any public no-secret gap as a refresh or source
+review blocker before using the package for state comparisons.
+
 The command writes county-centroid population points for testing. Build finer tract-centroid
 population points before publication route review:
 
