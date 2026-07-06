@@ -35,6 +35,16 @@ from radshock.candidates import build_county_candidate_review_template, finalize
 from radshock.changes import detect_changes
 from radshock.data_quality import audit_csv_quality, render_quality_markdown
 from radshock.demo import build_demo
+from radshock.gates import (
+    DEFAULT_RESOLUTIONS_PATH,
+    KNOWN_GATES,
+    get_active_gate_strings,
+    get_state_gate_status,
+    load_resolutions,
+    resolve_gate,
+    save_resolutions,
+    unresolve_gate,
+)
 from radshock.geocoding import (
     CensusGeocoder,
     GeocodeCache,
@@ -54,7 +64,13 @@ from radshock.schemas import validate_facilities
 from radshock.sensitivity import run_sensitivity_analysis
 from radshock.snapshots import file_sha256, store_snapshot
 from radshock.sources import archive_local_source, fetch_url_source
-from radshock.states import StateScope, resolve_state_scope
+from radshock.states import (
+    US_STATE_ABBR_TO_FIPS,
+    US_STATE_FIPS_TO_ABBR,
+    StateScope,
+    resolve_state_scope,
+    state_abbr_from_fips,
+)
 from radshock.travel_times import (
     TRAVEL_TIME_ROUTE_STATUSES,
     build_travel_time_review_template,
@@ -1136,6 +1152,169 @@ def production_audit_command(
         f"Production status: {production_overall_status(checks)}; "
         f"blockers: {blocker_count}; warnings: {warning_count}"
     )
+
+
+@app.command("resolve-gate")
+def resolve_gate_command(
+    gate_name: Annotated[str, typer.Argument(help="Gate to resolve")],
+    state: Annotated[str, typer.Argument(help="2-letter state abbreviation or FIPS code")],
+    evidence: Annotated[
+        str, typer.Option(help="Reference for the resolution evidence")
+    ],
+    resolved_by: Annotated[
+        str,
+        typer.Option(
+            help="Who performed the resolution (default: git config user.name or env USERNAME)"
+        ),
+    ] = "",
+    resolutions_file: Annotated[
+        Path,
+        typer.Option(help="Path to the gate resolutions tracking file"),
+    ] = DEFAULT_RESOLUTIONS_PATH,
+) -> None:
+    """Mark a production gate as resolved for a state."""
+    if gate_name not in KNOWN_GATES:
+        typer.echo(
+            f"Unknown gate: {gate_name!r}. Known gates: {', '.join(KNOWN_GATES)}",
+            err=True,
+        )
+        raise typer.Exit(code=1)
+    if not resolved_by:
+        resolved_by = os.environ.get("USERNAME", os.environ.get("USER", "unknown"))
+    resolutions = load_resolutions(resolutions_file)
+    resolve_gate(
+        resolutions,
+        gate_name=gate_name,
+        state=state,
+        resolved_by=resolved_by,
+        evidence=evidence,
+    )
+    save_resolutions(resolutions, resolutions_file)
+    fips = US_STATE_ABBR_TO_FIPS.get(state.upper(), state)
+    typer.echo(f"Resolved {gate_name!r} gate for state {state} (FIPS {fips}).")
+
+
+@app.command("unresolve-gate")
+def unresolve_gate_command(
+    gate_name: Annotated[str, typer.Argument(help="Gate to unresolve")],
+    state: Annotated[str, typer.Argument(help="2-letter state abbreviation or FIPS code")],
+    resolutions_file: Annotated[
+        Path,
+        typer.Option(help="Path to the gate resolutions tracking file"),
+    ] = DEFAULT_RESOLUTIONS_PATH,
+) -> None:
+    """Undo a gate resolution for a state."""
+    if gate_name not in KNOWN_GATES:
+        typer.echo(
+            f"Unknown gate: {gate_name!r}. Known gates: {', '.join(KNOWN_GATES)}",
+            err=True,
+        )
+        raise typer.Exit(code=1)
+    resolutions = load_resolutions(resolutions_file)
+    unresolve_gate(resolutions, gate_name=gate_name, state=state)
+    save_resolutions(resolutions, resolutions_file)
+    typer.echo(f"Unresolved {gate_name!r} gate for state {state}.")
+
+
+@app.command("gate-status")
+def gate_status_command(
+    state: Annotated[
+        str | None,
+        typer.Option(help="Filter to a single state abbreviation or FIPS code"),
+    ] = None,
+    resolutions_file: Annotated[
+        Path,
+        typer.Option(help="Path to the gate resolutions tracking file"),
+    ] = DEFAULT_RESOLUTIONS_PATH,
+    output_json: Annotated[Path | None, typer.Option()] = None,
+    output_md: Annotated[Path | None, typer.Option()] = None,
+) -> None:
+    """Show gate resolution status for all states or a single state."""
+    resolutions = load_resolutions(resolutions_file)
+    active = get_active_gate_strings(resolutions)
+
+    if state:
+        fips = US_STATE_ABBR_TO_FIPS.get(state.upper(), state)
+        abbr = state_abbr_from_fips(fips) if fips in US_STATE_FIPS_TO_ABBR else state
+        status = get_state_gate_status(resolutions, fips)
+        rows = []
+        for gate_name in KNOWN_GATES:
+            s = status.get(gate_name, {})
+            rows.append(
+                {
+                    "state": abbr,
+                    "state_fips": fips,
+                    "gate": gate_name,
+                    "status": s.get("status", "UNRESOLVED"),
+                    "resolved_by": s.get("resolved_by", ""),
+                    "resolved_at": s.get("resolved_at", ""),
+                    "evidence": s.get("evidence", ""),
+                }
+            )
+        status_df = pd.DataFrame(rows)
+    else:
+        all_rows = []
+        for fips in sorted(US_STATE_FIPS_TO_ABBR):
+            abbr = state_abbr_from_fips(fips)
+            status = get_state_gate_status(resolutions, fips)
+            for gate_name in KNOWN_GATES:
+                s = status.get(gate_name, {})
+                all_rows.append(
+                    {
+                        "state": abbr,
+                        "state_fips": fips,
+                        "gate": gate_name,
+                        "status": s.get("status", "UNRESOLVED"),
+                        "resolved_by": s.get("resolved_by", ""),
+                        "resolved_at": s.get("resolved_at", ""),
+                        "evidence": s.get("evidence", ""),
+                    }
+                )
+        status_df = pd.DataFrame(all_rows)
+
+    total_resolved = int((status_df["status"] == "RESOLVED").sum())
+    total_gates = len(status_df)
+    typer.echo(
+        f"Gate status: {total_resolved}/{total_gates} state-gate pairs resolved; "
+        f"{len(active)} of {len(KNOWN_GATES)} gates still active in manifest."
+    )
+    if active:
+        typer.echo("Active gates:")
+        for g in active:
+            typer.echo(f"  - {g}")
+
+    if output_json is not None:
+        output_json.parent.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "active_gates": active,
+            "state_status": status_df.to_dict(orient="records"),
+        }
+        output_json.write_text(
+            json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        typer.echo(f"Gate status JSON written: {output_json.resolve()}")
+    if output_md is not None:
+        output_md.parent.mkdir(parents=True, exist_ok=True)
+        lines = [
+            "# Gate Resolution Status",
+            "",
+            f"**Active gates in manifest:** {len(active)} of {len(KNOWN_GATES)}",
+            "",
+        ]
+        if active:
+            lines.append("| Gate | Status |")
+            lines.append("|---|---|")
+            for g in active:
+                lines.append(f"| {g} | Active |")
+        else:
+            lines.append("All gates resolved.")
+        lines.append("")
+        lines.append("## Per-State Gate Status")
+        lines.append("")
+        lines.append(status_df.to_string(index=False))
+        lines.append("")
+        output_md.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        typer.echo(f"Gate status report written: {output_md.resolve()}")
 
 
 def _parse_optional_date(value: str | None, label: str) -> date | None:

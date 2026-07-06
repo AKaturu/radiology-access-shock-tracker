@@ -253,15 +253,23 @@ def audit_all_states_manifest(manifest_path: Path, *, require_acs: bool = True) 
     )
 
     readiness_gates = _string_list(payload.get("readiness_gates", []))
+    details = (
+        "No unresolved all-state package readiness gates."
+        if not readiness_gates
+        else (
+            f"Resolve {len(readiness_gates)} manifest readiness gate(s): "
+            + "; ".join(readiness_gates[:10])
+            + ("; ..." if len(readiness_gates) > 10 else "")
+            + "."
+        )
+    )
     rows.append(
         _row(
             "all_states_package",
             "readiness_gates",
             len(readiness_gates),
             "PASS" if not readiness_gates else "BLOCKER",
-            "No unresolved all-state package readiness gates."
-            if not readiness_gates
-            else "Resolve all manifest readiness gates before publishing all-state findings.",
+            details,
         )
     )
     return pd.DataFrame(rows, columns=PRODUCTION_CHECK_COLUMNS)

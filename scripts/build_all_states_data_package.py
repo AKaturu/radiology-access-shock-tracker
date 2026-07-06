@@ -35,6 +35,11 @@ from radshock.adapters.svi import (
     CDC_ATSDR_SVI_DOWNLOAD_PAGE,
     read_svi_county_context,
 )
+from radshock.gates import (
+    KNOWN_GATES,
+    get_active_gate_strings,
+    load_resolutions,
+)
 from radshock.snapshots import file_sha256
 from radshock.sources import fetch_url_source
 from radshock.states import US_STATE_ABBRS, US_STATE_FIPS, state_abbr_from_fips
@@ -133,7 +138,8 @@ def build_all_states_data_package(
     _write_csv(state_summary, state_summary_path, force=force)
     if require_acs:
         _validate_required_acs_coverage(state_summary)
-    state_readiness = _build_state_readiness_audit(state_summary)
+    gate_resolutions = load_resolutions()
+    state_readiness = _build_state_readiness_audit(state_summary, gate_resolutions)
     state_readiness_path = summary_dir / "state_readiness_gates.csv"
     _write_csv(state_readiness, state_readiness_path, force=force)
 
@@ -144,7 +150,7 @@ def build_all_states_data_package(
         "publication_status": (
             "ready_for_publication" if mark_publication_ready else "not_ready_for_publication"
         ),
-        "readiness_gates": _build_package_readiness_gates(state_summary),
+        "readiness_gates": _build_package_readiness_gates(state_summary, gate_resolutions),
         "source_notes": {
             "acs": acs_outputs["status_note"],
             "state_readiness_audit": (
@@ -304,66 +310,107 @@ def _validate_required_acs_coverage(state_summary: pd.DataFrame) -> None:
     )
 
 
-def _build_package_readiness_gates(state_summary: pd.DataFrame) -> list[str]:
-    gates = [
-        "MQSA rows are review templates; coordinates, active status, and review_status require "
-        "approval.",
-        "HRSA rows are planning candidates; mammography capability is not claimed until "
-        "candidate review is approved.",
-        "Travel-time matrices are not generated for this all-state staging package.",
-    ]
+def _build_package_readiness_gates(
+    state_summary: pd.DataFrame,
+    resolutions: dict[str, Any] | None = None,
+) -> list[str]:
+    active = list(get_active_gate_strings(resolutions or {}))
     missing_counties = _states_without_rows(state_summary, "acs_county_context_rows")
     missing_tracts = _states_without_rows(state_summary, "acs_tract_context_rows")
     if missing_counties or missing_tracts:
-        gates.append(
+        active.append(
             "ACS county/tract context is incomplete; "
             f"missing county context for {_format_state_gap(missing_counties)}; "
             f"missing tract context for {_format_state_gap(missing_tracts)}."
         )
-    return gates
+    return active
 
 
-def _build_state_readiness_audit(state_summary: pd.DataFrame) -> pd.DataFrame:
+def _build_state_readiness_audit(
+    state_summary: pd.DataFrame,
+    resolutions: dict[str, Any] | None = None,
+) -> pd.DataFrame:
     rows: list[dict[str, object]] = []
     for row in state_summary.itertuples(index=False):
         state = str(row.state)
+        fips = str(row.state_fips).zfill(2)
         acs_ready = row.acs_county_context_rows > 0 and row.acs_tract_context_rows > 0
+        resolved = _gate_resolved_fips(resolutions or {}, fips)
+        mqsa_resolved = "mqsa_review" in resolved
+        hrsa_resolved = "hrsa_candidate_review" in resolved
+        routing_resolved = "travel_time_matrices" in resolved
+        all_ok = mqsa_resolved and hrsa_resolved and routing_resolved and acs_ready
         rows.append(
             {
                 "state": state,
-                "state_fips": str(row.state_fips).zfill(2),
-                "overall_status": "BLOCKED",
-                "mqsa_review_status": "BLOCKER",
+                "state_fips": fips,
+                "overall_status": "READY" if all_ok else "BLOCKED",
+                "mqsa_review_status": "PASS" if mqsa_resolved else "BLOCKER",
                 "mqsa_review_detail": (
-                    f"{row.mqsa_source_rows} MQSA source row(s) require facility-id, "
-                    "coordinate, active-status, and review-status approval."
+                    f"{row.mqsa_source_rows} MQSA source row(s); gate resolved."
+                    if mqsa_resolved
+                    else (
+                        f"{row.mqsa_source_rows} MQSA source row(s) require facility-id, "
+                        "coordinate, active-status, and review-status approval."
+                    )
                 ),
-                "hrsa_candidate_review_status": "BLOCKER",
+                "hrsa_candidate_review_status": "PASS" if hrsa_resolved else "BLOCKER",
                 "hrsa_candidate_review_detail": (
-                    f"{row.hrsa_candidate_review_rows} HRSA candidate row(s) require "
-                    "planning-assumption review and approval."
+                    f"{row.hrsa_candidate_review_rows} HRSA candidate row(s); gate resolved."
+                    if hrsa_resolved
+                    else (
+                        f"{row.hrsa_candidate_review_rows} HRSA candidate row(s) require "
+                        "planning-assumption review and approval."
+                    )
                 ),
-                "geocoding_status": "BLOCKER",
+                "geocoding_status": "PASS" if mqsa_resolved else "BLOCKER",
                 "geocoding_detail": (
-                    "Non-NC MQSA review rows have not been approved as geocoded, "
-                    "snapshot-ready facilities."
+                    "MQSA review rows approved as geocoded, snapshot-ready facilities."
+                    if mqsa_resolved
+                    else (
+                        "Non-NC MQSA review rows have not been approved as geocoded, "
+                        "snapshot-ready facilities."
+                    )
                 ),
-                "routing_status": "BLOCKER",
-                "routing_detail": "All-state travel-time matrices are not present.",
+                "routing_status": "PASS" if routing_resolved else "BLOCKER",
+                "routing_detail": (
+                    "Travel-time matrices are resolved for this state."
+                    if routing_resolved
+                    else "All-state travel-time matrices are not present."
+                ),
                 "acs_status": "PASS" if acs_ready else "BLOCKER",
                 "acs_detail": (
                     "ACS county and tract context present for this state."
                     if acs_ready
                     else "ACS county and/or tract context is missing for this state."
                 ),
-                "publication_status": "BLOCKER",
+                "publication_status": "PASS" if all_ok else "BLOCKER",
                 "publication_detail": (
-                    "Do not publish non-NC findings until this state's human review, "
-                    "geocoding, routing, and readiness audit pass."
+                    "All gates resolved for this state."
+                    if all_ok
+                    else (
+                        "Do not publish non-NC findings until this state's human review, "
+                        "geocoding, routing, and readiness audit pass."
+                    )
                 ),
             }
         )
     return pd.DataFrame(rows).sort_values("state").reset_index(drop=True)
+
+
+def _gate_resolved_fips(
+    resolutions: dict[str, Any], fips: str
+) -> set[str]:
+    result: set[str] = set()
+    gates_map = resolutions.get("gates", {})
+    if not isinstance(gates_map, dict):
+        return result
+    for gate_name in KNOWN_GATES:
+        gate_entry = gates_map.get(gate_name, {})
+        states_entry = gate_entry.get("resolved_states", {}) if isinstance(gate_entry, dict) else {}
+        if isinstance(states_entry, dict) and fips in states_entry:
+            result.add(gate_name)
+    return result
 
 
 def _build_state_summary(
