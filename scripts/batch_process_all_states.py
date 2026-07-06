@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+# ruff: noqa: E402,I001
+
 import argparse
 import csv
 import json
@@ -8,25 +10,11 @@ import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-from radshock.data.states import STATE_FIPS_MAP
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-GEOFABRIK_STATE_NAME: dict[str, str] = {
-    "AL": "alabama", "AK": "alaska", "AZ": "arizona", "AR": "arkansas",
-    "CA": "california", "CO": "colorado", "CT": "connecticut", "DE": "delaware",
-    "FL": "florida", "GA": "georgia", "HI": "hawaii", "ID": "idaho",
-    "IL": "illinois", "IN": "indiana", "IA": "iowa", "KS": "kansas",
-    "KY": "kentucky", "LA": "louisiana", "ME": "maine", "MD": "maryland",
-    "MA": "massachusetts", "MI": "michigan", "MN": "minnesota", "MS": "mississippi",
-    "MO": "missouri", "MT": "montana", "NE": "nebraska", "NV": "nevada",
-    "NH": "new-hampshire", "NJ": "new-jersey", "NM": "new-mexico",
-    "NY": "new-york", "NC": "north-carolina", "ND": "north-dakota",
-    "OH": "ohio", "OK": "oklahoma", "OR": "oregon", "PA": "pennsylvania",
-    "RI": "rhode-island", "SC": "south-carolina", "SD": "south-dakota",
-    "TN": "tennessee", "TX": "texas", "UT": "utah", "VT": "vermont",
-    "VA": "virginia", "WA": "washington", "WV": "west-virginia",
-    "WI": "wisconsin", "WY": "wyoming", "DC": "district-of-columbia",
-    "PR": "puerto-rico",
-}
+from radshock.states import US_STATE_ABBR_TO_FIPS
+
+STATE_FIPS_MAP = US_STATE_ABBR_TO_FIPS
 
 
 def main() -> None:
@@ -69,8 +57,8 @@ def main() -> None:
         if phase1_steps:
             _run_single(state_abbr, state_work, phase1_steps, args.resolutions_file)
 
-        # Auto-fill review fields so finalize passes
-        _auto_fill_review(state_abbr, state_work)
+        if args.unsafe_auto_fill_review:
+            _unsafe_auto_fill_review(state_abbr, state_work)
 
         # Phase 2: finalize, ingest, travel-time, resolve gates
         # Clean snapshot dir before ingest so each state can write to it
@@ -82,7 +70,13 @@ def main() -> None:
             "fetch-fda-mqsa", "prepare-mqsa-review", "geocode-mqsa-review",
         )]
         if phase2_steps:
-            result = _run_single(state_abbr, state_work, phase2_steps, args.resolutions_file)
+            result = _run_single(
+                state_abbr,
+                state_work,
+                phase2_steps,
+                args.resolutions_file,
+                resolve_reviewed_gates=args.resolve_reviewed_gates,
+            )
         else:
             result = None
 
@@ -126,6 +120,8 @@ def main() -> None:
 def _run_single(
     state_abbr: str, state_work: Path, steps: list[str],
     resolutions_file: Path | None,
+    *,
+    resolve_reviewed_gates: bool = False,
 ) -> subprocess.CompletedProcess[str]:
     single_cmd = [
         sys.executable, str(Path("scripts/process_single_state.py")),
@@ -135,6 +131,8 @@ def _run_single(
     ]
     if resolutions_file:
         single_cmd += ["--resolutions-file", str(resolutions_file)]
+    if resolve_reviewed_gates:
+        single_cmd += ["--resolve-reviewed-gates"]
     print(f"Running: {' '.join(str(c) for c in single_cmd)}")
     result = subprocess.run(single_cmd, capture_output=True, text=True)
     if result.returncode != 0:
@@ -164,7 +162,7 @@ def _write_checklist(
         print(f"WARNING: Could not write checklist: {exc}")
 
 
-def _auto_fill_review(state_abbr: str, state_work: Path) -> None:
+def _unsafe_auto_fill_review(state_abbr: str, state_work: Path) -> None:
     geocoded = state_work / f"mqsa_review_{state_abbr}_geocoded.csv"
     if not geocoded.exists():
         return
@@ -299,15 +297,28 @@ def _parse_args() -> argparse.Namespace:
                         help="States to skip (default: NC PR).")
     parser.add_argument("--states", nargs="*", default=None,
                         help="Specific states to process (omit for all except --skip).")
-    default_steps = [
-        "fetch-fda-mqsa", "prepare-mqsa-review", "geocode-mqsa-review",
-        "finalize-mqsa-review", "ingest-snapshot", "prepare-travel-time",
-        "finalize-travel-time", "resolve-gates",
-    ]
-    parser.add_argument("--step", nargs="*", default=default_steps,
-                        help="Steps to run per state (default: all non-HRSA steps).")
+    default_steps = ["fetch-fda-mqsa", "prepare-mqsa-review", "geocode-mqsa-review"]
+    parser.add_argument(
+        "--step",
+        nargs="*",
+        default=default_steps,
+        help="Steps to run per state (default: FDA fetch, MQSA review prep, geocoding).",
+    )
     parser.add_argument("--resolutions-file", type=Path, default=None,
                         help="Gate resolutions JSON file path.")
+    parser.add_argument(
+        "--resolve-reviewed-gates",
+        action="store_true",
+        help="Allow process_single_state.py to resolve gates for rows already human-reviewed.",
+    )
+    parser.add_argument(
+        "--unsafe-auto-fill-review",
+        action="store_true",
+        help=(
+            "Testing only: fills missing review fields with placeholders so finalize steps can "
+            "exercise downstream commands. Do not use for publication evidence."
+        ),
+    )
     parser.add_argument("--resume", action="store_true",
                         help="Resume from checkpoint file in output-dir.")
     return parser.parse_args()

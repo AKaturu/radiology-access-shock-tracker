@@ -9,10 +9,15 @@ Usage:
 
 import argparse
 import subprocess
+import sys
 from datetime import date, datetime
 from pathlib import Path
 
-from radshock.data.states import STATE_FIPS_MAP
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from radshock.states import US_STATE_ABBR_TO_FIPS
+
+STATE_FIPS_MAP = US_STATE_ABBR_TO_FIPS
 
 
 def main() -> None:
@@ -23,6 +28,11 @@ def main() -> None:
     work_dir = args.work_dir.resolve()
     work_dir.mkdir(parents=True, exist_ok=True)
     steps = _resolve_steps(args.step)
+    if "resolve-gates" in steps and not args.resolve_reviewed_gates:
+        raise SystemExit(
+            "resolve-gates requires --resolve-reviewed-gates and reviewed evidence. "
+            "Run the preparation steps first, complete human review, then resolve gates."
+        )
 
     snapshot_date = date.today().isoformat()
     raw_dir = work_dir / "raw"
@@ -183,7 +193,9 @@ def main() -> None:
         resolutions_file = Path(args.resolutions_file)
         for gate in ["mqsa_review", "hrsa_candidate_review", "travel_time_matrices"]:
             ts = datetime.now().isoformat()
-            evidence = f"Processed {state} via process_single_state.py at {ts}"
+            evidence = (
+                f"Human-reviewed {state} evidence confirmed via process_single_state.py at {ts}"
+            )
             _run(f"Resolve gate {gate} for {state}", radshock + [
                 "resolve-gate", gate, state,
                 "--evidence", evidence,
@@ -206,14 +218,13 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("state", help="Two-letter state abbreviation (e.g. NC, VA, GA).")
     parser.add_argument("--work-dir", type=Path, default=Path("work/state-processing"),
                         help="Working directory for state processing outputs.")
-    all_steps = [
-        "fetch-fda-mqsa", "prepare-mqsa-review", "geocode-mqsa-review",
-        "finalize-mqsa-review", "ingest-snapshot", "prepare-hrsa-review",
-        "finalize-hrsa-review", "prepare-travel-time", "finalize-travel-time",
-        "resolve-gates",
-    ]
-    parser.add_argument("--step", nargs="*", default=all_steps,
-                        help="Steps to run (default: all).")
+    all_steps = ["fetch-fda-mqsa", "prepare-mqsa-review", "geocode-mqsa-review"]
+    parser.add_argument(
+        "--step",
+        nargs="*",
+        default=all_steps,
+        help="Steps to run (default: FDA fetch, MQSA review prep, geocoding).",
+    )
     parser.add_argument("--mqsa-review-csv", type=Path,
                         help="Pre-existing reviewed MQSA CSV (skip geocoding).")
     parser.add_argument("--hrsa-csv", type=Path,
@@ -224,6 +235,11 @@ def _parse_args() -> argparse.Namespace:
                         help="Facilities CSV (for travel-time prep).")
     parser.add_argument("--resolutions-file", type=Path,
                         help="Gate resolutions JSON file.")
+    parser.add_argument(
+        "--resolve-reviewed-gates",
+        action="store_true",
+        help="Permit the resolve-gates step after human review has been completed.",
+    )
     return parser.parse_args()
 
 
