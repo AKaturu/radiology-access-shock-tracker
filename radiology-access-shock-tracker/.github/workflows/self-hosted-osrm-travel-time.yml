@@ -1,0 +1,65 @@
+name: self-hosted OSRM travel-time package
+
+on:
+  workflow_dispatch:
+    inputs:
+      state:
+        description: Two-letter state abbreviation (e.g. NC, VA, GA).
+        default: "NC"
+        required: true
+      osm_data_timestamp:
+        description: OSM data timestamp from the Geofabrik state page.
+        default: "2026-06-19T20:21:41Z"
+        required: true
+      osm_extract_url:
+        description: Geofabrik OSM PBF extract URL (auto-resolved from state if blank).
+        default: ""
+        required: false
+      osrm_image:
+        description: OSRM backend container image.
+        default: "ghcr.io/project-osrm/osrm-backend:v6.0.0"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-self-hosted-osrm-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[dev]"
+      - name: Resolve Geofabrik URL from state abbreviation
+        id: geofabrik
+        env:
+          STATE: ${{ inputs.state }}
+          OVERRIDE_URL: ${{ inputs.osm_extract_url }}
+        run: |
+          if [ -n "$OVERRIDE_URL" ]; then
+            echo "url=$OVERRIDE_URL" >> "$GITHUB_OUTPUT"
+          else
+            python scripts/resolve_geofabrik_url.py "$STATE" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build OSRM graph and audited travel-time package
+        env:
+          OSM_DATA_TIMESTAMP: ${{ inputs.osm_data_timestamp }}
+          OSM_EXTRACT_URL: ${{ steps.geofabrik.outputs.url }}
+          OSM_EXTRACT_NAME: Geofabrik ${{ inputs.state }}
+          OSRM_IMAGE: ${{ inputs.osrm_image }}
+        run: bash scripts/run_self_hosted_osrm_matrix.sh
+      - name: Upload self-hosted OSRM package
+        uses: actions/upload-artifact@v4
+        with:
+          name: self-hosted-osrm-${{ inputs.state }}-travel-time-package
+          path: |
+            work/self-hosted-osrm/*.csv
+            work/self-hosted-osrm/*.json
+            work/self-hosted-osrm/analysis-tract-self-hosted-osrm/**
+            !work/self-hosted-osrm/osrm/**
+          if-no-files-found: error

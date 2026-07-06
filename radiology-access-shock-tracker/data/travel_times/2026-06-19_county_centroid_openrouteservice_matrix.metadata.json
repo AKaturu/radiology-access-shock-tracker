@@ -1,0 +1,19 @@
+﻿{
+    "generated_at_utc":  "2026-06-20T00:48:17.6839707Z",
+    "route_provider":  "openrouteservice:driving-car",
+    "route_source_url":  "https://api.openrouteservice.org/v2/matrix/driving-car",
+    "route_docs_url":  "https://giscience.github.io/openrouteservice/api-reference/endpoints/matrix/",
+    "route_restrictions_url":  "https://openrouteservice.org/restrictions/",
+    "source_review_csv":  "data/travel_times/2026-06-19_county_centroid_openrouteservice_review.csv",
+    "output_matrix_csv":  "data/travel_times/2026-06-19_county_centroid_openrouteservice_matrix.csv",
+    "output_matrix_sha256":  "3592dbb923595ab1f9babeb2d959e706f1125a82cf4cb9443d03aca21758ce10",
+    "review_csv_sha256":  "3d2118d2f68622315960632102568a2bf3a57038584cfc65b3a8dee8d6a3b580",
+    "route_rows":  17779,
+    "routed_rows":  17607,
+    "unreachable_rows":  172,
+    "finalized_matrix_rows":  17607,
+    "review_status":  "reviewed",
+    "review_note":  "Reviewed status was applied for local testing at user request so finalization could be exercised. Hosted ORS/free-plan route outputs, county-centroid population points, provider terms, traffic assumptions, and unreachable rows still require production review before publication.",
+    "traffic_assumption":  "OpenRouteService Matrix duration; no live traffic/departure-time adjustment configured.",
+    "population_points_note":  "County-centroid testing inputs from Census/Gazetteer, not finer subcounty population points."
+}

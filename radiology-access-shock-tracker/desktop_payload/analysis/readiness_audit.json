@@ -1,0 +1,98 @@
+{
+  "analysis_dir": "work\\self-hosted-osrm\\analysis-tract-self-hosted-osrm",
+  "checks": [
+    {
+      "check_id": "analysis_dir",
+      "details": "Found analysis directory: work\\self-hosted-osrm\\analysis-tract-self-hosted-osrm",
+      "label": "Analysis directory",
+      "recommendation": "No action required.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "manifest",
+      "details": "Manifest is present at work\\self-hosted-osrm\\analysis-tract-self-hosted-osrm\\manifest.json and does not mark the analysis as synthetic.",
+      "label": "Manifest provenance",
+      "recommendation": "No action required.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "facility_events",
+      "details": "Facility events file is present and contains no event signals.",
+      "label": "Facility events",
+      "recommendation": "No action required.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "county_shocks",
+      "details": "County shocks file has 100 rows; 0 warning or critical.",
+      "label": "County shocks",
+      "recommendation": "No action required.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "interventions",
+      "details": "Intervention rankings file has 771 rows.",
+      "label": "Intervention rankings",
+      "recommendation": "No action required.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "sensitivity",
+      "details": "Sensitivity analysis covers 5 scenario(s).",
+      "label": "Sensitivity analysis",
+      "recommendation": "No action required.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "policy_brief",
+      "details": "Policy brief Markdown output is present.",
+      "label": "Policy brief",
+      "recommendation": "No action required.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "travel_time",
+      "details": "Minimum county travel-time route coverage is 100.0%.",
+      "label": "Travel-time analysis",
+      "recommendation": "No action required.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "route_provider",
+      "details": "Manifest records routing provider provenance for travel-time outputs.",
+      "label": "Route provider provenance",
+      "recommendation": "Review provider terms, profile, network vintage, and traffic assumptions before publication.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "event_shock_alignment",
+      "details": "No warning or critical county shocks require event-review escalation.",
+      "label": "Event and shock alignment",
+      "recommendation": "No action required.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "before_snapshot",
+      "details": "Snapshot has 289 validated records and matching checksum metadata.",
+      "label": "Before snapshot",
+      "recommendation": "No action required.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "after_snapshot",
+      "details": "Snapshot has 289 validated records and matching checksum metadata.",
+      "label": "After snapshot",
+      "recommendation": "No action required.",
+      "status": "PASS"
+    },
+    {
+      "check_id": "raw_source",
+      "details": "Raw-source metadata is present for fda-mqsa-public.",
+      "label": "Raw source archive",
+      "recommendation": "No action required.",
+      "status": "PASS"
+    }
+  ],
+  "generated_at_utc": "2026-06-20T16:07:34.327898+00:00",
+  "overall_status": "READY"
+}

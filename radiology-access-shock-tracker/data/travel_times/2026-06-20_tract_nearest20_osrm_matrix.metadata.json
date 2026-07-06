@@ -1,0 +1,41 @@
+{
+  "generated_at_utc": "2026-06-20T02:52:20.602029+00:00",
+  "inputs": {
+    "review_csv": {
+      "path": "data\\travel_times\\2026-06-20_tract_nearest20_osrm_review.csv",
+      "sha256": "05c7cacf0f26dac44e70fd46bd5530e04bfbb09774308285726f76657765253e"
+    }
+  },
+  "notes": [
+    "finalized matrix includes routed rows only.",
+    "provider metadata is retained in the reviewed route CSV referenced here.",
+    "traffic assumptions depend on the routing provider and request profile."
+  ],
+  "outputs": {
+    "matrix_csv": {
+      "path": "data\\travel_times\\2026-06-20_tract_nearest20_osrm_matrix.csv",
+      "sha256": "f1f574928b4aa1346e08bd9d4252cc907e22551ac2bd39a730114c2b5be2cc2e"
+    }
+  },
+  "route_metadata": {
+    "retrieved_at_utc_max": "2026-06-20T02:51:55.425694+00:00",
+    "retrieved_at_utc_min": "2026-06-20T02:40:32.507227+00:00",
+    "route_providers": [
+      "osrm:driving"
+    ],
+    "route_source_urls": [
+      "https://router.project-osrm.org/table/v1/driving"
+    ]
+  },
+  "row_counts": {
+    "approved_review_rows": 52680,
+    "excluded_rows": 0,
+    "facilities": 289,
+    "finalized_matrix_rows": 52680,
+    "population_points": 2634,
+    "route_rows": 52680,
+    "routed_rows": 52680,
+    "unreachable_rows": 0
+  },
+  "source_name": "radshock-finalize-travel-time-review"
+}

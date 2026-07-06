@@ -1,0 +1,22 @@
+{
+  "generated_at_utc": "2026-06-20T11:08:44.786846+00:00",
+  "inputs": {
+    "candidate_review_csv": {
+      "path": "data\\candidate_sites_review.csv",
+      "sha256": "af3e27f35f08a9d2c9bb8b16f6f3a97d5e633b9b9feaa28c3947864a99dfe35f"
+    }
+  },
+  "notes": [
+    "candidate rows passed finalize-candidate-review approval checks.",
+    "candidate locations remain planning assumptions, not endorsed service locations."
+  ],
+  "output": {
+    "path": "data\\candidate_sites.csv",
+    "sha256": "582fc1ccf90a7fe4c00606b0556c698d9c1a41062e75f7f4bfdc6dca737f1d4e"
+  },
+  "row_counts": {
+    "candidate_rows": 771,
+    "counties": 92
+  },
+  "source_name": "radshock-finalize-candidate-review"
+}

@@ -1,0 +1,83 @@
+name: desktop release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-desktop:
+    name: build ${{ matrix.artifact_name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: windows-x64
+            package_name: RadiologyAccessShockTracker-windows-x64.zip
+            windowed: "true"
+          - os: ubuntu-latest
+            artifact_name: linux-x64
+            package_name: RadiologyAccessShockTracker-linux-x64.tar.gz
+            windowed: "false"
+          - os: macos-13
+            artifact_name: macos-x64
+            package_name: RadiologyAccessShockTracker-macos-x64.dmg
+            windowed: "true"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package and desktop build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[desktop]"
+
+      - name: Validate bundled desktop payload
+        run: python -m radshock.desktop --check
+
+      - name: Build desktop app
+        shell: bash
+        run: |
+          if [ "${{ matrix.windowed }}" = "true" ]; then
+            python scripts/build_desktop.py --windowed
+          else
+            python scripts/build_desktop.py
+          fi
+
+      - name: Package Windows artifact
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Compress-Archive `
+            -Path dist/desktop/RadiologyAccessShockTracker `
+            -DestinationPath dist/${{ matrix.package_name }} `
+            -Force
+
+      - name: Package Linux artifact
+        if: runner.os == 'Linux'
+        run: |
+          tar -czf dist/${{ matrix.package_name }} -C dist/desktop RadiologyAccessShockTracker
+
+      - name: Package macOS artifact
+        if: runner.os == 'macOS'
+        run: |
+          hdiutil create \
+            -volname RadiologyAccessShockTracker \
+            -srcfolder dist/desktop/RadiologyAccessShockTracker.app \
+            -ov \
+            -format UDZO \
+            dist/${{ matrix.package_name }}
+
+      - name: Upload desktop artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: dist/${{ matrix.package_name }}
+          if-no-files-found: error

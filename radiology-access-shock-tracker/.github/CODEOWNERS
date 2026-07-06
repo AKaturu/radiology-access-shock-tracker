@@ -1,0 +1,12 @@
+# Default owner for all repository changes.
+* @AKaturu
+
+# Source ingestion, governance, and publication-critical data paths.
+/.github/ @AKaturu
+/src/radshock/adapters/ @AKaturu
+/src/radshock/geocoding.py @AKaturu
+/src/radshock/travel_times.py @AKaturu
+/src/radshock/readiness.py @AKaturu
+/data/ @AKaturu
+/docs/DATA_SOURCES.md @AKaturu
+/docs/OPERATIONS.md @AKaturu

@@ -1,0 +1,11 @@
+{
+  "source_name": "fda-mqsa-public",
+  "source_url": "https://www.accessdata.fda.gov/premarket/ftparea/public.zip",
+  "retrieval_date": "2026-06-20",
+  "retrieval_method": "url-download",
+  "created_at_utc": "2026-06-20T02:22:34.324036+00:00",
+  "original_filename": "public.zip",
+  "archived_filename": "public.zip",
+  "size_bytes": 335854,
+  "sha256": "9aa978827386629891acc4fed87e50964de10bd3d681b47b916c78ec39a4141c"
+}
