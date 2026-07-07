@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from radshock.adapters.facilities import read_fda_mqsa_fixed_width
+from radshock.adapters.facilities import finalize_mqsa_review, read_fda_mqsa_fixed_width
 from radshock.snapshots import store_snapshot
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -32,24 +32,32 @@ RAW_MQSA_ZIP = (
 )
 
 
-def generate_snapshot_data() -> pd.DataFrame:
-    review = pd.read_csv(ALL_STATES_REVIEW, dtype=str).fillna("")
-    raw = read_fda_mqsa_fixed_width(RAW_MQSA_ZIP, state=None)
+def generate_snapshot_data(
+    review_path: Path = ALL_STATES_REVIEW,
+    raw_mqsa_zip: Path = RAW_MQSA_ZIP,
+) -> pd.DataFrame:
+    """Return snapshot-ready facilities only from a completed all-state MQSA review.
+
+    This intentionally refuses to invent facility IDs, coordinates, active flags, or review
+    approvals. If the all-state review CSV does not already include DC, raw DC rows are appended
+    as review-template rows so the finalization step fails until those DC rows are completed.
+    """
+    review = pd.read_csv(review_path, dtype=str, keep_default_na=False).fillna("")
+    all_rows = _with_dc_review_rows(review, raw_mqsa_zip)
+    return finalize_mqsa_review(all_rows)
+
+
+def _with_dc_review_rows(review: pd.DataFrame, raw_mqsa_zip: Path) -> pd.DataFrame:
+    if "source_state" in review.columns:
+        states = set(review["source_state"].astype(str).str.upper().str.strip())
+        if "DC" in states:
+            return review
+    raw = read_fda_mqsa_fixed_width(raw_mqsa_zip, state=None)
     dc_raw = raw[raw["source_state"] == "DC"].copy()
+    if dc_raw.empty:
+        return review
     dc_review = _build_review_rows(dc_raw)
-    all_rows = pd.concat([review, dc_review], ignore_index=True)
-    all_rows["facility_id"] = _make_facility_id(all_rows)
-    all_rows["latitude"] = pd.to_numeric(
-        all_rows["latitude"].replace("", "0.0"), errors="coerce"
-    ).fillna(0.0)
-    all_rows["longitude"] = pd.to_numeric(
-        all_rows["longitude"].replace("", "0.0"), errors="coerce"
-    ).fillna(0.0)
-    all_rows["annual_capacity"] = pd.to_numeric(
-        all_rows.get("annual_capacity", pd.NA).replace("", pd.NA), errors="coerce"
-    )
-    all_rows["active"] = all_rows["active"].replace("", False).fillna(False)
-    return all_rows
+    return pd.concat([review, dc_review], ignore_index=True)
 
 
 def _build_review_rows(dc_raw: pd.DataFrame) -> pd.DataFrame:
@@ -86,22 +94,6 @@ def _build_review_rows(dc_raw: pd.DataFrame) -> pd.DataFrame:
             "is_mobile_name_hint": bool(row.get("is_mobile_name_hint", False)),
         })
     return pd.DataFrame(rows, columns=columns)
-
-
-def _make_facility_id(frame: pd.DataFrame) -> list[str]:
-    import hashlib
-    ids = []
-    for _, row in frame.iterrows():
-        state = str(row.get("source_state", "")).strip()
-        h = str(row.get("source_record_hash", row.get("facility_id", "")))
-        if h:
-            suffix = h[:12]
-        else:
-            suffix = hashlib.sha256(
-                f"{state}-{row.get('facility_name', '')}".encode()
-            ).hexdigest()[:12]
-        ids.append(f"MQSA-{state}-{suffix}")
-    return ids
 
 
 def main() -> None:

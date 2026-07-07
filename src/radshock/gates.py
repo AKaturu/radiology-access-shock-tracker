@@ -27,7 +27,7 @@ GATE_METADATA: dict[str, dict[str, str]] = {
     "travel_time_matrices": {
         "label": "Travel-time matrices",
         "description": (
-            "Travel-time matrices are not generated for this all-state staging package."
+            "Travel-time and routing evidence require review before publication."
         ),
     },
 }

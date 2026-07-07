@@ -162,8 +162,9 @@ def build_all_states_data_package(
             "mqsa": mqsa_source_note,
             "acs": acs_outputs["status_note"],
             "state_readiness_audit": (
-                "State-by-state gates are emitted for reviewer tracking; they do not mark "
-                "human review, geocoding, routing, or publication approval as complete."
+                "State-by-state gates are emitted for reviewer tracking; publication-ready "
+                "builds require each gate to be resolved in the gate resolutions file with "
+                "reviewer evidence."
             ),
         },
         "sources": {
