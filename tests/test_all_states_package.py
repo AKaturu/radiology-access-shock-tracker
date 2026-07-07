@@ -210,25 +210,26 @@ def test_mark_publication_ready_accepts_when_all_gates_resolved(
     def _fake_acs(*args, **kwargs):
         county_fips = sorted(f"{s}001" for s in ALL_STATES_FIPS_LIST)
         tract_fips = sorted(f"{s}001020100" for s in ALL_STATES_FIPS_LIST)
+        n = len(county_fips)
         return {
             "status_note": "mocked ACS",
             "paths": {},
             "row_counts": {
-                "acs_county_context_rows": 50,
-                "acs_tract_context_rows": 50,
-                "acs_county_population_points": 50,
-                "acs_tract_population_points": 50,
+                "acs_county_context_rows": n,
+                "acs_tract_context_rows": n,
+                "acs_county_population_points": n,
+                "acs_tract_population_points": n,
             },
             "counties_frame": pd.DataFrame({
                 "county_fips": county_fips,
                 "state": [US_STATE_FIPS_TO_ABBR[f[:2]] for f in county_fips],
-                "total_population": [50000] * 50,
+                "total_population": [50000] * n,
             }),
             "tracts_frame": pd.DataFrame({
                 "tract_geoid": tract_fips,
                 "county_fips": [f[:5] for f in tract_fips],
                 "state": [US_STATE_FIPS_TO_ABBR[f[:2]] for f in tract_fips],
-                "total_population": [5000] * 50,
+                "total_population": [5000] * n,
             }),
         }
     monkeypatch.setattr(PACKAGE_MODULE, "_maybe_build_acs_outputs", _fake_acs)

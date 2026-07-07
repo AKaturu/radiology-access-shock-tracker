@@ -1,0 +1,126 @@
+{
+  "blockers": 2,
+  "checks": [
+    {
+      "check": "mqsa_snapshot",
+      "details": "Owner configured.",
+      "domain": "review_owner",
+      "status": "PASS",
+      "value": 1
+    },
+    {
+      "check": "geocoding",
+      "details": "Owner configured.",
+      "domain": "review_owner",
+      "status": "PASS",
+      "value": 1
+    },
+    {
+      "check": "routing",
+      "details": "Owner configured.",
+      "domain": "review_owner",
+      "status": "PASS",
+      "value": 1
+    },
+    {
+      "check": "candidate_sites",
+      "details": "Owner configured.",
+      "domain": "review_owner",
+      "status": "PASS",
+      "value": 1
+    },
+    {
+      "check": "publication",
+      "details": "Owner configured.",
+      "domain": "review_owner",
+      "status": "PASS",
+      "value": 1
+    },
+    {
+      "check": "CENSUS_API_KEY",
+      "details": "Environment variable is present.",
+      "domain": "credential",
+      "status": "PASS",
+      "value": "set"
+    },
+    {
+      "check": "provider",
+      "details": "Routing provenance field configured.",
+      "domain": "routing",
+      "status": "PASS",
+      "value": "self-hosted-osrm"
+    },
+    {
+      "check": "profile",
+      "details": "Routing provenance field configured.",
+      "domain": "routing",
+      "status": "PASS",
+      "value": "driving"
+    },
+    {
+      "check": "traffic_assumption",
+      "details": "Routing provenance field configured.",
+      "domain": "routing",
+      "status": "PASS",
+      "value": "free-flow travel time; no live traffic"
+    },
+    {
+      "check": "matrix_metadata_json",
+      "details": "Routing provenance field configured.",
+      "domain": "routing",
+      "status": "PASS",
+      "value": "data/travel_times/2026-06-20_tract_nearest20_osrm_matrix.metadata.json"
+    },
+    {
+      "check": "state_scope",
+      "details": "Package is scoped to all states.",
+      "domain": "all_states_package",
+      "status": "PASS",
+      "value": "ALL_STATES"
+    },
+    {
+      "check": "state_count",
+      "details": "Manifest reports 51 states.",
+      "domain": "all_states_package",
+      "status": "PASS",
+      "value": 51
+    },
+    {
+      "check": "public_source_coverage",
+      "details": "No public no-secret source state gaps detected.",
+      "domain": "all_states_package",
+      "status": "PASS",
+      "value": 51
+    },
+    {
+      "check": "acs_context_coverage",
+      "details": "Set CENSUS_API_KEY and rebuild the package to add all-state ACS context.",
+      "domain": "all_states_package",
+      "status": "BLOCKER",
+      "value": "county=50; tract=50"
+    },
+    {
+      "check": "publication_status",
+      "details": "Package manifest is not marked ready for publication.",
+      "domain": "all_states_package",
+      "status": "BLOCKER",
+      "value": "not_ready_for_publication"
+    },
+    {
+      "check": "readiness_gates",
+      "details": "No unresolved all-state package readiness gates.",
+      "domain": "all_states_package",
+      "status": "PASS",
+      "value": 0
+    },
+    {
+      "check": "overall_status",
+      "details": "Analysis readiness report has 0 blocker(s) and 0 warning(s).",
+      "domain": "analysis_readiness",
+      "status": "PASS",
+      "value": "READY"
+    }
+  ],
+  "overall_status": "BLOCKED",
+  "warnings": 0
+}

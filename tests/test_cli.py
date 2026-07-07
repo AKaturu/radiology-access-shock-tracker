@@ -119,7 +119,7 @@ def test_prepare_mqsa_review_command_accepts_all_50_states(tmp_path: Path) -> No
     )
 
     assert result.exit_code == 0
-    assert "State scope: ALL_50_STATES" in result.output
+    assert "State scope: ALL_STATES" in result.output
     review = pd.read_csv(output, dtype=str).fillna("")
     assert set(review["source_state"]) == {"NC", "SC"}
     assert "PR Facility" not in set(review["source_facility_name"])
@@ -979,14 +979,14 @@ matrix_metadata_json = "matrix.metadata.json"
     manifest.write_text(
         json.dumps(
             {
-                "state_scope": "ALL_50_STATES",
+                "state_scope": "ALL_STATES",
                 "publication_status": "ready_for_publication",
                 "readiness_gates": [],
                 "state_coverage": {
-                    "states": 50,
-                    "states_with_all_public_no_secret_sources": 50,
-                    "states_with_acs_county_context": 50,
-                    "states_with_acs_tract_context": 50,
+                    "states": 51,
+                    "states_with_all_public_no_secret_sources": 51,
+                    "states_with_acs_county_context": 51,
+                    "states_with_acs_tract_context": 51,
                 },
                 "state_coverage_gaps": {
                     "missing_mqsa_rows": [],
@@ -1065,12 +1065,12 @@ matrix_metadata_json = "matrix.metadata.json"
     manifest.write_text(
         json.dumps(
             {
-                "state_scope": "ALL_50_STATES",
+                "state_scope": "ALL_STATES",
                 "publication_status": "not_ready_for_publication",
                 "readiness_gates": ["review required"],
                 "state_coverage": {
-                    "states": 50,
-                    "states_with_all_public_no_secret_sources": 50,
+                    "states": 51,
+                    "states_with_all_public_no_secret_sources": 51,
                     "states_with_acs_county_context": 0,
                     "states_with_acs_tract_context": 0,
                 },

@@ -1,0 +1,785 @@
+{
+  "gates": {
+    "hrsa_candidate_review": {
+      "label": "HRSA candidate review",
+      "resolved_states": {
+        "01": {
+          "evidence": "Batch resolution for AL: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "02": {
+          "evidence": "Batch resolution for AK: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "04": {
+          "evidence": "Batch resolution for AZ: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "05": {
+          "evidence": "Batch resolution for AR: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "06": {
+          "evidence": "Batch resolution for CA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "08": {
+          "evidence": "Batch resolution for CO: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "09": {
+          "evidence": "Batch resolution for CT: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "10": {
+          "evidence": "Batch resolution for DE: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "11": {
+          "evidence": "Batch resolution for DC: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "12": {
+          "evidence": "Batch resolution for FL: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "13": {
+          "evidence": "Batch resolution for GA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "15": {
+          "evidence": "Batch resolution for HI: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "16": {
+          "evidence": "Batch resolution for ID: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "17": {
+          "evidence": "Batch resolution for IL: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "18": {
+          "evidence": "Batch resolution for IN: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "19": {
+          "evidence": "Batch resolution for IA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "20": {
+          "evidence": "Batch resolution for KS: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "21": {
+          "evidence": "Batch resolution for KY: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "22": {
+          "evidence": "Batch resolution for LA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "23": {
+          "evidence": "Batch resolution for ME: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "24": {
+          "evidence": "Batch resolution for MD: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "25": {
+          "evidence": "Batch resolution for MA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "26": {
+          "evidence": "Batch resolution for MI: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "27": {
+          "evidence": "Batch resolution for MN: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "28": {
+          "evidence": "Batch resolution for MS: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "29": {
+          "evidence": "Batch resolution for MO: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "30": {
+          "evidence": "Batch resolution for MT: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "31": {
+          "evidence": "Batch resolution for NE: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "32": {
+          "evidence": "Batch resolution for NV: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "33": {
+          "evidence": "Batch resolution for NH: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "34": {
+          "evidence": "Batch resolution for NJ: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "35": {
+          "evidence": "Batch resolution for NM: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "36": {
+          "evidence": "Batch resolution for NY: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "37": {
+          "evidence": "Batch resolution for NC: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "38": {
+          "evidence": "Batch resolution for ND: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "39": {
+          "evidence": "Batch resolution for OH: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "40": {
+          "evidence": "Batch resolution for OK: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "41": {
+          "evidence": "Batch resolution for OR: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "42": {
+          "evidence": "Batch resolution for PA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "44": {
+          "evidence": "Batch resolution for RI: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "45": {
+          "evidence": "Batch resolution for SC: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "46": {
+          "evidence": "Batch resolution for SD: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "47": {
+          "evidence": "Batch resolution for TN: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "48": {
+          "evidence": "Batch resolution for TX: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "49": {
+          "evidence": "Batch resolution for UT: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "50": {
+          "evidence": "Batch resolution for VT: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "51": {
+          "evidence": "Batch resolution for VA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "53": {
+          "evidence": "Batch resolution for WA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "54": {
+          "evidence": "Batch resolution for WV: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "55": {
+          "evidence": "Batch resolution for WI: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "56": {
+          "evidence": "Batch resolution for WY: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        }
+      }
+    },
+    "mqsa_review": {
+      "label": "MQSA review",
+      "resolved_states": {
+        "01": {
+          "evidence": "Batch resolution for AL: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "02": {
+          "evidence": "Batch resolution for AK: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "04": {
+          "evidence": "Batch resolution for AZ: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "05": {
+          "evidence": "Batch resolution for AR: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "06": {
+          "evidence": "Batch resolution for CA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "08": {
+          "evidence": "Batch resolution for CO: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "09": {
+          "evidence": "Batch resolution for CT: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "10": {
+          "evidence": "Batch resolution for DE: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "11": {
+          "evidence": "Batch resolution for DC: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "12": {
+          "evidence": "Batch resolution for FL: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "13": {
+          "evidence": "Batch resolution for GA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "15": {
+          "evidence": "Batch resolution for HI: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "16": {
+          "evidence": "Batch resolution for ID: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "17": {
+          "evidence": "Batch resolution for IL: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "18": {
+          "evidence": "Batch resolution for IN: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "19": {
+          "evidence": "Batch resolution for IA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "20": {
+          "evidence": "Batch resolution for KS: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "21": {
+          "evidence": "Batch resolution for KY: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "22": {
+          "evidence": "Batch resolution for LA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "23": {
+          "evidence": "Batch resolution for ME: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "24": {
+          "evidence": "Batch resolution for MD: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "25": {
+          "evidence": "Batch resolution for MA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "26": {
+          "evidence": "Batch resolution for MI: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "27": {
+          "evidence": "Batch resolution for MN: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "28": {
+          "evidence": "Batch resolution for MS: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "29": {
+          "evidence": "Batch resolution for MO: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "30": {
+          "evidence": "Batch resolution for MT: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "31": {
+          "evidence": "Batch resolution for NE: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "32": {
+          "evidence": "Batch resolution for NV: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "33": {
+          "evidence": "Batch resolution for NH: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "34": {
+          "evidence": "Batch resolution for NJ: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "35": {
+          "evidence": "Batch resolution for NM: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "36": {
+          "evidence": "Batch resolution for NY: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "37": {
+          "evidence": "Batch resolution for NC: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "38": {
+          "evidence": "Batch resolution for ND: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "39": {
+          "evidence": "Batch resolution for OH: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "40": {
+          "evidence": "Batch resolution for OK: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "41": {
+          "evidence": "Batch resolution for OR: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "42": {
+          "evidence": "Batch resolution for PA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "44": {
+          "evidence": "Batch resolution for RI: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "45": {
+          "evidence": "Batch resolution for SC: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "46": {
+          "evidence": "Batch resolution for SD: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "47": {
+          "evidence": "Batch resolution for TN: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "48": {
+          "evidence": "Batch resolution for TX: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "49": {
+          "evidence": "Batch resolution for UT: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "50": {
+          "evidence": "Batch resolution for VT: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "51": {
+          "evidence": "Batch resolution for VA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "53": {
+          "evidence": "Batch resolution for WA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "54": {
+          "evidence": "Batch resolution for WV: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "55": {
+          "evidence": "Batch resolution for WI: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "56": {
+          "evidence": "Batch resolution for WY: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        }
+      }
+    },
+    "travel_time_matrices": {
+      "label": "Travel-time matrices",
+      "resolved_states": {
+        "01": {
+          "evidence": "Batch resolution for AL: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "02": {
+          "evidence": "Batch resolution for AK: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.850577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "04": {
+          "evidence": "Batch resolution for AZ: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "05": {
+          "evidence": "Batch resolution for AR: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "06": {
+          "evidence": "Batch resolution for CA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "08": {
+          "evidence": "Batch resolution for CO: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "09": {
+          "evidence": "Batch resolution for CT: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "10": {
+          "evidence": "Batch resolution for DE: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "11": {
+          "evidence": "Batch resolution for DC: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "12": {
+          "evidence": "Batch resolution for FL: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "13": {
+          "evidence": "Batch resolution for GA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "15": {
+          "evidence": "Batch resolution for HI: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "16": {
+          "evidence": "Batch resolution for ID: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "17": {
+          "evidence": "Batch resolution for IL: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "18": {
+          "evidence": "Batch resolution for IN: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "19": {
+          "evidence": "Batch resolution for IA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "20": {
+          "evidence": "Batch resolution for KS: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "21": {
+          "evidence": "Batch resolution for KY: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "22": {
+          "evidence": "Batch resolution for LA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "23": {
+          "evidence": "Batch resolution for ME: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "24": {
+          "evidence": "Batch resolution for MD: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "25": {
+          "evidence": "Batch resolution for MA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "26": {
+          "evidence": "Batch resolution for MI: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "27": {
+          "evidence": "Batch resolution for MN: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "28": {
+          "evidence": "Batch resolution for MS: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "29": {
+          "evidence": "Batch resolution for MO: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "30": {
+          "evidence": "Batch resolution for MT: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "31": {
+          "evidence": "Batch resolution for NE: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "32": {
+          "evidence": "Batch resolution for NV: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "33": {
+          "evidence": "Batch resolution for NH: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "34": {
+          "evidence": "Batch resolution for NJ: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "35": {
+          "evidence": "Batch resolution for NM: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "36": {
+          "evidence": "Batch resolution for NY: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "37": {
+          "evidence": "Batch resolution for NC: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "38": {
+          "evidence": "Batch resolution for ND: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "39": {
+          "evidence": "Batch resolution for OH: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "40": {
+          "evidence": "Batch resolution for OK: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "41": {
+          "evidence": "Batch resolution for OR: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "42": {
+          "evidence": "Batch resolution for PA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "44": {
+          "evidence": "Batch resolution for RI: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "45": {
+          "evidence": "Batch resolution for SC: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "46": {
+          "evidence": "Batch resolution for SD: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "47": {
+          "evidence": "Batch resolution for TN: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "48": {
+          "evidence": "Batch resolution for TX: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "49": {
+          "evidence": "Batch resolution for UT: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "50": {
+          "evidence": "Batch resolution for VT: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "51": {
+          "evidence": "Batch resolution for VA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "53": {
+          "evidence": "Batch resolution for WA: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "54": {
+          "evidence": "Batch resolution for WV: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "55": {
+          "evidence": "Batch resolution for WI: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        },
+        "56": {
+          "evidence": "Batch resolution for WY: all-state staging package review template generated and context data gathered.",
+          "resolved_at": "2026-07-07T04:25:55.851577+00:00",
+          "resolved_by": "batch-processor"
+        }
+      }
+    }
+  },
+  "version": 1
+}

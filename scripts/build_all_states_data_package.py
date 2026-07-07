@@ -46,7 +46,7 @@ from radshock.snapshots import file_sha256
 from radshock.sources import fetch_url_source
 from radshock.states import US_STATE_ABBRS, US_STATE_FIPS, state_abbr_from_fips
 
-ALL_STATES_LABEL = "ALL_50_STATES"
+ALL_STATES_LABEL = "ALL_STATES"
 NBER_FDA_MQSA_PUBLIC_ZIP_URL = "https://data.nber.org/fda/mqsa/public.zip"
 
 

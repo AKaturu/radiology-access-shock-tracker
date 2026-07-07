@@ -1,0 +1,13 @@
+{
+  "as_of": "2026-07-06",
+  "source_name": "fda-mqsa-all-states",
+  "record_count": 8918,
+  "active_record_count": 0,
+  "sha256": "c300bf67590b6baee2ebfb27ec4ef47459a95f7d55bb6e0108e2a08a892e124d",
+  "created_at_utc": "2026-07-07T04:25:46.698481+00:00",
+  "input_filename": "tmp6mbt87nk.csv",
+  "schema_version": "facility_snapshot_v1",
+  "source_url": "https://www.accessdata.fda.gov/premarket/ftparea/public.zip",
+  "raw_source_filename": "public.zip",
+  "raw_source_sha256": "76ab190bf0667aaf943e27c492a6b7377beb6aaeac33452c96d2aee82a89eddc"
+}
