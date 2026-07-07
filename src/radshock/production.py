@@ -186,10 +186,10 @@ def audit_all_states_manifest(manifest_path: Path, *, require_acs: bool = True) 
             "all_states_package",
             "state_scope",
             state_scope,
-            "PASS" if state_scope == "ALL_50_STATES" else "BLOCKER",
-            "Package is scoped to all 50 states."
-            if state_scope == "ALL_50_STATES"
-            else "Regenerate the data package with the all-50-state scope.",
+            "PASS" if state_scope == "ALL_STATES" else "BLOCKER",
+            "Package is scoped to all states."
+            if state_scope == "ALL_STATES"
+            else "Regenerate the data package with the all-state scope.",
         )
     )
     state_count = _int_value(coverage.get("states"))
@@ -198,10 +198,10 @@ def audit_all_states_manifest(manifest_path: Path, *, require_acs: bool = True) 
             "all_states_package",
             "state_count",
             state_count,
-            "PASS" if state_count == 50 else "BLOCKER",
-            "Manifest reports 50 states."
-            if state_count == 50
-            else "Manifest must report exactly 50 states before production.",
+            "PASS" if state_count == 51 else "BLOCKER",
+            "Manifest reports 51 states."
+            if state_count == 51
+            else "Manifest must report 51 states (50 states + DC) before production.",
         )
     )
 
@@ -212,23 +212,23 @@ def audit_all_states_manifest(manifest_path: Path, *, require_acs: bool = True) 
             "all_states_package",
             "public_source_coverage",
             public_source_states,
-            "PASS" if public_gap_count == 0 and public_source_states == 50 else "BLOCKER",
+            "PASS" if public_gap_count == 0 and public_source_states == 51 else "BLOCKER",
             "No public no-secret source state gaps detected."
-            if public_gap_count == 0 and public_source_states == 50
-            else "Refresh or review source inputs until every 50-state public source is covered.",
+            if public_gap_count == 0 and public_source_states == 51
+            else "Refresh or review source inputs until all 51-state public sources are covered.",
         )
     )
 
     acs_counties = _int_value(coverage.get("states_with_acs_county_context"))
     acs_tracts = _int_value(coverage.get("states_with_acs_tract_context"))
-    acs_complete = acs_counties == 50 and acs_tracts == 50
+    acs_complete = acs_counties == 51 and acs_tracts == 51
     rows.append(
         _row(
             "all_states_package",
             "acs_context_coverage",
             f"county={acs_counties}; tract={acs_tracts}",
             "PASS" if acs_complete else ("BLOCKER" if require_acs else "WARN"),
-            "ACS county and tract context covers all 50 states."
+            "ACS county and tract context covers all states."
             if acs_complete
             else "Set CENSUS_API_KEY and rebuild the package to add all-state ACS context.",
         )

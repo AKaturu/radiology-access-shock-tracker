@@ -1,0 +1,785 @@
+{
+  "gates": {
+    "hrsa_candidate_review": {
+      "label": "HRSA candidate review",
+      "resolved_states": {
+        "01": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: AL HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "02": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: AK HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "04": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: AZ HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "05": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: AR HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "06": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: CA HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "08": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: CO HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "09": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: CT HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "10": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: DE HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "11": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: DC HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "12": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: FL HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "13": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: GA HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "15": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: HI HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "16": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: ID HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "17": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: IL HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "18": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: IN HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "19": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: IA HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "20": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: KS HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "21": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: KY HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "22": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: LA HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "23": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: ME HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "24": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MD HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "25": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MA HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "26": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MI HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "27": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MN HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "28": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MS HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "29": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MO HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "30": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MT HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "31": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NE HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "32": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NV HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "33": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NH HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "34": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NJ HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "35": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NM HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "36": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NY HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "37": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NC HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "38": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: ND HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "39": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: OH HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "40": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: OK HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "41": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: OR HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "42": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: PA HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "44": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: RI HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "45": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: SC HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "46": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: SD HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "47": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: TN HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "48": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: TX HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "49": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: UT HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "50": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: VT HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "51": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: VA HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "53": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: WA HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "54": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: WV HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "55": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: WI HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "56": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: WY HRSA candidate-site review was signed off against the all-state package, including candidate eligibility and planning-assumption decisions.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        }
+      }
+    },
+    "mqsa_review": {
+      "label": "MQSA review",
+      "resolved_states": {
+        "01": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: AL MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "02": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: AK MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "04": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: AZ MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "05": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: AR MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "06": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: CA MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "08": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: CO MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "09": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: CT MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "10": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: DE MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "11": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: DC MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "12": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: FL MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "13": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: GA MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "15": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: HI MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "16": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: ID MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "17": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: IL MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "18": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: IN MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "19": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: IA MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "20": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: KS MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "21": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: KY MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "22": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: LA MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "23": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: ME MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "24": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MD MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "25": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MA MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "26": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MI MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "27": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MN MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "28": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MS MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "29": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MO MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "30": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MT MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "31": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NE MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "32": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NV MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "33": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NH MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "34": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NJ MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "35": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NM MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "36": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NY MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "37": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NC MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "38": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: ND MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "39": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: OH MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "40": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: OK MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "41": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: OR MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "42": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: PA MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "44": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: RI MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "45": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: SC MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "46": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: SD MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "47": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: TN MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "48": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: TX MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "49": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: UT MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "50": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: VT MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "51": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: VA MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "53": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: WA MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "54": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: WV MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "55": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: WI MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "56": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: WY MQSA facility review was signed off against the all-state package, including facility identity, geocoding/coordinate disposition, active status, and review-status decisions.",
+          "resolved_at": "2026-07-07T04:42:24.817554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        }
+      }
+    },
+    "travel_time_matrices": {
+      "label": "Travel-time matrices",
+      "resolved_states": {
+        "01": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: AL routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "02": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: AK routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "04": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: AZ routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "05": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: AR routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "06": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: CA routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "08": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: CO routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "09": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: CT routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "10": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: DE routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "11": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: DC routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "12": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: FL routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "13": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: GA routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "15": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: HI routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "16": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: ID routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "17": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: IL routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "18": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: IN routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "19": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: IA routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "20": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: KS routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "21": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: KY routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "22": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: LA routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "23": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: ME routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "24": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MD routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "25": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MA routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "26": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MI routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "27": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MN routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "28": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MS routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "29": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MO routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "30": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: MT routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "31": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NE routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "32": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NV routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "33": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NH routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "34": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NJ routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "35": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NM routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "36": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NY routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "37": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: NC routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "38": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: ND routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "39": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: OH routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "40": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: OK routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "41": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: OR routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "42": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: PA routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "44": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: RI routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "45": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: SC routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "46": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: SD routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "47": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: TN routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "48": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: TX routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "49": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: UT routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "50": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: VT routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "51": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: VA routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "53": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: WA routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "54": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: WV routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "55": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: WI routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        },
+        "56": {
+          "evidence": "User-attested manual opencode review on 2026-07-07: WY routing and travel-time readiness evidence was signed off for publication gating.",
+          "resolved_at": "2026-07-07T04:42:24.818554+00:00",
+          "resolved_by": "AKaturu / opencode manual review"
+        }
+      }
+    }
+  },
+  "version": 1
+}

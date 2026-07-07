@@ -11,6 +11,7 @@ US_STATE_ABBR_TO_FIPS = {
     "CO": "08",
     "CT": "09",
     "DE": "10",
+    "DC": "11",
     "FL": "12",
     "GA": "13",
     "HI": "15",
@@ -58,7 +59,10 @@ US_STATE_FIPS_TO_ABBR = {fips: abbr for abbr, fips in US_STATE_ABBR_TO_FIPS.item
 US_STATE_ABBRS = tuple(US_STATE_ABBR_TO_FIPS)
 US_STATE_FIPS = tuple(US_STATE_ABBR_TO_FIPS.values())
 
-ALL_50_STATE_ALIASES = {"ALL", "ALL50", "ALL_50", "ALL_50_STATES", "US", "USA", "50"}
+ALL_50_STATE_ALIASES = {
+    "ALL", "ALL50", "ALL_50", "ALL_50_STATES", "ALL_STATES",
+    "ALL_51", "ALL51", "US", "USA", "50",
+}
 
 
 @dataclass(frozen=True)
@@ -71,18 +75,18 @@ class StateScope:
     @property
     def label(self) -> str:
         if self.is_all_50_states:
-            return "ALL_50_STATES"
+            return "ALL_STATES"
         return self.states[0]
 
     @property
     def fips_label(self) -> str:
         if self.is_all_50_states:
-            return "ALL_50_STATES"
+            return "ALL_STATES"
         return self.state_fips[0]
 
 
 def resolve_state_scope(value: str | None) -> StateScope:
-    """Resolve a CLI/API state argument into a supported 50-state scope."""
+    """Resolve a CLI/API state argument into a supported all-state scope."""
     requested = (value or "NC").strip().upper().replace("-", "_")
     if not requested:
         requested = "NC"
@@ -109,7 +113,7 @@ def resolve_state_scope(value: str | None) -> StateScope:
             state_fips=(US_STATE_ABBR_TO_FIPS[requested],),
         )
     raise ValueError(
-        "state must be a two-letter 50-state abbreviation, a 50-state FIPS code, or ALL"
+        "state must be a two-letter USPS abbreviation, a state FIPS code, or ALL"
     )
 
 
@@ -118,4 +122,4 @@ def state_abbr_from_fips(state_fips: str) -> str:
     try:
         return US_STATE_FIPS_TO_ABBR[fips]
     except KeyError as exc:
-        raise ValueError(f"unsupported 50-state FIPS code: {state_fips}") from exc
+        raise ValueError(f"unsupported state FIPS code: {state_fips}") from exc

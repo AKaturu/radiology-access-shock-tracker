@@ -8,8 +8,12 @@ __pycache__/
 dist/
 build/
 *.egg-info/
-outputs/
-work/
+outputs/*
+!outputs/production_audit.md
+!outputs/production_audit.json
+!outputs/all_states_data_package.md
+work/*
+!work/gate_resolutions.json
 nonexistent/
 data/cache/
 data/raw/
@@ -18,4 +22,6 @@ data/snapshots/*
 !data/snapshots/2026-06-19/**
 !data/snapshots/2026-06-20/
 !data/snapshots/2026-06-20/**
+!data/snapshots/2026-07-06/
+!data/snapshots/2026-07-06/**
 .DS_Store

@@ -46,7 +46,7 @@ from radshock.snapshots import file_sha256
 from radshock.sources import fetch_url_source
 from radshock.states import US_STATE_ABBRS, US_STATE_FIPS, state_abbr_from_fips
 
-ALL_STATES_LABEL = "ALL_50_STATES"
+ALL_STATES_LABEL = "ALL_STATES"
 NBER_FDA_MQSA_PUBLIC_ZIP_URL = "https://data.nber.org/fda/mqsa/public.zip"
 
 
@@ -162,8 +162,9 @@ def build_all_states_data_package(
             "mqsa": mqsa_source_note,
             "acs": acs_outputs["status_note"],
             "state_readiness_audit": (
-                "State-by-state gates are emitted for reviewer tracking; they do not mark "
-                "human review, geocoding, routing, or publication approval as complete."
+                "State-by-state gates are emitted for reviewer tracking; publication-ready "
+                "builds require each gate to be resolved in the gate resolutions file with "
+                "reviewer evidence."
             ),
         },
         "sources": {
@@ -670,7 +671,7 @@ def _render_report(
         f"{row.hrsa_candidate_review_rows} | {row.places_counties} |"
         for row in top_mqsa.itertuples(index=False)
     )
-    gates = "\n".join(f"- {gate}" for gate in manifest["readiness_gates"])
+    gates = "\n".join(f"- {gate}" for gate in manifest["readiness_gates"]) or "- None."
     all_public_sources = coverage["states_with_all_public_no_secret_sources"]
     coverage_gaps = _render_coverage_gaps(manifest["state_coverage_gaps"])
     return f"""# All-States Data Package

@@ -168,9 +168,10 @@ def test_state_scope_accepts_all_50_and_fips() -> None:
     nc_scope = resolve_state_scope("37")
 
     assert all_scope.is_all_50_states
-    assert len(all_scope.states) == 50
+    assert len(all_scope.states) == 51
     assert "NC" in all_scope.states
     assert "CA" in all_scope.states
+    assert "DC" in all_scope.states
     assert nc_scope.states == ("NC",)
     assert nc_scope.state_fips == ("37",)
 

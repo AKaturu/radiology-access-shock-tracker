@@ -124,7 +124,7 @@ def test_get_active_gate_strings_partially_resolved(tmp_path: Path) -> None:
     active = get_active_gate_strings(resolutions)
     travel_time_gates = [g for g in active if "Travel-time" in g]
     assert len(travel_time_gates) == 1
-    assert "49 of 50" in travel_time_gates[0]
+    assert "50 of 51" in travel_time_gates[0]
 
 
 def test_get_active_gate_strings_one_fully_resolved(tmp_path: Path) -> None:

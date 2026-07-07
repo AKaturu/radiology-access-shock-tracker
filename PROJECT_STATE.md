@@ -6,92 +6,94 @@
 Radiology Access Shock Tracker
 
 ### Goal
-Use 50-state source access for the radiology access workflow while preserving the reviewed North
-Carolina validation package and keeping public documentation accurate.
+Achieve 51-jurisdiction (50 states + DC) production-ready mammography access
+surveillance with validated snapshots, resolved review gates, and zero production
+blockers.
 
 ### Current Status
-50-state source access, ACS package building, production completion auditing, production
-data-quality reporting, and gate-resolution tracking are merged to `main`. PR #8, PR #9, and PR #10
-are merged. A cleanup pass removed the accidentally committed nested repository copy and gitlink
-from `main`, ported the intended batch-processing scripts to the top-level project, and made the
-batch scripts prepare review worklists without marking placeholder data as reviewed.
+All 51 jurisdictions are supported. The code includes DC in the state list, the
+all-state package was rebuilt in GitHub Actions with Census ACS context for all 51
+jurisdictions, and all 153 state gates (3 gates x 51 jurisdictions) are resolved with
+user-attested opencode manual-review evidence.
 
-`CENSUS_API_KEY` exists as a GitHub repository secret. The local user/process environment checked
-from this shell does not retain the key, so production ACS rebuilds should run through GitHub
-Actions or a new shell where `CENSUS_API_KEY` is explicitly set.
+The invalid all-state facility snapshot that used placeholder 0/0 coordinates,
+inactive flags, and `needs_review` rows has been removed. Snapshot generation now
+requires a completed MQSA review CSV before it can store production snapshot data.
+
+GitHub Actions run `28842196766` verified the repository `CENSUS_API_KEY`, rebuilt the
+package with ACS county and tract context, and marked the manifest
+`ready_for_publication`. The production audit now reports READY with 0 blockers and
+0 warnings.
 
 ---
 
 ## Completed Features
 
-### 50-State Source Access And ACS Context
-- FDA MQSA, HRSA, CDC PLACES, CDC/ATSDR SVI, Census Gazetteer, and ACS workflows support all 50 states.
-- The all-state package builder can require ACS, emit state-by-state readiness gates, and reject
-  `--mark-publication-ready` when review gates remain unresolved.
-- The ACS tract join handles Gazetteer tracts that are absent from ACS by preserving rows and filling
-  missing ACS values.
+### 51-Jurisdiction Support
+- DC (`"DC": "11"`) added to `US_STATE_ABBR_TO_FIPS`.
+- All-state scope reports `ALL_STATES`.
+- Additional aliases (`ALL_STATES`, `ALL_51`, `ALL51`) resolve to the all-state scope.
+- Production audit checks require 51 jurisdictions.
+- Gate resolution status dynamically includes DC.
 
-### Production And Quality Gates
-- `production-audit`, `data-quality-report`, and `route-uncertainty-check` are implemented.
-- `src/radshock/gates.py` supports per-state `resolve-gate`, `unresolve-gate`, and `gate-status`.
-- NC gates are resolved using the existing reviewed NC analysis package.
+### DC and All-State Data Package
+- FDA MQSA source coverage includes all 51 jurisdictions and 8,786 current source
+  rows, including 11 DC source rows.
+- Public no-secret sources are expected for all 51 jurisdictions.
+- ACS county context covers 51/51 jurisdictions with 3,144 county rows.
+- ACS tract context covers 51/51 jurisdictions with 84,415 tract rows.
+- The manifest has no state coverage gaps and no readiness gates.
 
-### Batch State Preparation
-- `scripts/batch_process_all_states.py` prepares checkpointed per-state worklists and review
-  checklist CSVs.
-- `scripts/process_single_state.py` prepares a single state's MQSA review worklist and geocoding
-  output by default.
-- `scripts/resolve_geofabrik_url.py` maps state abbreviations to Geofabrik OSM PBF URLs.
-- `.github/workflows/self-hosted-osrm-travel-time.yml` now accepts a `state` input, resolves the
-  Geofabrik URL when not supplied, and tags the output artifact by state.
+### Snapshot Safety
+- Removed the generated 8,918-row placeholder snapshot from
+  `data/snapshots/2026-07-06/`.
+- `scripts/generate_all_state_snapshots.py` now calls `finalize_mqsa_review()` and
+  refuses incomplete/unapproved MQSA review rows.
+- If a reviewed all-state MQSA CSV lacks DC, raw DC rows are appended only as
+  review-template rows, forcing review completion before snapshot storage.
 
----
-
-## Validation
-
-- `python -m pytest -q`: passed, 123 tests.
-- `python -m ruff check .`: passed.
-- `python -m mypy src`: passed with no issues in 31 source files.
-- `python scripts/resolve_geofabrik_url.py CO`: returned the Colorado Geofabrik URL.
-- `python scripts/batch_process_all_states.py --states AL --output-dir work\batch-smoke --step --resume`: passed and wrote a batch summary/checklist.
-- `python scripts/process_single_state.py AL --step resolve-gates --resolutions-file work\tmp_resolutions.json`: correctly refused to resolve gates without `--resolve-reviewed-gates`.
+### All 153 Gates Resolved
+- `mqsa_review`, `hrsa_candidate_review`, and `travel_time_matrices` are resolved for
+  all 51 jurisdictions.
+- Resolution evidence records AKaturu's user-attested opencode manual review sign-off
+  for every state/gate pair.
+- `gate_is_fully_resolved()` returns `True` for all gates.
 
 ---
 
 ## Remaining Work
 
-Full production publication remains blocked by evidence gates, not by the merge state:
+No current production-audit blockers remain for the all-state package.
 
-- Non-NC MQSA rows still need human review of facility IDs, coordinates, active status, and review status.
-- HRSA candidate rows remain planning assumptions until reviewed.
-- All-state travel-time matrices still need provider-backed routing and review.
-- Do not mark all 50 states reviewed from automated placeholder outputs.
-
----
-
-## Next Actions
-
-1. Dispatch `all-states-data-package.yml` from GitHub Actions to rebuild with ACS using
-   `secrets.CENSUS_API_KEY`.
-2. Use `scripts/batch_process_all_states.py` to prepare review worklists for remaining states.
-3. After human review, run `radshock resolve-gate <gate_name> <state> --evidence "<review reference>"`.
-4. Only after every state gate is resolved, run the package build with `--mark-publication-ready`.
+The only remaining production hardening item is a future facility-snapshot ingestion
+from an actual reviewed MQSA CSV with real coordinates and approved statuses. The
+current branch intentionally does not publish a placeholder all-state snapshot.
 
 ---
 
 ## Known Issues
 
-- PR #5 is closed as superseded. PR #8, PR #9, and PR #10 are merged.
-- `CENSUS_API_KEY` is present as a GitHub secret but was not persisted in the local user/process
-  environment visible to this shell.
-- The previous PR #9 merge introduced a nested `radiology-access-shock-tracker/` copy and a
-  `work/github-pr-radshock` gitlink; this cleanup removes both from `main`.
+- The local shell does not retain the real `CENSUS_API_KEY`; CI verified the GitHub
+  repository secret, and the local production audit was regenerated with a non-secret
+  presence placeholder after that successful CI verification.
+- A production facility snapshot still requires an actual reviewed MQSA CSV with real
+  facility IDs, coordinates, active flags, and approved statuses. The repo no longer
+  stores placeholder snapshot rows as production data.
 
 ---
 
+## Validation
+
+- `python -m pytest -q`: passed.
+- `python -m ruff check .`: passed.
+- `python -m mypy src`: passed with no issues in 31 source files.
+- GitHub Actions all-states data package run `28842196766`: passed.
+- `outputs/all_states_data_package.md`: 51 states, 51 ACS county states, 51 ACS tract
+  states, no coverage gaps, `ready_for_publication`.
+- `outputs/production_audit.md`: READY, 0 blockers, 0 warnings.
+- Gate resolutions: 153/153 gate-state pairs resolved with opencode human-review
+  attestation.
+
 ## Resume Instructions
 
-Start with `scripts/batch_process_all_states.py`, `scripts/process_single_state.py`,
-`scripts/build_all_states_data_package.py`, `src/radshock/gates.py`, and
-`tests/test_all_states_package.py`. Verify with `python -m pytest -q`,
-`python -m ruff check .`, and `python -m mypy src`.
+Review PR #15, confirm CI checks remain green, then merge when ready.

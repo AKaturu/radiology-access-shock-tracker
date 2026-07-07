@@ -46,12 +46,12 @@ def test_all_states_manifest_warns_on_missing_acs_when_not_required(tmp_path: Pa
     manifest.write_text(
         json.dumps(
             {
-                "state_scope": "ALL_50_STATES",
+                "state_scope": "ALL_STATES",
                 "publication_status": "not_ready_for_publication",
                 "readiness_gates": ["review required"],
                 "state_coverage": {
-                    "states": 50,
-                    "states_with_all_public_no_secret_sources": 50,
+                    "states": 51,
+                    "states_with_all_public_no_secret_sources": 51,
                     "states_with_acs_county_context": 0,
                     "states_with_acs_tract_context": 0,
                 },
@@ -77,12 +77,12 @@ def test_all_states_manifest_blocks_unresolved_acs_and_publication_gates(
     manifest.write_text(
         json.dumps(
             {
-                "state_scope": "ALL_50_STATES",
+                "state_scope": "ALL_STATES",
                 "publication_status": "not_ready_for_publication",
                 "readiness_gates": ["review required"],
                 "state_coverage": {
-                    "states": 50,
-                    "states_with_all_public_no_secret_sources": 50,
+                    "states": 51,
+                    "states_with_all_public_no_secret_sources": 51,
                     "states_with_acs_county_context": 0,
                     "states_with_acs_tract_context": 0,
                 },
@@ -187,14 +187,14 @@ matrix_metadata_json = "matrix.metadata.json"
 
 def _ready_manifest() -> dict[str, object]:
     return {
-        "state_scope": "ALL_50_STATES",
+        "state_scope": "ALL_STATES",
         "publication_status": "ready_for_publication",
         "readiness_gates": [],
         "state_coverage": {
-            "states": 50,
-            "states_with_all_public_no_secret_sources": 50,
-            "states_with_acs_county_context": 50,
-            "states_with_acs_tract_context": 50,
+            "states": 51,
+            "states_with_all_public_no_secret_sources": 51,
+            "states_with_acs_county_context": 51,
+            "states_with_acs_tract_context": 51,
         },
         "state_coverage_gaps": {
             "missing_mqsa_rows": [],
