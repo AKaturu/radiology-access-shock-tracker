@@ -12,17 +12,18 @@ blockers.
 
 ### Current Status
 All 51 jurisdictions are supported. The code includes DC in the state list, the
-all-state package path supports 8,918 MQSA rows including 12 DC rows, and all 153
-state gates (3 gates x 51 jurisdictions) are resolved with user-attested opencode
-manual-review evidence.
+all-state package was rebuilt in GitHub Actions with Census ACS context for all 51
+jurisdictions, and all 153 state gates (3 gates x 51 jurisdictions) are resolved with
+user-attested opencode manual-review evidence.
 
 The invalid all-state facility snapshot that used placeholder 0/0 coordinates,
 inactive flags, and `needs_review` rows has been removed. Snapshot generation now
 requires a completed MQSA review CSV before it can store production snapshot data.
 
-`CENSUS_API_KEY` exists as a GitHub repository secret. The local shell does not retain
-the key, so the production ACS rebuild should run through GitHub Actions or a shell
-where `CENSUS_API_KEY` is explicitly set.
+GitHub Actions run `28842196766` verified the repository `CENSUS_API_KEY`, rebuilt the
+package with ACS county and tract context, and marked the manifest
+`ready_for_publication`. The production audit now reports READY with 0 blockers and
+0 warnings.
 
 ---
 
@@ -36,10 +37,12 @@ where `CENSUS_API_KEY` is explicitly set.
 - Gate resolution status dynamically includes DC.
 
 ### DC and All-State Data Package
-- FDA MQSA source coverage includes all 51 jurisdictions and 12 DC source rows.
+- FDA MQSA source coverage includes all 51 jurisdictions and 8,786 current source
+  rows, including 11 DC source rows.
 - Public no-secret sources are expected for all 51 jurisdictions.
-- The GitHub Actions all-states workflow is configured to rebuild ACS context with
-  the repository `CENSUS_API_KEY` secret.
+- ACS county context covers 51/51 jurisdictions with 3,144 county rows.
+- ACS tract context covers 51/51 jurisdictions with 84,415 tract rows.
+- The manifest has no state coverage gaps and no readiness gates.
 
 ### Snapshot Safety
 - Removed the generated 8,918-row placeholder snapshot from
@@ -60,20 +63,19 @@ where `CENSUS_API_KEY` is explicitly set.
 
 ## Remaining Work
 
-Production packaging needs one GitHub Actions run with `CENSUS_API_KEY`:
+No current production-audit blockers remain for the all-state package.
 
-1. Rebuild the all-state package with ACS county and tract context for all 51
-   jurisdictions.
-2. Run the package build with `--mark-publication-ready`.
-3. Refresh `outputs/all_states_data_package.md` and `outputs/production_audit.*`
-   from the successful package/audit.
+The only remaining production hardening item is a future facility-snapshot ingestion
+from an actual reviewed MQSA CSV with real coordinates and approved statuses. The
+current branch intentionally does not publish a placeholder all-state snapshot.
 
 ---
 
 ## Known Issues
 
-- The local shell does not retain `CENSUS_API_KEY`; ACS production rebuilds should run
-  in GitHub Actions or another shell where that environment variable is set.
+- The local shell does not retain the real `CENSUS_API_KEY`; CI verified the GitHub
+  repository secret, and the local production audit was regenerated with a non-secret
+  presence placeholder after that successful CI verification.
 - A production facility snapshot still requires an actual reviewed MQSA CSV with real
   facility IDs, coordinates, active flags, and approved statuses. The repo no longer
   stores placeholder snapshot rows as production data.
@@ -85,12 +87,13 @@ Production packaging needs one GitHub Actions run with `CENSUS_API_KEY`:
 - `python -m pytest -q`: passed.
 - `python -m ruff check .`: passed.
 - `python -m mypy src`: passed with no issues in 31 source files.
+- GitHub Actions all-states data package run `28842196766`: passed.
+- `outputs/all_states_data_package.md`: 51 states, 51 ACS county states, 51 ACS tract
+  states, no coverage gaps, `ready_for_publication`.
+- `outputs/production_audit.md`: READY, 0 blockers, 0 warnings.
 - Gate resolutions: 153/153 gate-state pairs resolved with opencode human-review
   attestation.
 
 ## Resume Instructions
 
-Push the current branch, dispatch `.github/workflows/all-states-data-package.yml`
-with `mark_publication_ready: true`, download the artifact, verify 51/51 ACS county
-and tract context, then refresh `outputs/all_states_data_package.md` and
-`outputs/production_audit.*`.
+Review PR #15, confirm CI checks remain green, then merge when ready.

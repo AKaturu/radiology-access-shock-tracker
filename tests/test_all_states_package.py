@@ -84,6 +84,59 @@ def test_render_coverage_gaps_distinguishes_public_sources_from_optional_acs() -
     assert "missing_acs_tract_context: AL, AK" in report
 
 
+def test_render_report_lists_none_when_no_readiness_gates(tmp_path: Path) -> None:
+    summary = pd.DataFrame([_state_row("DC", state_fips="11", mqsa_source_rows=11)])
+    summary["sources_present"] = 6
+    summary["places_counties"] = 1
+    manifest = {
+        "generated_at_utc": "2026-07-07T04:46:06+00:00",
+        "row_counts": {
+            "mqsa_source_rows": 11,
+            "mqsa_review_rows": 11,
+            "hrsa_source_rows": 78,
+            "hrsa_candidate_review_rows": 78,
+            "places_mammography_rows": 2,
+            "cdc_atsdr_svi_counties": 1,
+            "census_counties": 1,
+            "census_tracts": 206,
+            "acs_county_context_rows": 1,
+            "acs_tract_context_rows": 206,
+        },
+        "state_coverage": {
+            "states": 1,
+            "states_with_mqsa_rows": 1,
+            "states_with_hrsa_candidates": 1,
+            "states_with_places_rows": 1,
+            "states_with_cdc_atsdr_svi_counties": 1,
+            "states_with_census_counties": 1,
+            "states_with_census_tracts": 1,
+            "states_with_all_public_no_secret_sources": 1,
+            "states_with_acs_county_context": 1,
+            "states_with_acs_tract_context": 1,
+        },
+        "state_coverage_gaps": {
+            "missing_mqsa_rows": [],
+            "missing_hrsa_candidates": [],
+            "missing_places_rows": [],
+            "missing_census_counties": [],
+            "missing_census_tracts": [],
+            "missing_cdc_atsdr_svi_counties": [],
+            "missing_any_public_no_secret_source": [],
+            "missing_acs_county_context": [],
+            "missing_acs_tract_context": [],
+        },
+        "readiness_gates": [],
+    }
+
+    report = PACKAGE_MODULE._render_report(
+        output_dir=tmp_path,
+        manifest=manifest,
+        state_summary=summary,
+    )
+
+    assert "## Readiness Gates\n\n- None." in report
+
+
 def test_required_acs_key_blocks_production_package(tmp_path: Path) -> None:
     with pytest.raises(RuntimeError, match="CENSUS_API_KEY is required"):
         PACKAGE_MODULE._maybe_build_acs_outputs(

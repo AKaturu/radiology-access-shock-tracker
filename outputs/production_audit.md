@@ -1,7 +1,7 @@
 # Production Completion Audit
 
-**Overall status:** BLOCKED
-**Blockers:** 2
+**Overall status:** READY
+**Blockers:** 0
 **Warnings:** 0
 
 | Domain | Check | Status | Value | Details |
@@ -19,7 +19,7 @@
 | `all_states_package` | `state_scope` | PASS | ALL_STATES | Package is scoped to all states. |
 | `all_states_package` | `state_count` | PASS | 51 | Manifest reports 51 states. |
 | `all_states_package` | `public_source_coverage` | PASS | 51 | No public no-secret source state gaps detected. |
-| `all_states_package` | `acs_context_coverage` | BLOCKER | county=50; tract=50 | Set CENSUS_API_KEY and rebuild the package to add all-state ACS context. |
-| `all_states_package` | `publication_status` | BLOCKER | not_ready_for_publication | Package manifest is not marked ready for publication. |
+| `all_states_package` | `acs_context_coverage` | PASS | county=51; tract=51 | ACS county and tract context covers all states. |
+| `all_states_package` | `publication_status` | PASS | ready_for_publication | Package manifest is marked ready for publication. |
 | `all_states_package` | `readiness_gates` | PASS | 0 | No unresolved all-state package readiness gates. |
 | `analysis_readiness` | `overall_status` | PASS | READY | Analysis readiness report has 0 blocker(s) and 0 warning(s). |

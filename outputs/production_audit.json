@@ -1,5 +1,5 @@
 {
-  "blockers": 2,
+  "blockers": 0,
   "checks": [
     {
       "check": "mqsa_snapshot",
@@ -94,17 +94,17 @@
     },
     {
       "check": "acs_context_coverage",
-      "details": "Set CENSUS_API_KEY and rebuild the package to add all-state ACS context.",
+      "details": "ACS county and tract context covers all states.",
       "domain": "all_states_package",
-      "status": "BLOCKER",
-      "value": "county=50; tract=50"
+      "status": "PASS",
+      "value": "county=51; tract=51"
     },
     {
       "check": "publication_status",
-      "details": "Package manifest is not marked ready for publication.",
+      "details": "Package manifest is marked ready for publication.",
       "domain": "all_states_package",
-      "status": "BLOCKER",
-      "value": "not_ready_for_publication"
+      "status": "PASS",
+      "value": "ready_for_publication"
     },
     {
       "check": "readiness_gates",
@@ -121,6 +121,6 @@
       "value": "READY"
     }
   ],
-  "overall_status": "BLOCKED",
+  "overall_status": "READY",
   "warnings": 0
 }

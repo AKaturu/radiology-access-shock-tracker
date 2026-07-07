@@ -671,7 +671,7 @@ def _render_report(
         f"{row.hrsa_candidate_review_rows} | {row.places_counties} |"
         for row in top_mqsa.itertuples(index=False)
     )
-    gates = "\n".join(f"- {gate}" for gate in manifest["readiness_gates"])
+    gates = "\n".join(f"- {gate}" for gate in manifest["readiness_gates"]) or "- None."
     all_public_sources = coverage["states_with_all_public_no_secret_sources"]
     coverage_gaps = _render_coverage_gaps(manifest["state_coverage_gaps"])
     return f"""# All-States Data Package
