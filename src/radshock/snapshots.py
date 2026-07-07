@@ -31,7 +31,7 @@ def store_snapshot(
     """Validate and version a facility snapshot with immutable metadata."""
     frame = validate_facilities(pd.read_csv(input_csv))
     destination = store_dir / as_of.isoformat()
-    destination.mkdir(parents=True, exist_ok=False)
+    destination.mkdir(parents=True, exist_ok=True)
     snapshot_path = destination / "facilities.csv"
     frame.to_csv(snapshot_path, index=False)
     metadata = {
