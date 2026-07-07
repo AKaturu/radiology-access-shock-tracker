@@ -53,6 +53,7 @@ References:
 
 1. Push a tag such as `v0.2.0`, or open **Actions** and select **desktop release**.
 2. The workflow builds Windows, Linux, and macOS artifacts on their native runners.
+   macOS x64 builds use GitHub's `macos-15-intel` runner label.
 3. For tag pushes, the workflow publishes the artifacts to the matching GitHub Release.
 4. For manual runs, download the uploaded artifacts from the completed workflow run. Set
    `publish_release` and `release_tag` when you want the manual run to publish a release.
