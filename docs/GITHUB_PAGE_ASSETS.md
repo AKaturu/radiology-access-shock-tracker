@@ -5,6 +5,10 @@ screenshots and walkthrough are intentionally captured from the synthetic demo, 
 real North Carolina package. That keeps the public GitHub demo easy to run, easy to understand, and
 clearly separated from publishable real-data claims.
 
+The v0.2.0 production-readiness changes affect data-package coverage, audit status, and release
+packaging rather than dashboard UI layout. The existing walkthrough remains current unless the
+Streamlit UI itself changes.
+
 The warning banner in the screenshots is expected. It proves the dashboard visibly blocks synthetic
 outputs from being mistaken for real North Carolina findings.
 

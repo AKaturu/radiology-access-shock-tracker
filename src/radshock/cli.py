@@ -211,7 +211,7 @@ def prepare_mqsa_review(
     output_csv: Annotated[Path, typer.Option()],
     state: Annotated[
         str,
-        typer.Option(help="Two-letter state filter, 50-state FIPS code, or ALL."),
+        typer.Option(help="Two-letter state/DC filter, state/DC FIPS code, or ALL."),
     ] = "NC",
     force: Annotated[bool, typer.Option(help="Overwrite an existing review CSV.")] = False,
 ) -> None:
@@ -523,7 +523,7 @@ def fetch_census_county_context_command(
     year: Annotated[int, typer.Option(help="ACS/Gazetteer release year.")] = 2024,
     state: Annotated[
         str,
-        typer.Option(help="Two-letter state filter, 50-state FIPS code, or ALL."),
+        typer.Option(help="Two-letter state/DC filter, state/DC FIPS code, or ALL."),
     ] = "NC",
     api_key_env: Annotated[
         str,
@@ -616,7 +616,7 @@ def fetch_census_population_points_command(
     year: Annotated[int, typer.Option(help="ACS/Gazetteer release year.")] = 2024,
     state: Annotated[
         str,
-        typer.Option(help="Two-letter state filter, 50-state FIPS code, or ALL."),
+        typer.Option(help="Two-letter state/DC filter, state/DC FIPS code, or ALL."),
     ] = "NC",
     api_key_env: Annotated[
         str,
@@ -799,7 +799,7 @@ def prepare_hrsa_candidate_review_command(
     ] = None,
     state: Annotated[
         str,
-        typer.Option(help="Two-letter state filter, 50-state FIPS code, or ALL."),
+        typer.Option(help="Two-letter state/DC filter, state/DC FIPS code, or ALL."),
     ] = "NC",
     include_inactive: Annotated[
         bool,

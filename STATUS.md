@@ -1,7 +1,7 @@
 # Status
 
 ## Current Release
-**v0.1.0** (2026-06-19) - MVP release.
+**v0.2.0** (2026-07-07) - 51-jurisdiction production package and desktop release.
 
 ## Implemented Features
 - Immutable facility snapshot versioning with SHA-256 checksums
@@ -17,7 +17,7 @@
 - Candidate-site review workflow and intervention ranking
 - Census ACS county and tract population-point generation
 - HRSA health-center service-delivery candidate site assumptions
-- 50-state public-source staging package with per-source coverage-gap reporting
+- 51-jurisdiction public-source package with per-source coverage-gap reporting
 - ACS-backed all-state package rebuild workflow using `CENSUS_API_KEY`
 - Per-state gate tracking and batch review-worklist preparation
 - Streamlit dashboard with demo and readiness views
@@ -29,13 +29,12 @@
 ## Validation Status
 - **Automated tests**: pytest, ruff, and mypy passing on the active branch
 - **Synthetic end-to-end test**: Complete (demo generates synthetic data, analysis, readiness audit, and dashboard)
-- **Public-data evaluation**: Partial (reviewed NC FDA MQSA snapshots, Census context, and self-hosted OSRM tract travel-time package are complete; 50-state staging inputs and review-worklist generation are supported but require state-by-state human review, geocoding validation, routing, and readiness approval before publication)
+- **Public-data evaluation**: Complete for the all-state package publication gates (51 jurisdictions, ACS county/tract context, 153/153 gates resolved, production audit READY with 0 blockers and 0 warnings). The bundled dashboard findings remain limited to the reviewed NC validation package.
 - **Expert review**: Not completed
 - **Institutional validation**: Not completed
 - **Prospective clinical validation**: Not completed
 
 ## Planned Work
-- GitHub governance configuration (branch protection, CODEOWNERS, secrets)
 - Later-date reviewed snapshot for trend analysis
-- State-by-state review, geocoding, routing, and readiness audits for publication outside North Carolina
+- Reviewed/geocoded all-state facility snapshot ingestion from completed MQSA review CSVs
 - Journal manuscript drafting with provided prompt template

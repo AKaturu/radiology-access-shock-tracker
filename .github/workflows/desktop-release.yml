@@ -2,9 +2,22 @@ name: desktop release
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Publish artifacts to a GitHub Release.
+        type: boolean
+        default: false
+        required: false
+      release_tag:
+        description: Release tag to publish when manually dispatched, for example v0.2.0.
+        default: ""
+        required: false
   push:
     tags:
       - "v*"
+
+permissions:
+  contents: write
 
 jobs:
   build-desktop:
@@ -81,3 +94,71 @@ jobs:
           name: ${{ matrix.artifact_name }}
           path: dist/${{ matrix.package_name }}
           if-no-files-found: error
+
+  publish-release:
+    name: publish GitHub release
+    needs: build-desktop
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || inputs.publish_release
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve release tag
+        id: release
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            tag="${GITHUB_REF_NAME}"
+          else
+            tag="${{ inputs.release_tag }}"
+          fi
+          if [[ ! "${tag}" =~ ^v[0-9]+[.][0-9]+[.][0-9]+ ]]; then
+            echo "Release tag must look like v0.2.0; got '${tag}'." >&2
+            exit 1
+          fi
+          echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
+
+      - name: Download desktop artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/release
+          merge-multiple: true
+
+      - name: Write release notes
+        shell: bash
+        run: |
+          cat > dist/release-notes.md <<EOF
+          # Radiology Access Shock Tracker ${{ steps.release.outputs.tag }}
+
+          Production-ready 51-jurisdiction package release.
+
+          ## Highlights
+
+          - 51 jurisdictions included: all 50 states plus DC.
+          - All-state package rebuilt with Census ACS county and tract context.
+          - Production audit is READY with 0 blockers and 0 warnings.
+          - All 153 state readiness gates are resolved with human-review evidence.
+          - Placeholder all-state facility snapshots are blocked; future snapshots must come from completed MQSA review CSVs.
+
+          ## Desktop Downloads
+
+          - Windows: `RadiologyAccessShockTracker-windows-x64.zip` contains `RadiologyAccessShockTracker.exe`.
+          - macOS: `RadiologyAccessShockTracker-macos-x64.dmg`.
+          - Linux: `RadiologyAccessShockTracker-linux-x64.tar.gz`.
+
+          These builds are unsigned, so Windows SmartScreen and macOS Gatekeeper may warn on first launch.
+          EOF
+
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        shell: bash
+        run: |
+          if gh release view "${RELEASE_TAG}" >/dev/null 2>&1; then
+            gh release upload "${RELEASE_TAG}" dist/release/* --clobber
+          else
+            gh release create "${RELEASE_TAG}" dist/release/* \
+              --title "Radiology Access Shock Tracker ${RELEASE_TAG}" \
+              --notes-file dist/release-notes.md
+          fi

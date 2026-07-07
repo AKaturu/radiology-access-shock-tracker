@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       state:
-        description: Two-letter state filter, 50-state FIPS code, or ALL for the MQSA review worklist.
+        description: Two-letter state/DC filter, state/DC FIPS code, or ALL for the MQSA review worklist.
         default: NC
         required: true
   schedule:

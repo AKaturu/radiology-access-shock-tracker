@@ -5,7 +5,8 @@
 The GitHub Actions workflow `.github/workflows/quarterly-snapshot.yml` is enabled for both manual
 dispatch and the quarterly cron schedule. It fetches the FDA MQSA public ZIP, archives source
 metadata, prepares a state-filtered review CSV, and uploads those review artifacts. Manual runs can
-use a two-letter state, a 50-state FIPS code, or `ALL` for a 50-state MQSA review worklist.
+use a two-letter state/DC abbreviation, a state/DC FIPS code, or `ALL` for a
+51-jurisdiction MQSA review worklist.
 
 This workflow intentionally stops before approval, snapshot finalization, analysis, or publication.
 The FDA refresh step does not require a repository secret.
@@ -99,8 +100,8 @@ radshock fetch-census-county-context `
   --year 2024
 ```
 
-Use `--state ALL` to generate 50-state county context and county-centroid population points for
-review, preferably into separate output paths until the national package has been reviewed:
+Use `--state ALL` to generate 51-jurisdiction county context and county-centroid population points
+for review, preferably into separate output paths until the national package has been reviewed:
 
 ```powershell
 radshock fetch-census-county-context `
@@ -112,7 +113,7 @@ radshock fetch-census-county-context `
   --year 2024
 ```
 
-To gather the 50-state package with ACS county and tract context in one reproducible production
+To gather the 51-jurisdiction package with ACS county and tract context in one reproducible production
 prep run, use:
 
 ```powershell
@@ -123,7 +124,7 @@ python scripts/build_all_states_data_package.py `
 ```
 
 This collects FDA MQSA, HRSA candidate-source rows, CDC PLACES mammography rows, CDC/ATSDR SVI
-county vulnerability context, and Census county and tract Gazetteer context for all 50 states. If
+county vulnerability context, and Census county and tract Gazetteer context for all 51 jurisdictions. If
 `CENSUS_API_KEY` is not set, the command fails before producing a production-prep package. For a
 staging-only package that documents missing ACS instead of blocking, pass `--allow-missing-acs`.
 
@@ -195,7 +196,7 @@ radshock fetch-census-population-points `
   --year 2024
 ```
 
-For all 50 states, use `--state ALL` and review the larger output before routing:
+For all 51 jurisdictions, use `--state ALL` and review the larger output before routing:
 
 ```powershell
 radshock fetch-census-population-points `
@@ -331,7 +332,7 @@ radshock prepare-hrsa-candidate-review `
   --state NC
 ```
 
-Use `--state ALL` with separate output paths to prepare a 50-state HRSA candidate-review sheet.
+Use `--state ALL` with separate output paths to prepare a 51-jurisdiction HRSA candidate-review sheet.
 Those rows still require review and approval before they can be finalized:
 
 ```powershell
