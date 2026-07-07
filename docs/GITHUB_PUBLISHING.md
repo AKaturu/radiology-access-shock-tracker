@@ -118,11 +118,12 @@ Official GitHub branch-protection reference:
 
 - **tests**: runs automatically on pushes and pull requests.
 - **desktop release**: manually dispatch to build Windows, macOS, and Linux desktop dashboard
-  downloads from the bundled reviewed analysis package.
+  downloads from the bundled reviewed analysis package, or push a `v*` tag to publish release
+  assets automatically.
 - **quarterly MQSA source refresh**: manually dispatch once to verify artifact generation in
   GitHub Actions, then leave the quarterly schedule enabled.
 - **all-states data package**: manually dispatch after `CENSUS_API_KEY` is configured as a
-  repository secret to rebuild the all-50-state package with ACS county and tract context.
+  repository secret to rebuild the 51-jurisdiction package with ACS county and tract context.
 - **self-hosted OSRM travel-time package**: run manually when you want a CI-hosted artifact for
   the production route-time package.
 
@@ -140,6 +141,5 @@ Before writing a public-facing GitHub release or project page:
 - Do not claim longitudinal deterioration until a future FDA MQSA source update is reviewed.
 - Do not claim facility-level annual capacity, because FDA MQSA public data do not publish it.
 - Label HRSA candidate response sites as planning assumptions, not mammography-capable sites.
-- Keep non-NC findings unpublished until the all-state package's `state_readiness_gates.csv`
-  shows completed human review, geocoding, routing, ACS, and readiness-audit evidence for the
-  state being published.
+- Keep row-level non-NC facility findings unpublished until a real reviewed/geocoded MQSA snapshot
+  exists for the state being published.

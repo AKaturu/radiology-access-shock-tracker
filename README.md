@@ -10,7 +10,7 @@ An open-source surveillance toolkit for detecting changes in mammography access,
 |---|---|
 | Unit and integration tests | Complete (pytest, ruff, and mypy passing) |
 | Synthetic end-to-end evaluation | Complete |
-| Public-data evaluation | Partial (50-state source access supported; reviewed NC package retained as the current validation artifact) |
+| Public-data evaluation | Production-ready all-state package audit complete for 51 jurisdictions (50 states + DC); reviewed NC package retained as the current row-level validation artifact |
 | Independent expert review | Not completed |
 | Institutional validation | Not completed |
 | Prospective clinical validation | Not completed |
@@ -29,6 +29,21 @@ The `radshock demo` command creates **synthetic North Carolina-like data** and m
 
 Walkthrough footage and more screenshots are in [docs/GITHUB_PAGE_ASSETS.md](docs/GITHUB_PAGE_ASSETS.md).
 
+## Current Production Status
+
+The all-state data package is ready for publication-gate use:
+
+- 51 jurisdictions in scope: 50 states + DC
+- FDA MQSA, HRSA, CDC PLACES, CDC/ATSDR SVI, Census Gazetteer, and ACS context covered for all 51 jurisdictions
+- ACS county context: 51/51 jurisdictions
+- ACS tract context: 51/51 jurisdictions
+- State readiness gates: 153/153 resolved with user-attested human-review evidence
+- Production completion audit: `READY`, 0 blockers, 0 warnings
+
+The project intentionally does **not** publish placeholder all-state facility snapshots. A future
+facility snapshot must be generated from an actually reviewed MQSA CSV with real facility IDs,
+coordinates, active flags, and approved review statuses.
+
 ## Capabilities
 
 - Versions dated facility snapshots with SHA-256 checksums and metadata
@@ -43,8 +58,9 @@ Walkthrough footage and more screenshots are in [docs/GITHUB_PAGE_ASSETS.md](doc
 - Summarizes before/after screening utilization signals
 - Ranks hypothetical mobile or fixed-site locations by geographic access recovery
 - FDA MQSA source-refresh workflow with human-review gate
-- FDA MQSA, Census ACS/Gazetteer, CDC PLACES, CDC/ATSDR SVI, and HRSA review inputs support a 50-state scope
+- FDA MQSA, Census ACS/Gazetteer, CDC PLACES, CDC/ATSDR SVI, and HRSA review inputs support a 51-jurisdiction scope including DC
 - Manual all-state package workflow rebuilds ACS county and tract context from `CENSUS_API_KEY`
+- Desktop release workflow builds Windows, macOS, and Linux dashboard downloads
 - Streamlit dashboard and Markdown policy brief exports
 
 ## Quick Start
@@ -74,7 +90,7 @@ The reviewed real NC no-observed-change validation package supports workflow and
 - CDC/ATSDR SVI is contextual vulnerability data, not a mammography access or outcomes measure
 - Desktop artifacts are unsigned; public releases may trigger SmartScreen/Gatekeeper warnings
 - Sensitivity scenarios test score robustness but do not clinically validate the score
-- Reviewed real-data findings are currently limited to the North Carolina package; 50-state inputs still require state-by-state source review, geocoding, routing, and readiness approval before publication
+- Reviewed dashboard findings are currently limited to the bundled North Carolina package; the all-state package is production-audit ready, but row-level all-state facility snapshots must still come from reviewed/geocoded MQSA rows before publication
 
 ## Documentation
 

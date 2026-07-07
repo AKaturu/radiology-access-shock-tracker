@@ -33,7 +33,7 @@ SVI_COUNTY_COLUMNS = {
 
 
 def read_svi_county_context(path: str | Path, *, state: str = "ALL") -> pd.DataFrame:
-    """Read and normalize CDC/ATSDR SVI county context for a 50-state scope."""
+    """Read and normalize CDC/ATSDR SVI county context for a 51-jurisdiction scope."""
     scope = resolve_state_scope(state)
     frame = pd.read_csv(path, dtype={"ST": str, "STCNTY": str, "FIPS": str})
     missing = set(SVI_COUNTY_COLUMNS).difference(frame.columns)

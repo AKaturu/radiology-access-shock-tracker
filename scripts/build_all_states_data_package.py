@@ -794,7 +794,7 @@ def _write_text(path: Path, content: str, *, force: bool) -> None:
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Build an all-50-states public-source staging package."
+        description="Build a 51-jurisdiction public-source staging package."
     )
     parser.add_argument(
         "--output-dir",

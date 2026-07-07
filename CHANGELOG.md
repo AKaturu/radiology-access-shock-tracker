@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## 0.2.0 - 2026-07-07
+
+- Added DC support for 51-jurisdiction all-state package coverage.
+- Rebuilt the all-state package with ACS county and tract context for all 51 jurisdictions.
+- Marked the all-state package publication-ready after all 153 state/gate combinations were resolved.
+- Refreshed production audit outputs to `READY` with 0 blockers and 0 warnings.
+- Removed the invalid placeholder all-state facility snapshot that used `0/0` coordinates and
+  `needs_review` rows.
+- Hardened all-state snapshot generation so production snapshots must come from completed MQSA
+  review CSVs with approved review status and real required facility fields.
+- Updated desktop release packaging for the 0.2.0 production-ready release.
+
 - Renamed disappearance events from `CLOSED` to `POSSIBLE_CLOSURE` and added verification metadata.
 - Added shock-score component columns and point-level access-change populations.
 - Added stricter manual facility and CMS adapter validation plus mocked PLACES adapter coverage.

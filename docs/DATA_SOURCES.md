@@ -14,7 +14,7 @@ Official national statistics page:
 The production workflow now supports `radshock fetch-fda-mqsa` for downloading and archiving the
 weekly ZIP, `radshock archive-source` for manually downloaded files, and
 `radshock prepare-mqsa-review` for creating a human-review CSV. Use `--state NC` or another
-two-letter 50-state abbreviation for a state-specific review sheet, or `--state ALL` for a 50-state
+two-letter state/DC abbreviation for a state-specific review sheet, or `--state ALL` for a 51-jurisdiction
 review sheet from the national file. The FDA page documents a fixed-width layout, while the live ZIP
 retrieved on 2026-06-19 contained pipe-delimited rows with the same logical fields. The parser
 supports both formats and records the observed `source_schema_version`.
@@ -46,7 +46,7 @@ Official NC DHSR equipment database:
 
 The CDC PLACES county dataset provides model-based small-area estimates. The adapter uses the
 official Socrata resource endpoint for the current county dataset and can filter mammography
-records for one 50-state abbreviation or all 50 states. Measurement year and data-value type must
+records for one state/DC abbreviation or all 51 jurisdictions. Measurement year and data-value type must
 remain visible in downstream products.
 
 Official dataset: <https://data.cdc.gov/resource/swc5-untb.json>
@@ -54,8 +54,8 @@ Official dataset: <https://data.cdc.gov/resource/swc5-untb.json>
 ## CDC/ATSDR Social Vulnerability Index
 
 The CDC/ATSDR Social Vulnerability Index (SVI) supplies county-level contextual vulnerability
-percentile rankings for all 50 states without a Census API key. The all-state package archives the
-2022 U.S. county CSV and writes a compact `cdc_atsdr_svi_counties_all_50.csv` with county FIPS,
+percentile rankings for all 51 jurisdictions without a Census API key. The all-state package
+archives the 2022 U.S. county CSV and writes a compact `cdc_atsdr_svi_counties_all_50.csv` with county FIPS,
 overall SVI percentile, theme percentiles, and directly relevant poverty, no-vehicle, and
 no-internet fields. These fields can support reviewer triage and sensitivity analysis, but they are
 not mammography utilization, facility-capacity, or clinical outcome measures.
@@ -69,9 +69,9 @@ Official 2022 U.S. county CSV:
 ## American Community Survey
 
 The ACS 5-year API supplies county socioeconomic context. `radshock fetch-census-county-context`
-retrieves county indicators for a selected 50-state scope and joins them to the Census county
+retrieves county indicators for a selected 51-jurisdiction scope and joins them to the Census county
 Gazetteer file for county names, land area, and internal-point coordinates. Pass `--state ALL` to
-prepare all 50 states; the default remains `--state NC` for compatibility with the reviewed package.
+prepare all 51 jurisdictions; the default remains `--state NC` for compatibility with the reviewed package.
 The 2024 county context files are:
 
 - `data/counties.csv`: access-engine county schema.
@@ -182,7 +182,7 @@ or fixed sites.
 
 For a documented real-source alternative, `radshock prepare-hrsa-candidate-review` converts the
 HRSA Health Center Program Service Delivery and Look-Alike Sites CSV into candidate review rows.
-Use `--state ALL` to prepare active service-delivery candidates across all 50 states. The default
+Use `--state ALL` to prepare active service-delivery candidates across all 51 jurisdictions. The default
 filter keeps active state-matched rows whose `Health Center Type Description` includes service
 delivery, excluding administrative-only rows. HRSA `Permanent` rows become
 `fixed_site_assumption`, `Seasonal` rows become `seasonal_fixed_site_assumption`, and `Mobile Van`

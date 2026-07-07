@@ -1,7 +1,8 @@
 # Desktop Downloads
 
-The project can build portable desktop dashboard downloads for Windows, macOS, and Linux with the
-`desktop release` GitHub Actions workflow.
+The project builds portable desktop dashboard downloads for Windows, macOS, and Linux with the
+`desktop release` GitHub Actions workflow. Tag pushes such as `v0.2.0` publish the artifacts to a
+GitHub Release.
 
 ## What Users Download
 
@@ -11,8 +12,9 @@ The workflow produces:
 - `RadiologyAccessShockTracker-macos-x64.dmg`
 - `RadiologyAccessShockTracker-linux-x64.tar.gz`
 
-These are unsigned builds. Windows SmartScreen and macOS Gatekeeper may warn on first launch until
-the project has code-signing certificates and notarization.
+The Windows ZIP contains `RadiologyAccessShockTracker.exe`. These are unsigned builds. Windows
+SmartScreen and macOS Gatekeeper may warn on first launch until the project has code-signing
+certificates and notarization.
 
 ## What Is Bundled
 
@@ -49,11 +51,11 @@ References:
 
 ## Build Downloads On GitHub
 
-1. Push the repository to GitHub.
-2. Open **Actions**.
-3. Select **desktop release**.
-4. Click **Run workflow**.
-5. Download the uploaded artifacts from the completed workflow run.
+1. Push a tag such as `v0.2.0`, or open **Actions** and select **desktop release**.
+2. The workflow builds Windows, Linux, and macOS artifacts on their native runners.
+3. For tag pushes, the workflow publishes the artifacts to the matching GitHub Release.
+4. For manual runs, download the uploaded artifacts from the completed workflow run. Set
+   `publish_release` and `release_tag` when you want the manual run to publish a release.
 
 The workflow also runs automatically for tags that start with `v`.
 

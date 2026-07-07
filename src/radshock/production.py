@@ -41,7 +41,7 @@ def run_production_audit(
                         "manifest",
                         "missing",
                         "BLOCKER",
-                        "Pass --all-states-manifest for the staged all-50-state data package.",
+                        "Pass --all-states-manifest for the staged 51-jurisdiction data package.",
                     )
                 ],
                 columns=PRODUCTION_CHECK_COLUMNS,
@@ -168,7 +168,7 @@ def audit_production_config(config_path: Path) -> pd.DataFrame:
 
 
 def audit_all_states_manifest(manifest_path: Path, *, require_acs: bool = True) -> pd.DataFrame:
-    """Audit the all-50-state staging package manifest for production launch gates."""
+    """Audit the 51-jurisdiction staging package manifest for production launch gates."""
     payload = _load_json_object(manifest_path, domain="all_states_package")
     if isinstance(payload, pd.DataFrame):
         return payload
