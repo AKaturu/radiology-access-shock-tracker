@@ -15,7 +15,8 @@
   },
   "required_status_checks": {
     "contexts": [
-      "test"
+      "test",
+      "release-package"
     ],
     "strict": true
   },

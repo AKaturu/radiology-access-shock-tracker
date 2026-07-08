@@ -91,11 +91,18 @@ secrets.
 
 ### GitHub Governance and Publishing
 - GitHub Pages is enabled and built from `main` `/docs`.
-- `main` branch protection requires the `test` status check, conversation resolution, admin
-  enforcement, and no force pushes or deletions.
+- `main` branch protection requires the `test` and `release-package` status checks, conversation
+  resolution, admin enforcement, and no force pushes or deletions.
 - Repository auto-merge is enabled.
 - Merged branch auto-deletion is enabled.
 - `CENSUS_API_KEY` is configured in GitHub secrets.
+
+### Release Package CI Hardening
+- `.github/workflows/tests.yml` includes a `release-package` job that regenerates the source ZIP and
+  journal bundle and verifies manifest paths, byte counts, and SHA-256 hashes.
+- Branch-protection templates require both `test` and `release-package`.
+- `tests/test_release_package_contract.py` checks that release package inputs are tracked repo
+  artifacts and that the deleted `2026-07-06` placeholder snapshot directory is not unignored.
 
 ---
 
@@ -148,6 +155,7 @@ Remaining production hardening work:
 - GitHub Pages: built from `main` `/docs`.
 - `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\package_release.ps1`: rebuilt
   source and journal bundle artifacts successfully.
+- `release-package` CI job: added to regenerate and verify source/journal package artifacts.
 - `gh secret list`: `CENSUS_API_KEY` present and refreshed on 2026-07-08 UTC.
 - `gh api repos/AKaturu/radiology-access-shock-tracker`: `allow_auto_merge=true` and
   `delete_branch_on_merge=true`.

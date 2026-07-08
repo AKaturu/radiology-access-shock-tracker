@@ -22,6 +22,4 @@ data/snapshots/*
 !data/snapshots/2026-06-19/**
 !data/snapshots/2026-06-20/
 !data/snapshots/2026-06-20/**
-!data/snapshots/2026-07-06/
-!data/snapshots/2026-07-06/**
 .DS_Store
