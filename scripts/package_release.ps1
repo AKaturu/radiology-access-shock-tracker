@@ -81,12 +81,9 @@ if (Test-Path -LiteralPath $GitHubZip) {
     --format zip `
     --prefix "$ProjectName/" `
     --output $GitHubZip `
-    "HEAD:$ProjectName"
+    "HEAD"
 
 Reset-Directory -Path $JournalStage
-
-$AnalysisDir = Join-Path $ProjectRoot "work/self-hosted-osrm/analysis-tract-self-hosted-osrm"
-$RouteDir = Join-Path $ProjectRoot "work/self-hosted-osrm"
 
 $copies = @(
     @("README.md", "project/README.md"),
@@ -95,7 +92,9 @@ $copies = @(
     @("docs/METHODS.md", "docs/methods.md"),
     @("docs/DATA_SOURCES.md", "docs/data_sources.md"),
     @("docs/OPERATIONS.md", "docs/operations.md"),
+    @("docs/EXPERT_REVIEW_PACKET.md", "docs/expert_review_packet.md"),
     @("docs/JOURNAL_REPORT_PACKAGE.md", "docs/journal_report_package.md"),
+    @("docs/MANUSCRIPT_DRAFT.md", "docs/manuscript_draft.md"),
     @("docs/validation/COMPILED_TEST_REPORT.md", "validation/compiled_test_report.md"),
     @("data/snapshots/2026-06-19/facilities.csv", "snapshots/2026-06-19/facilities.csv"),
     @("data/snapshots/2026-06-19/metadata.json", "snapshots/2026-06-19/metadata.json"),
@@ -106,18 +105,18 @@ $copies = @(
     @("data/population_points_tracts.csv", "analysis_inputs/population_points_tracts.csv"),
     @("data/candidate_sites.csv", "analysis_inputs/candidate_sites.csv"),
     @("data/candidate_sites_review.metadata.json", "analysis_inputs/candidate_sites_review.metadata.json"),
-    @("work/self-hosted-osrm/2026-06-20_tract_nearest20_self_hosted_osrm_matrix.csv", "routing/tract_nearest20_self_hosted_osrm_matrix.csv"),
-    @("work/self-hosted-osrm/2026-06-20_tract_nearest20_self_hosted_osrm_matrix.metadata.json", "routing/tract_nearest20_self_hosted_osrm_matrix.metadata.json"),
-    @("work/self-hosted-osrm/2026-06-20_tract_nearest20_self_hosted_osrm_review.csv", "routing/tract_nearest20_self_hosted_osrm_review.csv"),
-    @("work/self-hosted-osrm/analysis-tract-self-hosted-osrm/manifest.json", "analysis_outputs/analysis_manifest.json"),
-    @("work/self-hosted-osrm/analysis-tract-self-hosted-osrm/readiness_audit.md", "analysis_outputs/readiness_audit.md"),
-    @("work/self-hosted-osrm/analysis-tract-self-hosted-osrm/readiness_audit.json", "analysis_outputs/readiness_audit.json"),
-    @("work/self-hosted-osrm/analysis-tract-self-hosted-osrm/policy_brief.md", "analysis_outputs/policy_brief.md"),
-    @("work/self-hosted-osrm/analysis-tract-self-hosted-osrm/policy_brief.html", "analysis_outputs/policy_brief.html"),
-    @("work/self-hosted-osrm/analysis-tract-self-hosted-osrm/facility_events.csv", "analysis_outputs/facility_events.csv"),
-    @("work/self-hosted-osrm/analysis-tract-self-hosted-osrm/county_shocks.csv", "analysis_outputs/county_shocks.csv"),
-    @("work/self-hosted-osrm/analysis-tract-self-hosted-osrm/intervention_rankings.csv", "analysis_outputs/intervention_rankings.csv"),
-    @("work/self-hosted-osrm/analysis-tract-self-hosted-osrm/sensitivity_analysis.csv", "analysis_outputs/sensitivity_analysis.csv"),
+    @("data/travel_times/2026-06-20_tract_nearest20_osrm_matrix.csv", "routing/tract_nearest20_osrm_matrix.csv"),
+    @("data/travel_times/2026-06-20_tract_nearest20_osrm_matrix.metadata.json", "routing/tract_nearest20_osrm_matrix.metadata.json"),
+    @("data/travel_times/2026-06-20_tract_nearest20_osrm_review.csv", "routing/tract_nearest20_osrm_review.csv"),
+    @("desktop_payload/analysis/manifest.json", "analysis_outputs/analysis_manifest.json"),
+    @("desktop_payload/analysis/readiness_audit.md", "analysis_outputs/readiness_audit.md"),
+    @("desktop_payload/analysis/readiness_audit.json", "analysis_outputs/readiness_audit.json"),
+    @("desktop_payload/analysis/policy_brief.md", "analysis_outputs/policy_brief.md"),
+    @("desktop_payload/analysis/policy_brief.html", "analysis_outputs/policy_brief.html"),
+    @("desktop_payload/analysis/facility_events.csv", "analysis_outputs/facility_events.csv"),
+    @("desktop_payload/analysis/county_shocks.csv", "analysis_outputs/county_shocks.csv"),
+    @("desktop_payload/analysis/intervention_rankings.csv", "analysis_outputs/intervention_rankings.csv"),
+    @("desktop_payload/analysis/sensitivity_analysis.csv", "analysis_outputs/sensitivity_analysis.csv"),
     @("docs/assets/github/dashboard-overview.png", "figures/dashboard-overview.png"),
     @("docs/assets/github/county-shocks.png", "figures/county-shocks.png"),
     @("docs/assets/github/interventions.png", "figures/interventions.png"),
@@ -151,7 +150,8 @@ It is designed to keep manuscript claims bounded by reviewed artifacts.
 - Reviewed NC MQSA snapshots: 2026-06-19 and 2026-06-20.
 - Facility records: 289 active records in each snapshot.
 - Route matrix: 52,680 of 52,680 tract-nearest facility pairs routed.
-- Route provider: self-hosted Project OSRM Docker container, driving profile.
+- Route provider: reviewed OSRM driving matrix; see routing metadata and analysis manifest for
+  provider details.
 - Readiness audit: READY with 0 blockers and 0 warnings.
 - Facility event signals: 0.
 - Warning or critical county shocks: 0.
@@ -172,10 +172,10 @@ claims are appropriate.
 
 - `analysis_outputs/`: generated real analysis package and readiness evidence.
 - `analysis_inputs/`: reviewed public-data inputs used by the analysis package.
-- `routing/`: finalized self-hosted OSRM route review and matrix metadata.
+- `routing/`: finalized reviewed OSRM route review and matrix metadata.
 - `snapshots/`: reviewed MQSA facility snapshots and checksum metadata.
 - `source_metadata/`: archived source provenance.
-- `docs/`: methods, data-source, operations, and journal guidance.
+- `docs/`: methods, data-source, operations, expert-review, manuscript, and journal guidance.
 - `figures/`: synthetic dashboard screenshots and walkthrough media for UI context.
 - `validation/`: compiled local validation report.
 "@

@@ -26,8 +26,8 @@ The `dist/journal/` package includes:
 
 - `README_JOURNAL_BUNDLE.md`: plain-language bundle map.
 - `MANUSCRIPT_OUTLINE.md`: neutral outline for software and methods drafting.
-- `MANUSCRIPT_OUTLINE.md`: suggested manuscript structure.
-- `analysis_manifest.json`: provenance for the self-hosted route-time analysis.
+- `docs/MANUSCRIPT_DRAFT.md`: bounded repository working draft for software/methods framing.
+- `analysis_manifest.json`: provenance for the reviewed route-time analysis.
 - `readiness_audit.md` and `readiness_audit.json`: publication-readiness evidence.
 - `policy_brief.md`: generated summary brief.
 - `facility_events.csv`: zero event rows for the reviewed comparison.
@@ -46,7 +46,7 @@ real-data result tables and readiness evidence.
 ## Results That Can Be Stated
 
 - The software produced immutable reviewed facility snapshots with checksum metadata.
-- The self-hosted OSRM workflow produced a reviewed tract-nearest route-time package.
+- The reviewed OSRM workflow produced a tract-nearest route-time package.
 - The readiness audit passed with 0 blockers and 0 warnings.
 - The route matrix included 52,680 route pairs, all routed, with 0 unreachable rows.
 - The reviewed `2026-06-19` to `2026-06-20` NC MQSA comparison produced 0 facility event signals.

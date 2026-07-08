@@ -30,11 +30,11 @@
 - **Automated tests**: pytest, ruff, and mypy passing on the active branch
 - **Synthetic end-to-end test**: Complete (demo generates synthetic data, analysis, readiness audit, and dashboard)
 - **Public-data evaluation**: Complete for the all-state package publication gates (51 jurisdictions, ACS county/tract context, 153/153 gates resolved, production audit READY with 0 blockers and 0 warnings). The bundled dashboard findings remain limited to the reviewed NC validation package.
-- **Expert review**: Not completed
+- **Expert review**: Review packet ready; independent review not completed
 - **Institutional validation**: Not completed
 - **Prospective clinical validation**: Not completed
 
 ## Planned Work
 - Later-date reviewed snapshot for trend analysis
 - Reviewed/geocoded all-state facility snapshot ingestion from completed MQSA review CSVs
-- Journal manuscript drafting with provided prompt template
+- Journal manuscript drafting from the bounded working draft
