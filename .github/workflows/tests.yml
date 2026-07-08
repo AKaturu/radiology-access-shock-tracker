@@ -64,3 +64,32 @@ jobs:
                   process.terminate()
                   process.wait(timeout=10)
           PY
+
+  release-package:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build source and journal release packages
+        shell: pwsh
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\package_release.ps1
+      - name: Verify release package manifest
+        shell: pwsh
+        run: |
+          $manifest = Get-ChildItem -LiteralPath dist -Filter "release-package-manifest-*.json" |
+            Select-Object -First 1
+          if ($null -eq $manifest) {
+            throw "No release package manifest was generated."
+          }
+          $data = Get-Content -LiteralPath $manifest.FullName -Raw | ConvertFrom-Json
+          foreach ($artifact in @($data.github_source_zip, $data.journal_bundle_zip)) {
+            if (-not (Test-Path -LiteralPath $artifact.path)) {
+              throw "Packaged artifact is missing: $($artifact.path)"
+            }
+            if ($artifact.bytes -le 0) {
+              throw "Packaged artifact is empty: $($artifact.path)"
+            }
+            $actualHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $artifact.path).Hash.ToLowerInvariant()
+            if ($actualHash -ne $artifact.sha256) {
+              throw "SHA-256 mismatch for $($artifact.path)"
+            }
+          }

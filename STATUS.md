@@ -24,6 +24,7 @@
 - Synthetic end-to-end demo with blocked readiness audit by default
 - OSRM self-hosted travel-time routing workflow
 - Desktop release packaging (Windows, macOS, Linux)
+- Release package CI gate for source and journal bundle reproducibility
 - Policy brief generation (HTML and Markdown)
 
 ## Validation Status

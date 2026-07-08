@@ -30,8 +30,8 @@ the repository owner or source-review team changes.
 ## GitHub Governance Setup
 
 GitHub branch protection and repository secrets must be applied in GitHub by an authenticated repo
-admin or owner. This checkout currently has no configured git remote and no authenticated GitHub CLI,
-so the settings cannot be applied locally without adding those credentials.
+admin or owner. In the maintained repository, `main` is protected and repository auto-merge is
+enabled. Re-run the helper script after changing the branch-protection JSON templates.
 
 After installing and authenticating the GitHub CLI, run a dry run:
 
@@ -58,8 +58,9 @@ $env:OPENROUTESERVICE_API_KEY = "<your-openrouteservice-key>"
 The script sets repository secrets from environment variables and applies
 `.github/branch-protection.main.json` by default. Use
 `.github/branch-protection.master.json` only if you publish the local `master` branch unchanged.
-The protection template requires the `test` status check, code-owner review, stale-review
-dismissal, conversation resolution, and blocks force pushes and branch deletion.
+The protection template requires the `test` and `release-package` status checks, conversation
+resolution, and blocks force pushes and branch deletion. The `release-package` check regenerates
+the source ZIP and journal bundle, then verifies manifest paths, byte counts, and SHA-256 hashes.
 
 ## External Credentials
 
