@@ -11,6 +11,8 @@ The workflow produces:
 - `RadiologyAccessShockTracker-windows-x64.zip`
 - `RadiologyAccessShockTracker-macos-x64.dmg`
 - `RadiologyAccessShockTracker-linux-x64.tar.gz`
+- `.sha256` checksum files for each downloadable artifact
+- `radiology-access-shock-tracker-sbom.cdx.json`
 
 The Windows ZIP contains `RadiologyAccessShockTracker.exe`. These are unsigned builds. Windows
 SmartScreen and macOS Gatekeeper may warn on first launch until the project has code-signing
@@ -54,8 +56,9 @@ References:
 1. Push a tag such as `v0.2.0`, or open **Actions** and select **desktop release**.
 2. The workflow builds Windows, Linux, and macOS artifacts on their native runners.
    macOS x64 builds use GitHub's `macos-15-intel` runner label.
-3. For tag pushes, the workflow publishes the artifacts to the matching GitHub Release.
-4. For manual runs, download the uploaded artifacts from the completed workflow run. Set
+3. The workflow writes SHA-256 checksum files and a direct-dependency CycloneDX SBOM.
+4. For tag pushes, the workflow publishes the artifacts to the matching GitHub Release.
+5. For manual runs, download the uploaded artifacts from the completed workflow run. Set
    `publish_release` and `release_tag` when you want the manual run to publish a release.
 
 The workflow also runs automatically for tags that start with `v`.

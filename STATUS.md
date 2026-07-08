@@ -25,6 +25,7 @@
 - OSRM self-hosted travel-time routing workflow
 - Desktop release packaging (Windows, macOS, Linux)
 - Release package CI gate for source and journal bundle reproducibility
+- Supply-chain automation with Dependabot, CodeQL, pinned Actions, release checksums, and direct-dependency SBOMs
 - Policy brief generation (HTML and Markdown)
 
 ## Validation Status

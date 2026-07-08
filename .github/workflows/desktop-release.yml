@@ -41,9 +41,9 @@ jobs:
             windowed: "true"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.11"
 
@@ -89,10 +89,31 @@ jobs:
             dist/${{ matrix.package_name }}
 
       - name: Upload desktop artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ${{ matrix.artifact_name }}
           path: dist/${{ matrix.package_name }}
+          if-no-files-found: error
+
+      - name: Write artifact checksum
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib
+          import pathlib
+
+          package = pathlib.Path("dist") / "${{ matrix.package_name }}"
+          digest = hashlib.sha256(package.read_bytes()).hexdigest()
+          package.with_suffix(package.suffix + ".sha256").write_text(
+              f"{digest}  {package.name}\n"
+          )
+          PY
+
+      - name: Upload checksum artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ matrix.artifact_name }}-sha256
+          path: dist/${{ matrix.package_name }}.sha256
           if-no-files-found: error
 
   publish-release:
@@ -101,7 +122,11 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || inputs.publish_release
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
 
       - name: Resolve release tag
         id: release
@@ -119,10 +144,26 @@ jobs:
           echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
 
       - name: Download desktop artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           path: dist/release
           merge-multiple: true
+
+      - name: Generate release SBOM
+        run: python scripts/generate_sbom.py --output dist/release/radiology-access-shock-tracker-sbom.cdx.json
+
+      - name: Write release SBOM checksum
+        shell: bash
+        run: |
+          cd dist/release
+          python - <<'PY'
+          import hashlib
+          import pathlib
+
+          sbom = pathlib.Path("radiology-access-shock-tracker-sbom.cdx.json")
+          digest = hashlib.sha256(sbom.read_bytes()).hexdigest()
+          pathlib.Path(f"{sbom.name}.sha256").write_text(f"{digest}  {sbom.name}\n")
+          PY
 
       - name: Write release notes
         shell: bash
@@ -145,6 +186,8 @@ jobs:
           - Windows: `RadiologyAccessShockTracker-windows-x64.zip` contains `RadiologyAccessShockTracker.exe`.
           - macOS: `RadiologyAccessShockTracker-macos-x64.dmg`.
           - Linux: `RadiologyAccessShockTracker-linux-x64.tar.gz`.
+          - Checksums: each downloadable asset has a `.sha256` companion file.
+          - SBOM: `radiology-access-shock-tracker-sbom.cdx.json`.
 
           These builds are unsigned, so Windows SmartScreen and macOS Gatekeeper may warn on first launch.
           EOF
