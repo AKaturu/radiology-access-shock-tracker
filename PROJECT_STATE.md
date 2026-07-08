@@ -28,7 +28,14 @@ package with ACS county and tract context, and marked the manifest
 
 The desktop release workflow now publishes GitHub Release assets for `v*` tags:
 Windows ZIP containing `RadiologyAccessShockTracker.exe`, macOS DMG, and Linux tarball.
-The local Windows bundle was built and smoke-checked successfully.
+The local Windows bundle was built and smoke-checked successfully. Release `v0.2.0` is published
+with Windows, macOS, and Linux assets.
+
+Post-release housekeeping is complete as of 2026-07-07: local `main` is aligned to `origin/main`,
+the stale merged local branches were pruned, GitHub Pages is built from `main` `/docs`, `main`
+branch protection was applied from `.github/branch-protection.main.json`, repository auto-merge is
+enabled, merged branches are auto-deleted, and `CENSUS_API_KEY` was refreshed in repository
+secrets.
 
 ---
 
@@ -75,29 +82,49 @@ The local Windows bundle was built and smoke-checked successfully.
   for every state/gate pair.
 - `gate_is_fully_resolved()` returns `True` for all gates.
 
+### Expert Review and Manuscript Preparation
+- `docs/EXPERT_REVIEW_PACKET.md` defines the independent-review scope, checklist, evidence links,
+  and sign-off record needed before marking expert review complete.
+- `docs/MANUSCRIPT_DRAFT.md` contains a bounded software/methods working draft that avoids
+  longitudinal, clinical, causal, and row-level all-state claims.
+- README, STATUS, and GitHub Pages docs link the new review and manuscript materials.
+
+### GitHub Governance and Publishing
+- GitHub Pages is enabled and built from `main` `/docs`.
+- `main` branch protection requires the `test` status check, conversation resolution, admin
+  enforcement, and no force pushes or deletions.
+- Repository auto-merge is enabled.
+- Merged branch auto-deletion is enabled.
+- `CENSUS_API_KEY` is configured in GitHub secrets.
+
 ---
 
 ## Remaining Work
 
 No current production-audit blockers remain for the all-state package.
 
-The only remaining production hardening item is a future facility-snapshot ingestion
-from an actual reviewed MQSA CSV with real coordinates and approved statuses. The
-current branch intentionally does not publish a placeholder all-state snapshot.
+Remaining production hardening work:
 
-After merging this release-prep branch, push tag `v0.2.0` so the desktop release workflow
-builds and publishes Windows, macOS, and Linux release assets.
+- Complete independent expert review using `docs/EXPERT_REVIEW_PACKET.md`.
+- Ingest a future all-state facility snapshot only from an actual reviewed MQSA CSV with real
+  coordinates and approved statuses.
+- Refresh FDA MQSA after the next source update to create a genuinely longitudinal comparison.
+- Complete state-specific row-level routing/readiness packages before publishing non-NC findings.
+- Expand the manuscript draft only within the current evidence boundaries until longitudinal and
+  expert-review evidence exists.
 
 ---
 
 ## Known Issues
 
-- The local shell does not retain the real `CENSUS_API_KEY`; CI verified the GitHub
-  repository secret, and the local production audit was regenerated with a non-secret
-  presence placeholder after that successful CI verification.
+- `OPENROUTESERVICE_API_KEY` is not configured in the local shell or repository secrets. This is
+  only required for hosted OpenRouteService route-time drafts; the production route-time path uses
+  reviewed/self-hosted OSRM artifacts.
 - A production facility snapshot still requires an actual reviewed MQSA CSV with real
   facility IDs, coordinates, active flags, and approved statuses. The repo no longer
   stores placeholder snapshot rows as production data.
+- Independent expert review, institutional validation, and prospective clinical validation remain
+  incomplete.
 
 ---
 
@@ -117,8 +144,17 @@ builds and publishes Windows, macOS, and Linux release assets.
 - `outputs/production_audit.md`: READY, 0 blockers, 0 warnings.
 - Gate resolutions: 153/153 gate-state pairs resolved with opencode human-review
   attestation.
+- GitHub Release `v0.2.0`: published with Windows ZIP, macOS DMG, and Linux tarball.
+- GitHub Pages: built from `main` `/docs`.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\package_release.ps1`: rebuilt
+  source and journal bundle artifacts successfully.
+- `gh secret list`: `CENSUS_API_KEY` present and refreshed on 2026-07-08 UTC.
+- `gh api repos/AKaturu/radiology-access-shock-tracker`: `allow_auto_merge=true` and
+  `delete_branch_on_merge=true`.
+- Local `main`: aligned with `origin/main` after resolving stale local divergence.
 
 ## Resume Instructions
 
-Merge the release-prep branch, tag `v0.2.0`, confirm the desktop release workflow publishes
-the Windows ZIP, macOS DMG, and Linux tarball, then verify the GitHub Release assets.
+Start from `main`, which is aligned with `origin/main`. The next highest-evidence task is to send
+`docs/EXPERT_REVIEW_PACKET.md` and the current release evidence to an independent reviewer, then
+record the dated decision before changing expert-review status to complete.

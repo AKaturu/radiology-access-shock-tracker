@@ -11,7 +11,7 @@ An open-source surveillance toolkit for detecting changes in mammography access,
 | Unit and integration tests | Complete (pytest, ruff, and mypy passing) |
 | Synthetic end-to-end evaluation | Complete |
 | Public-data evaluation | Production-ready all-state package audit complete for 51 jurisdictions (50 states + DC); reviewed NC package retained as the current row-level validation artifact |
-| Independent expert review | Not completed |
+| Independent expert review | Review packet ready; independent review not completed |
 | Institutional validation | Not completed |
 | Prospective clinical validation | Not completed |
 
@@ -103,7 +103,9 @@ The reviewed real NC no-observed-change validation package supports workflow and
 | Desktop releases | [docs/DESKTOP_RELEASES.md](docs/DESKTOP_RELEASES.md) |
 | Roadmap | [docs/ROADMAP.md](docs/ROADMAP.md) |
 | GitHub publishing | [docs/GITHUB_PUBLISHING.md](docs/GITHUB_PUBLISHING.md) |
+| Expert review packet | [docs/EXPERT_REVIEW_PACKET.md](docs/EXPERT_REVIEW_PACKET.md) |
 | Journal report packaging | [docs/JOURNAL_REPORT_PACKAGE.md](docs/JOURNAL_REPORT_PACKAGE.md) |
+| Manuscript working draft | [docs/MANUSCRIPT_DRAFT.md](docs/MANUSCRIPT_DRAFT.md) |
 | GitHub page assets | [docs/GITHUB_PAGE_ASSETS.md](docs/GITHUB_PAGE_ASSETS.md) |
 | Contribution guide | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Security reporting | [SECURITY.md](SECURITY.md) |

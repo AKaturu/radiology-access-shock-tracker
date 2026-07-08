@@ -50,14 +50,16 @@ Key references:
 - [Compiled validation report](validation/COMPILED_TEST_REPORT.md)
 - [GitHub publishing guide](GITHUB_PUBLISHING.md)
 - [Desktop downloads](DESKTOP_RELEASES.md)
+- [Expert review packet](EXPERT_REVIEW_PACKET.md)
 - [Journal report package guide](JOURNAL_REPORT_PACKAGE.md)
+- [Manuscript working draft](MANUSCRIPT_DRAFT.md)
 
 Core validation:
 
 ```text
-python -m pytest: 90 passed
+python -m pytest: 131 passed
 ruff check: passed
-mypy src/radshock: passed with no issues in 27 source files
+mypy src/radshock: passed with no issues in 31 source files
 synthetic demo readiness audit: BLOCKED as expected
 reviewed real-data readiness audit: READY, 0 blockers, 0 warnings
 all-state production audit: READY, 0 blockers, 0 warnings
