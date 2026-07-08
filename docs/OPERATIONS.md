@@ -62,6 +62,17 @@ The protection template requires the `test` and `release-package` status checks,
 resolution, and blocks force pushes and branch deletion. The `release-package` check regenerates
 the source ZIP and journal bundle, then verifies manifest paths, byte counts, and SHA-256 hashes.
 
+## Supply-Chain Automation
+
+Dependabot is configured for Python dependencies and GitHub Actions. Reusable GitHub Actions are
+pinned to full-length commit SHAs with version comments so workflow execution does not depend on
+mutable tags. CodeQL runs on pushes, pull requests, and a weekly schedule.
+
+Future desktop releases publish checksum companion files and
+`radiology-access-shock-tracker-sbom.cdx.json`, a CycloneDX direct-dependency SBOM generated from
+`pyproject.toml`. The SBOM records declared runtime, development, and desktop build dependencies;
+it does not enumerate transitive dependencies installed by pip.
+
 ## External Credentials
 
 Do not commit production credentials. Configure them as GitHub repository or organization secrets

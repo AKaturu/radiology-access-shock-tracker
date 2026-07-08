@@ -61,6 +61,7 @@ coordinates, active flags, and approved review statuses.
 - FDA MQSA, Census ACS/Gazetteer, CDC PLACES, CDC/ATSDR SVI, and HRSA review inputs support a 51-jurisdiction scope including DC
 - Manual all-state package workflow rebuilds ACS county and tract context from `CENSUS_API_KEY`
 - Desktop release workflow builds Windows, macOS, and Linux dashboard downloads
+- Dependabot, CodeQL, pinned GitHub Actions, release checksums, and SBOM generation harden the supply chain
 - Streamlit dashboard and Markdown policy brief exports
 
 ## Quick Start
@@ -89,6 +90,7 @@ The reviewed real NC no-observed-change validation package supports workflow and
 - Census ACS API queries require an API key
 - CDC/ATSDR SVI is contextual vulnerability data, not a mammography access or outcomes measure
 - Desktop artifacts are unsigned; public releases may trigger SmartScreen/Gatekeeper warnings
+- Release checksum and SBOM files verify artifact integrity and dependency inventory, but do not replace code signing or notarization
 - Sensitivity scenarios test score robustness but do not clinically validate the score
 - Reviewed dashboard findings are currently limited to the bundled North Carolina package; the all-state package is production-audit ready, but row-level all-state facility snapshots must still come from reviewed/geocoded MQSA rows before publication
 

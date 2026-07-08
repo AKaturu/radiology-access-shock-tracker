@@ -104,6 +104,15 @@ secrets.
 - `tests/test_release_package_contract.py` checks that release package inputs are tracked repo
   artifacts and that the deleted `2026-07-06` placeholder snapshot directory is not unignored.
 
+### Supply-Chain Security Hardening
+- Dependabot is configured for Python dependencies and GitHub Actions.
+- CodeQL static analysis is configured for Python.
+- Reusable GitHub Actions are pinned to full-length commit SHAs.
+- Future desktop releases publish `.sha256` files for downloadable artifacts and a direct-dependency
+  CycloneDX SBOM generated from `pyproject.toml`.
+- `tests/test_supply_chain_security.py` enforces the pinned-action, Dependabot, CodeQL, checksum,
+  and SBOM contracts.
+
 ---
 
 ## Remaining Work
@@ -119,6 +128,8 @@ Remaining production hardening work:
 - Complete state-specific row-level routing/readiness packages before publishing non-NC findings.
 - Expand the manuscript draft only within the current evidence boundaries until longitudinal and
   expert-review evidence exists.
+- Add platform code signing and macOS notarization before treating desktop downloads as fully
+  trusted end-user binaries.
 
 ---
 
@@ -156,6 +167,8 @@ Remaining production hardening work:
 - `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\package_release.ps1`: rebuilt
   source and journal bundle artifacts successfully.
 - `release-package` CI job: added to regenerate and verify source/journal package artifacts.
+- Supply-chain hardening: Dependabot, CodeQL, pinned Actions, release checksums, and SBOM generation
+  added.
 - `gh secret list`: `CENSUS_API_KEY` present and refreshed on 2026-07-08 UTC.
 - `gh api repos/AKaturu/radiology-access-shock-tracker`: `allow_auto_merge=true` and
   `delete_branch_on_merge=true`.
