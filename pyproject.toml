@@ -31,6 +31,11 @@ dev = [
 desktop = [
   "pyinstaller>=6.0",
 ]
+manuscript = [
+  "pillow>=10.0",
+  "python-docx>=1.1",
+  "reportlab>=4.2",
+]
 
 [project.scripts]
 radshock = "radshock.cli:app"

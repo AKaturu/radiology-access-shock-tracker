@@ -63,6 +63,22 @@ References:
 
 The workflow also runs automatically for tags that start with `v`.
 
+## Release Trust Record
+
+For each public desktop release, open a release-trust issue with
+`.github/ISSUE_TEMPLATE/release_trust.yml`. Record:
+
+- release URL and version
+- checksum files for Windows, macOS, and Linux artifacts
+- SBOM upload
+- downloaded-artifact checksum verification
+- Windows code-signing status
+- macOS code-signing and notarization status
+
+Code signing and notarization are not automated yet because they require signing certificates,
+secure secret storage, and Apple Developer notarization credentials. Until those are configured,
+the release-trust issue should explicitly mark the binaries as unsigned.
+
 ## Local Build
 
 Install the project with desktop build dependencies:

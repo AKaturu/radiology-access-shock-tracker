@@ -43,6 +43,28 @@ Large local OSRM graph files are intentionally excluded.
 The included dashboard screenshots are synthetic demonstration media; use `analysis_outputs/` for
 real-data result tables and readiness evidence.
 
+## Generated Manuscript Package
+
+Build a Word and PDF manuscript package from the bounded draft with:
+
+```bash
+python -m pip install -e ".[manuscript]"
+python scripts/build_manuscript_package.py
+```
+
+The generated files are written to `dist/manuscript/`:
+
+- `radiology-access-shock-tracker-manuscript.docx`
+- `radiology-access-shock-tracker-manuscript.pdf`
+
+The builder adds the current publication boundary, three dashboard figures, and a citation
+placeholder table for FDA MQSA, Census, CDC, HRSA, OSRM/OpenStreetMap, and the software release.
+Replace placeholders with journal-formatted references before submission.
+
+The PDF artifact should be rendered and visually checked before sharing. The DOCX artifact should
+also be rendered through LibreOffice/Word before submission; if `soffice` is not available locally,
+perform that visual check on a machine with LibreOffice or Microsoft Word.
+
 ## Results That Can Be Stated
 
 - The software produced immutable reviewed facility snapshots with checksum metadata.

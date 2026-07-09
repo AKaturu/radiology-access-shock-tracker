@@ -1,0 +1,74 @@
+name: Independent expert review
+description: Capture structured evidence from an independent reviewer before changing expert-review status.
+title: "Expert review: <release or evidence bundle>"
+labels: ["expert-review", "evidence-gate"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for independent domain, methods, or implementation review. Do not mark expert review complete in project docs until this issue has a dated reviewer decision and all requested changes are resolved.
+  - type: input
+    id: reviewer
+    attributes:
+      label: Reviewer name and affiliation
+      description: Include role, institution, or relevant independence statement.
+      placeholder: Jane Doe, MD, MPH - unaffiliated breast imaging reviewer
+    validations:
+      required: true
+  - type: input
+    id: evidence_bundle
+    attributes:
+      label: Evidence bundle reviewed
+      description: Link a release tag, commit SHA, release asset, manuscript package, or zipped evidence bundle.
+      placeholder: v0.2.0, commit SHA, or artifact URL
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Review scope
+      description: State whether the review covers methods, data provenance, dashboard claims, manuscript claims, release trust, or implementation.
+      placeholder: Methods and dashboard publication-boundary review for the NC row-level validation package and all-state readiness package.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Required checks
+      options:
+        - label: The reviewer checked docs/METHODS.md, docs/DATA_SOURCES.md, docs/EXPERT_REVIEW_PACKET.md, and the current readiness/production audit outputs.
+          required: true
+        - label: The reviewer confirmed that NC row-level findings are clearly separated from all-state readiness-only claims.
+          required: true
+        - label: The reviewer confirmed that FDA MQSA limitations are documented and not overclaimed.
+          required: true
+        - label: The reviewer confirmed that routing/geocoding assumptions are documented for any row-level findings under review.
+          required: true
+        - label: The reviewer identified whether manuscript/dashboard/public docs need edits before publication.
+          required: true
+  - type: textarea
+    id: findings
+    attributes:
+      label: Findings and required changes
+      description: List required changes, optional suggestions, and any evidence gaps.
+      placeholder: Required changes; optional suggestions; no-action observations.
+    validations:
+      required: true
+  - type: dropdown
+    id: decision
+    attributes:
+      label: Reviewer decision
+      options:
+        - Approved with no required changes
+        - Approved after listed changes
+        - Changes required before approval
+        - Not approved
+    validations:
+      required: true
+  - type: input
+    id: decision_date
+    attributes:
+      label: Decision date
+      placeholder: "2026-07-09"
+    validations:
+      required: true

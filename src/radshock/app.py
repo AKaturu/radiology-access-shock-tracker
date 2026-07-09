@@ -8,11 +8,13 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+from radshock.publication import PUBLICATION_BOUNDARY_NOTICE
 from radshock.readiness import find_manifest_path
 
 st.set_page_config(page_title="Radiology Access Shock Tracker", layout="wide")
 st.title("Radiology Access Shock Tracker")
 st.caption("Surveillance for changes in mammography access and potential community impact")
+st.info(PUBLICATION_BOUNDARY_NOTICE)
 
 default_analysis_dir = os.environ.get("RADSHOCK_ANALYSIS_DIR", "outputs/demo/analysis")
 analysis_dir = Path(st.sidebar.text_input("Analysis directory", value=default_analysis_dir))
