@@ -113,6 +113,23 @@ secrets.
 - `tests/test_supply_chain_security.py` enforces the pinned-action, Dependabot, CodeQL, checksum,
   and SBOM contracts.
 
+### Production Evidence Workflows
+- GitHub issue forms now capture independent expert review, quarterly MQSA refresh review,
+  release-trust evidence, real all-state MQSA snapshot intake, and external-validation evidence.
+- The quarterly MQSA workflow compares the fetched FDA MQSA ZIP SHA-256 with the latest tracked
+  baseline metadata and opens a GitHub issue when the source changes.
+- The same workflow opens a GitHub issue when a scheduled or manual refresh run fails, so source
+  outages, parser/schema changes, and workflow failures become auditable follow-up records.
+- The Streamlit dashboard now displays a first-screen publication-boundary notice: reviewed
+  row-level findings are limited to the North Carolina validation package, while the 51-jurisdiction
+  package is readiness-level only until real reviewed/geocoded all-state MQSA snapshots, routing
+  matrices, and state readiness audits exist.
+- `scripts/build_manuscript_package.py` builds a Word and PDF manuscript package from
+  `docs/MANUSCRIPT_DRAFT.md`, with dashboard figures and citation placeholders.
+- The generated local manuscript artifacts are:
+  `dist/manuscript/radiology-access-shock-tracker-manuscript.docx` and
+  `dist/manuscript/radiology-access-shock-tracker-manuscript.pdf`.
+
 ---
 
 ## Remaining Work
@@ -122,14 +139,15 @@ No current production-audit blockers remain for the all-state package.
 Remaining production hardening work:
 
 - Complete independent expert review using `docs/EXPERT_REVIEW_PACKET.md`.
+- Replace manuscript citation placeholders with journal-formatted references before submission.
 - Ingest a future all-state facility snapshot only from an actual reviewed MQSA CSV with real
   coordinates and approved statuses.
 - Refresh FDA MQSA after the next source update to create a genuinely longitudinal comparison.
 - Complete state-specific row-level routing/readiness packages before publishing non-NC findings.
-- Expand the manuscript draft only within the current evidence boundaries until longitudinal and
-  expert-review evidence exists.
 - Add platform code signing and macOS notarization before treating desktop downloads as fully
   trusted end-user binaries.
+- Complete institutional and prospective clinical validation before making real-world
+  production-complete clinical claims.
 
 ---
 
@@ -169,6 +187,21 @@ Remaining production hardening work:
 - `release-package` CI job: added to regenerate and verify source/journal package artifacts.
 - Supply-chain hardening: Dependabot, CodeQL, pinned Actions, release checksums, and SBOM generation
   added.
+- Evidence workflow hardening: expert-review, MQSA-refresh, release-trust, all-state-snapshot, and
+  external-validation issue templates added.
+- Quarterly MQSA monitoring: source-hash change and workflow-failure issue creation added.
+- Dashboard publication-boundary notice added and covered by tests.
+- Manuscript package builder added; local DOCX/PDF generated in `dist/manuscript/`.
+- Manuscript PDF render QA: rendered to 5 pages with Poppler and visually checked for clean figure
+  and citation-table layout.
+- Manuscript DOCX structural QA: 53 paragraphs, 2 tables, 3 inline figures, publication boundary
+  present, citation placeholders present.
+- DOCX visual render QA could not run locally because `soffice`/LibreOffice is not installed in
+  this Windows environment.
+- `python -m pytest -q`: passed, 145 tests collected.
+- `python -m ruff check .`: passed.
+- `python -m mypy src`: passed with no issues in 32 source files.
+- GitHub workflow and issue-template YAML parsed successfully with PyYAML.
 - `gh secret list`: `CENSUS_API_KEY` present and refreshed on 2026-07-08 UTC.
 - `gh api repos/AKaturu/radiology-access-shock-tracker`: `allow_auto_merge=true` and
   `delete_branch_on_merge=true`.
@@ -176,6 +209,7 @@ Remaining production hardening work:
 
 ## Resume Instructions
 
-Start from `main`, which is aligned with `origin/main`. The next highest-evidence task is to send
-`docs/EXPERT_REVIEW_PACKET.md` and the current release evidence to an independent reviewer, then
-record the dated decision before changing expert-review status to complete.
+Start from `main`, which is aligned with `origin/main` unless this branch is still under review.
+The next highest-evidence task is to send `docs/EXPERT_REVIEW_PACKET.md`, the generated manuscript
+package, and the current release evidence to an independent reviewer. Record the dated decision in
+a GitHub expert-review issue before changing expert-review status to complete.

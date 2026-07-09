@@ -66,6 +66,11 @@ Reviewer decision values should be one of: `approve`, `approve_with_minor_commen
 Do not change README or STATUS expert-review rows to `Complete` until this table identifies an
 independent reviewer, review date, decision, and evidence notes.
 
+For GitHub-tracked reviews, open an issue with
+`.github/ISSUE_TEMPLATE/expert_review.yml`. The issue form records reviewer identity, evidence
+bundle, scope, required checks, findings, decision, and decision date. Link the closed issue from
+this sign-off table before changing project status.
+
 ## Common Review Questions
 
 1. Are the publication claims limited to software, methods, readiness, and the reviewed NC

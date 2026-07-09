@@ -1,0 +1,54 @@
+name: External validation evidence
+description: Track institutional or prospective validation before making real-world production-complete claims.
+title: "External validation: <site or study>"
+labels: ["external-validation", "evidence-gate"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for independent expert, institutional, or prospective clinical validation evidence. These gates cannot be completed by repository automation alone.
+  - type: dropdown
+    id: validation_type
+    attributes:
+      label: Validation type
+      options:
+        - Independent expert review
+        - Institutional retrospective validation
+        - Prospective clinical validation
+        - Other external validation
+    validations:
+      required: true
+  - type: input
+    id: partner
+    attributes:
+      label: Partner, reviewer, or site
+      placeholder: Institution/site/reviewer name
+    validations:
+      required: true
+  - type: textarea
+    id: protocol
+    attributes:
+      label: Protocol and evidence scope
+      description: Summarize the protocol, dates, dataset, outcomes, and claims being validated.
+    validations:
+      required: true
+  - type: checkboxes
+    id: validation_checks
+    attributes:
+      label: Evidence checks
+      options:
+        - label: Data-sharing, privacy, IRB, or governance requirements were reviewed.
+          required: true
+        - label: Validation dataset and source provenance are documented.
+          required: true
+        - label: Outcome definitions and success criteria are documented before analysis.
+          required: true
+        - label: Limitations and nonvalidated claims are documented.
+          required: true
+  - type: textarea
+    id: results
+    attributes:
+      label: Results and decision
+      placeholder: Summarize findings, required changes, and whether this validates any public claims.
+    validations:
+      required: true
