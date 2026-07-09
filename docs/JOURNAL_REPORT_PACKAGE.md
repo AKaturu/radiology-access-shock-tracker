@@ -34,6 +34,7 @@ The `dist/journal/` package includes:
 - `county_shocks.csv`: 100 county rows, 0 warning/critical alerts.
 - `intervention_rankings.csv`: 771 HRSA candidate assumptions.
 - `sensitivity_analysis.csv`: 5 sensitivity scenarios across 100 counties.
+- `sensitivity_review.md`: reviewer-facing sensitivity summary and sign-off checklist.
 - `matrix_metadata.json`: finalized route matrix row counts and checksums.
 - `compiled_test_report.md`: local validation evidence.
 - `methods.md`, `data_sources.md`, `operations.md`: supporting documentation.

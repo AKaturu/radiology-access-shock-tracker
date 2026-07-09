@@ -68,6 +68,7 @@ def _assert_payload(analysis_dir: Path) -> None:
         "readiness_audit.json",
         "readiness_audit.md",
         "sensitivity_analysis.csv",
+        "sensitivity_review.md",
     ]
     missing = [name for name in required if not (analysis_dir / name).exists()]
     if missing:

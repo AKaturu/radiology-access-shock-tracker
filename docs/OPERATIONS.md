@@ -215,6 +215,16 @@ The bundle emits `data_quality.csv`, `geocoder_confidence.csv`, `identifier_cros
 `route_uncertainty.csv` when the corresponding inputs are supplied. Use
 `radshock route-uncertainty-check` for a route-review-only plausibility report.
 
+For sensitivity-review sign-off, generate both the machine-readable CSV and the reviewer-facing
+Markdown packet:
+
+```powershell
+radshock sensitivity-analysis outputs/analysis/county_shocks.csv `
+  --output-csv outputs/analysis/sensitivity_analysis.csv `
+  --output-md outputs/analysis/sensitivity_review.md `
+  --force
+```
+
 The command writes county-centroid population points for testing. Build finer tract-centroid
 population points before publication route review:
 

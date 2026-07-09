@@ -30,6 +30,7 @@
 - Quarterly MQSA refresh monitoring that opens GitHub issues for source-hash changes and workflow failures
 - Dashboard publication-boundary notice separating reviewed NC row-level evidence from all-state readiness-only evidence
 - Manuscript DOCX/PDF package generation with numbered references and figures
+- Reviewer-facing sensitivity review Markdown reports with sign-off checklists
 - Policy brief generation (HTML and Markdown)
 
 ## Validation Status

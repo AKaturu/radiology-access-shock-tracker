@@ -61,7 +61,7 @@ from radshock.production import (
 from radshock.quality import build_data_quality_reports, build_route_uncertainty_report
 from radshock.readiness import audit_to_json, render_readiness_markdown, run_readiness_audit
 from radshock.schemas import validate_facilities
-from radshock.sensitivity import run_sensitivity_analysis
+from radshock.sensitivity import render_sensitivity_markdown, run_sensitivity_analysis
 from radshock.snapshots import file_sha256, store_snapshot
 from radshock.sources import archive_local_source, fetch_url_source
 from radshock.states import (
@@ -1035,11 +1035,17 @@ def fill_travel_time_review_command(
 def sensitivity_analysis_command(
     county_shocks_csv: Annotated[Path, typer.Argument(exists=True, readable=True)],
     output_csv: Annotated[Path | None, typer.Option()] = None,
-    force: Annotated[bool, typer.Option(help="Overwrite an existing output CSV.")] = False,
+    output_md: Annotated[
+        Path | None,
+        typer.Option(help="Optional reviewer-facing Markdown sensitivity report."),
+    ] = None,
+    force: Annotated[bool, typer.Option(help="Overwrite existing sensitivity outputs.")] = False,
 ) -> None:
     """Re-score county shocks under alternative transparent weighting assumptions."""
     if output_csv is not None and output_csv.exists() and not force:
         raise typer.BadParameter(f"output already exists: {output_csv}")
+    if output_md is not None and output_md.exists() and not force:
+        raise typer.BadParameter(f"output already exists: {output_md}")
     sensitivity = run_sensitivity_analysis(
         pd.read_csv(county_shocks_csv, dtype={"county_fips": str})
     )
@@ -1049,7 +1055,11 @@ def sensitivity_analysis_command(
         scenario_count = int(sensitivity["scenario_id"].nunique())
         typer.echo(f"Sensitivity analysis written: {output_csv.resolve()}")
         typer.echo(f"Rows: {len(sensitivity)}; scenarios: {scenario_count}")
-    else:
+    if output_md is not None:
+        output_md.parent.mkdir(parents=True, exist_ok=True)
+        output_md.write_text(render_sensitivity_markdown(sensitivity), encoding="utf-8")
+        typer.echo(f"Sensitivity review report written: {output_md.resolve()}")
+    if output_csv is None and output_md is None:
         typer.echo(sensitivity.to_csv(index=False))
 
 
@@ -1768,6 +1778,10 @@ def analyze(
     shocks.to_csv(output_dir / "county_shocks.csv", index=False)
     interventions.to_csv(output_dir / "intervention_rankings.csv", index=False)
     sensitivity.to_csv(output_dir / "sensitivity_analysis.csv", index=False)
+    (output_dir / "sensitivity_review.md").write_text(
+        render_sensitivity_markdown(sensitivity),
+        encoding="utf-8",
+    )
     brief = generate_policy_brief(
         events,
         shocks,
@@ -1827,6 +1841,7 @@ def _write_analysis_manifest(
         "county_shocks": "county_shocks.csv",
         "interventions": "intervention_rankings.csv",
         "sensitivity": "sensitivity_analysis.csv",
+        "sensitivity_review": "sensitivity_review.md",
         "readiness_json": "readiness_audit.json",
         "readiness_md": "readiness_audit.md",
         "brief": "policy_brief.md",

@@ -21,6 +21,8 @@ def test_demo_runs_end_to_end(tmp_path: Path) -> None:
     assert "POSSIBLE_CLOSURE" in set(events["event_type"])
     assert outputs["brief_html"].exists()
     assert outputs["readiness_md"].exists()
+    assert outputs["sensitivity_review"].exists()
     assert readiness["overall_status"] == "BLOCKED"
     assert "population_newly_over_30_miles" in shocks.columns
     assert "threshold_heavy" in set(sensitivity["scenario_id"])
+    assert "Reviewer Sign-Off Checklist" in outputs["sensitivity_review"].read_text()
