@@ -34,6 +34,7 @@ required = {
 }
 utilization_path = analysis_dir / "utilization_change.csv"
 sensitivity_path = analysis_dir / "sensitivity_analysis.csv"
+sensitivity_review_path = analysis_dir / "sensitivity_review.md"
 readiness_json_path = analysis_dir / "readiness_audit.json"
 readiness_md_path = analysis_dir / "readiness_audit.md"
 missing = [str(path) for path in required.values() if not path.exists()]
@@ -276,6 +277,13 @@ with sensitivity_tab:
             file_name="sensitivity_analysis.csv",
             mime="text/csv",
         )
+        if sensitivity_review_path.exists():
+            st.download_button(
+                "Download sensitivity review",
+                sensitivity_review_path.read_text(encoding="utf-8"),
+                file_name="sensitivity_review.md",
+                mime="text/markdown",
+            )
 
 with readiness_tab:
     if readiness_error:

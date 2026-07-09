@@ -12,7 +12,7 @@ from radshock.briefs import generate_policy_brief, generate_policy_brief_html
 from radshock.changes import detect_changes
 from radshock.intervention import simulate_candidates
 from radshock.readiness import audit_to_json, render_readiness_markdown, run_readiness_audit
-from radshock.sensitivity import run_sensitivity_analysis
+from radshock.sensitivity import render_sensitivity_markdown, run_sensitivity_analysis
 from radshock.snapshots import file_sha256
 from radshock.utilization import summarize_utilization_change
 
@@ -53,6 +53,10 @@ def build_demo(output_dir: Path) -> dict[str, Path]:
     interventions.to_csv(analysis / "intervention_rankings.csv", index=False)
     utilization_change.to_csv(analysis / "utilization_change.csv", index=False)
     sensitivity.to_csv(analysis / "sensitivity_analysis.csv", index=False)
+    (analysis / "sensitivity_review.md").write_text(
+        render_sensitivity_markdown(sensitivity),
+        encoding="utf-8",
+    )
 
     brief = generate_policy_brief(
         events,
@@ -75,6 +79,7 @@ def build_demo(output_dir: Path) -> dict[str, Path]:
             "interventions": "analysis/intervention_rankings.csv",
             "utilization": "analysis/utilization_change.csv",
             "sensitivity": "analysis/sensitivity_analysis.csv",
+            "sensitivity_review": "analysis/sensitivity_review.md",
             "brief": "briefs/policy_brief.md",
             "brief_html": "briefs/policy_brief.html",
         },
@@ -92,6 +97,7 @@ def build_demo(output_dir: Path) -> dict[str, Path]:
         "shocks": analysis / "county_shocks.csv",
         "interventions": analysis / "intervention_rankings.csv",
         "sensitivity": analysis / "sensitivity_analysis.csv",
+        "sensitivity_review": analysis / "sensitivity_review.md",
         "readiness_json": analysis / "readiness_audit.json",
         "readiness_md": analysis / "readiness_audit.md",
         "brief": briefs / "policy_brief.md",

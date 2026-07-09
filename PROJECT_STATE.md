@@ -129,6 +129,8 @@ secrets.
 - The generated local manuscript artifacts are:
   `dist/manuscript/radiology-access-shock-tracker-manuscript.docx` and
   `dist/manuscript/radiology-access-shock-tracker-manuscript.pdf`.
+- Sensitivity analysis now emits `sensitivity_review.md`, a reviewer-facing Markdown summary with
+  scenario stability, high-impact rank shifts, alert-level changes, and sign-off checklist items.
 
 ---
 
@@ -200,9 +202,15 @@ Remaining production hardening work:
   boundary present, numbered references present, no citation placeholders present.
 - DOCX visual render QA could not run locally because `soffice`/LibreOffice is not installed in
   this Windows environment.
-- `python -m pytest -q`: passed, 145 tests collected.
+- Sensitivity-review reporting: `sensitivity_review.md` generation added for `analyze`, `demo`,
+  reviewed travel-time package finalization, desktop payloads, dashboard downloads, and release
+  packaging.
+- `python -m pytest -q`: passed, 147 tests collected.
 - `python -m ruff check .`: passed.
 - `python -m mypy src`: passed with no issues in 32 source files.
+- `python -m radshock.desktop --check`: passed with the tracked sensitivity-review payload.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\package_release.ps1`: rebuilt
+  source and journal bundle artifacts successfully with `sensitivity_review.md`.
 - GitHub workflow and issue-template YAML parsed successfully with PyYAML.
 - `gh secret list`: `CENSUS_API_KEY` present and refreshed on 2026-07-08 UTC.
 - `gh api repos/AKaturu/radiology-access-shock-tracker`: `allow_auto_merge=true` and

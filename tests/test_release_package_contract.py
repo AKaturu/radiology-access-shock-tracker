@@ -18,6 +18,7 @@ def test_release_package_sources_are_tracked_repo_artifacts() -> None:
     assert "docs/EXPERT_REVIEW_PACKET.md" in sources
     assert "docs/MANUSCRIPT_DRAFT.md" in sources
     assert "desktop_payload/analysis/manifest.json" in sources
+    assert "desktop_payload/analysis/sensitivity_review.md" in sources
     assert "data/travel_times/2026-06-20_tract_nearest20_osrm_matrix.csv" in sources
     assert not any(source.startswith("work/") for source in sources)
 

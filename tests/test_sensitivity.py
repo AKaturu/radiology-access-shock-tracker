@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from radshock.sensitivity import run_sensitivity_analysis
+from radshock.sensitivity import render_sensitivity_markdown, run_sensitivity_analysis
 
 
 def test_sensitivity_analysis_keeps_baseline_scores_and_ranks() -> None:
@@ -38,6 +38,25 @@ def test_sensitivity_analysis_rejects_missing_access_components() -> None:
     )
     with pytest.raises(ValueError, match="distance or travel-time shock component"):
         run_sensitivity_analysis(frame)
+
+
+def test_render_sensitivity_markdown_summarizes_reviewer_signoff() -> None:
+    sensitivity = run_sensitivity_analysis(_county_shocks())
+
+    report = render_sensitivity_markdown(sensitivity, top_n=3)
+
+    assert "# Sensitivity Analysis Review" in report
+    assert "## Reviewer Sign-Off Checklist" in report
+    assert "| Scenario | Top county | Max score delta |" in report
+    assert "threshold_heavy" in report
+    assert "supports reviewer sign-off" in report
+
+
+def test_render_sensitivity_markdown_rejects_invalid_top_n() -> None:
+    sensitivity = run_sensitivity_analysis(_county_shocks())
+
+    with pytest.raises(ValueError, match="top_n must be at least 1"):
+        render_sensitivity_markdown(sensitivity, top_n=0)
 
 
 def _county_shocks() -> pd.DataFrame:
