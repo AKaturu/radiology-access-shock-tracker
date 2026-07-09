@@ -16,7 +16,7 @@ Surveillance
 Mammography facility availability can change through listings, relocations, status changes, or
 service reductions, but public facility files often lack stable identifiers, verified coordinates,
 and clinical capacity fields. Public-health surveillance tools therefore need conservative
-provenance controls that distinguish review prompts from confirmed access findings.
+provenance controls that distinguish review prompts from confirmed access findings [1,2].
 
 ### Objective
 
@@ -28,8 +28,8 @@ geographic access changes, and blocking publication when required data-review ev
 The software versions facility snapshots with checksum metadata, compares reviewed snapshots for
 facility-event signals, computes population-weighted distance or reviewed travel-time access, and
 summarizes vulnerability-adjusted county shock scores. Source workflows cover FDA MQSA, Census ACS
-and Gazetteer, CDC PLACES, CDC/ATSDR SVI, HRSA candidate sites, and optional routing packages.
-Publication-readiness audits require provenance evidence before outputs are labeled ready.
+and Gazetteer, CDC PLACES, CDC/ATSDR SVI, HRSA candidate sites, and optional routing packages
+[2-9]. Publication-readiness audits require provenance evidence before outputs are labeled ready.
 
 ### Results
 
@@ -56,7 +56,7 @@ Timely access to screening mammography is a public-health concern, especially fo
 travel burden, socioeconomic vulnerability, or facility turnover may reduce access. Public facility
 data can support surveillance, but facility listings alone are not enough to assert clinical
 availability or access loss. Stable identifiers, geocoded locations, active-service review, routing
-provenance, and source limitations must be tracked before findings are published.
+provenance, and source limitations must be tracked before findings are published [1,2].
 
 This project addresses that gap by packaging facility comparison, routing, contextual vulnerability,
 and publication-readiness checks into a reproducible open-source workflow. The central design choice
@@ -77,14 +77,14 @@ The workflow uses public FDA MQSA facility listings, Census ACS and Gazetteer co
 CDC/ATSDR SVI, and HRSA candidate-site records. The current all-state package covers 51
 jurisdictions, including DC. FDA MQSA source fields do not provide stable facility IDs, verified
 coordinates, active-service flags, or facility-level annual procedure counts; reviewed fields are
-therefore required before row-level publication.
+therefore required before row-level publication [2-7].
 
 ### Routing and Access Metrics
 
 The validated North Carolina package uses a self-hosted OSRM route-time matrix. The software can
 also run great-circle distance calculations for synthetic demonstrations. Routing evidence is
 treated as a publication dependency because travel-time outputs are sensitive to network, profile,
-and coordinate assumptions.
+and coordinate assumptions [8,9].
 
 ### Publication Readiness
 
@@ -96,7 +96,7 @@ review statuses.
 ## Results
 
 The v0.2.0 release includes a 51-jurisdiction package-readiness audit, GitHub Pages documentation,
-and desktop release assets for Windows, macOS, and Linux. The all-state package is ready for
+and desktop release assets for Windows, macOS, and Linux [10]. The all-state package is ready for
 publication-gate use, but not for row-level all-state findings.
 
 The reviewed North Carolina package is a no-observed-change validation run. It supports
@@ -129,4 +129,41 @@ institutional validation.
 
 The code, documentation, production audit outputs, GitHub Pages site, and v0.2.0 desktop release
 assets are available in the public GitHub repository. Public-source datasets remain governed by
-their original source terms.
+their original source terms [2-10].
+
+## References
+
+1. US Preventive Services Task Force. Screening for breast cancer: US Preventive Services Task Force
+   recommendation statement. JAMA. 2024;331(22):1918-1930. doi:10.1001/jama.2024.5534.
+
+2. U.S. Food and Drug Administration. Mammography Facilities. Updated July 6, 2026. Accessed
+   July 9, 2026. https://www.fda.gov/findmammography
+
+3. U.S. Census Bureau. American Community Survey 5-Year Data (2009-2024). Published
+   January 29, 2026. Accessed July 9, 2026.
+   https://www.census.gov/data/developers/data-sets/acs-5year.html
+
+4. U.S. Census Bureau. Gazetteer Files. Accessed July 9, 2026.
+   https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html
+
+5. Centers for Disease Control and Prevention. PLACES: Local Data for Better Health -
+   Methodology. Updated December 7, 2025. Accessed July 9, 2026.
+   https://www.cdc.gov/places/methodology/index.html
+
+6. Centers for Disease Control and Prevention/Agency for Toxic Substances and Disease Registry/
+   Geospatial Research, Analysis, and Services Program. CDC/ATSDR Social Vulnerability Index
+   2022 Database: United States. Updated December 16, 2024. Accessed July 9, 2026.
+   https://www.atsdr.cdc.gov/place-health/php/svi/svi-data-documentation-download.html
+
+7. Health Resources and Services Administration. Health Center Program Service Delivery and
+   Look-Alike Sites. Updated July 8, 2026. Accessed July 9, 2026.
+   https://data.hrsa.gov/data/download
+
+8. Project OSRM. Project OSRM. Accessed July 9, 2026. https://project-osrm.org/
+
+9. OpenStreetMap contributors. Copyright and License. Accessed July 9, 2026.
+   https://www.openstreetmap.org/copyright
+
+10. Katuru A. Radiology Access Shock Tracker v0.2.0. GitHub. Released July 7, 2026. Accessed
+    July 9, 2026.
+    https://github.com/AKaturu/radiology-access-shock-tracker/releases/tag/v0.2.0
