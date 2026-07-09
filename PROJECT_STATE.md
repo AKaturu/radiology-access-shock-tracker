@@ -125,7 +125,7 @@ secrets.
   package is readiness-level only until real reviewed/geocoded all-state MQSA snapshots, routing
   matrices, and state readiness audits exist.
 - `scripts/build_manuscript_package.py` builds a Word and PDF manuscript package from
-  `docs/MANUSCRIPT_DRAFT.md`, with dashboard figures and citation placeholders.
+  `docs/MANUSCRIPT_DRAFT.md`, with dashboard figures and numbered references.
 - The generated local manuscript artifacts are:
   `dist/manuscript/radiology-access-shock-tracker-manuscript.docx` and
   `dist/manuscript/radiology-access-shock-tracker-manuscript.pdf`.
@@ -139,7 +139,7 @@ No current production-audit blockers remain for the all-state package.
 Remaining production hardening work:
 
 - Complete independent expert review using `docs/EXPERT_REVIEW_PACKET.md`.
-- Replace manuscript citation placeholders with journal-formatted references before submission.
+- Review manuscript references against target journal requirements before submission.
 - Ingest a future all-state facility snapshot only from an actual reviewed MQSA CSV with real
   coordinates and approved statuses.
 - Refresh FDA MQSA after the next source update to create a genuinely longitudinal comparison.
@@ -192,10 +192,12 @@ Remaining production hardening work:
 - Quarterly MQSA monitoring: source-hash change and workflow-failure issue creation added.
 - Dashboard publication-boundary notice added and covered by tests.
 - Manuscript package builder added; local DOCX/PDF generated in `dist/manuscript/`.
-- Manuscript PDF render QA: rendered to 5 pages with Poppler and visually checked for clean figure
-  and citation-table layout.
-- Manuscript DOCX structural QA: 53 paragraphs, 2 tables, 3 inline figures, publication boundary
-  present, citation placeholders present.
+- Manuscript citations added for USPSTF screening guidance, FDA MQSA, Census ACS/Gazetteer, CDC
+  PLACES, CDC/ATSDR SVI, HRSA service-delivery sites, OSRM/OpenStreetMap, and the v0.2.0 release.
+- Manuscript PDF render QA: rendered to 6 pages with Poppler and visually checked for clean
+  references and figure layout.
+- Manuscript DOCX structural QA: 65 paragraphs, 1 metadata table, 3 inline figures, publication
+  boundary present, numbered references present, no citation placeholders present.
 - DOCX visual render QA could not run locally because `soffice`/LibreOffice is not installed in
   this Windows environment.
 - `python -m pytest -q`: passed, 145 tests collected.

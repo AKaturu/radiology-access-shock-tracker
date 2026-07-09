@@ -29,7 +29,7 @@
 - GitHub issue forms for expert review, MQSA refresh review, release trust, all-state snapshot intake, and external validation
 - Quarterly MQSA refresh monitoring that opens GitHub issues for source-hash changes and workflow failures
 - Dashboard publication-boundary notice separating reviewed NC row-level evidence from all-state readiness-only evidence
-- Manuscript DOCX/PDF package generation with citation placeholders and figures
+- Manuscript DOCX/PDF package generation with numbered references and figures
 - Policy brief generation (HTML and Markdown)
 
 ## Validation Status
@@ -43,6 +43,6 @@
 ## Planned Work
 - Later-date reviewed snapshot for trend analysis
 - Reviewed/geocoded all-state facility snapshot ingestion from completed MQSA review CSVs
-- Replace manuscript citation placeholders with journal-formatted references
+- Review manuscript reference style against target journal requirements
 - Code signing and macOS notarization after certificates and notarization credentials are available
 - Independent expert, institutional, and prospective validation

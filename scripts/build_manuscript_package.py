@@ -24,8 +24,6 @@ from reportlab.platypus import (
     Paragraph,
     SimpleDocTemplate,
     Spacer,
-    Table,
-    TableStyle,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,39 +48,12 @@ FIGURES = [
     ),
 ]
 
-CITATION_PLACEHOLDERS = [
-    (
-        "[CITATION: FDA MQSA public facility file]",
-        "Use for FDA MQSA source-file description and public-data limitations.",
-    ),
-    (
-        "[CITATION: US Census ACS and Gazetteer]",
-        "Use for county and tract population/context methods.",
-    ),
-    (
-        "[CITATION: CDC PLACES and CDC/ATSDR SVI]",
-        "Use for contextual vulnerability and mammography screening context.",
-    ),
-    (
-        "[CITATION: HRSA service delivery sites]",
-        "Use for candidate-site source assumptions and limitations.",
-    ),
-    (
-        "[CITATION: OSRM/OpenStreetMap routing]",
-        "Use for self-hosted route-time matrix methods and routing limitations.",
-    ),
-    (
-        "[CITATION: Radiology Access Shock Tracker v0.2.0 release]",
-        "Use for software release, reproducibility, checksum, and SBOM references.",
-    ),
-]
-
 BOUNDARY_NOTE = (
     "Submission boundary: the current evidence supports software/methods claims, a reviewed NC "
-    "row-level validation package, and 51-jurisdiction readiness claims. Replace citation "
-    "placeholders before journal submission. Do not claim all-state row-level findings, clinical "
-    "validation, confirmed closures, longitudinal access deterioration, or causal utilization "
-    "effects until the required evidence exists."
+    "row-level validation package, and 51-jurisdiction readiness claims. Verify journal reference "
+    "style before submission. Do not claim all-state row-level findings, clinical validation, "
+    "confirmed closures, longitudinal access deterioration, or causal utilization effects until "
+    "the required evidence exists."
 )
 
 
@@ -180,7 +151,7 @@ def add_header_footer(document: Document) -> None:
     set_run_font(header, size_pt=9, color=RGBColor(85, 85, 85))
 
     footer = section.footer.paragraphs[0]
-    footer.text = "Submission draft - replace citation placeholders before submission"
+    footer.text = "Submission draft - verify reference style before submission"
     footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
     set_run_font(footer, size_pt=9, color=RGBColor(85, 85, 85))
 
@@ -200,7 +171,7 @@ def add_docx_title(document: Document) -> None:
     subtitle = document.add_paragraph()
     subtitle.paragraph_format.space_after = Pt(12)
     subtitle_run = subtitle.add_run(
-        "Submission-ready working draft with bounded claims, citation placeholders, and figures"
+        "Submission-ready working draft with bounded claims, source citations, and figures"
     )
     subtitle_run.font.name = "Calibri"
     subtitle_run.font.size = Pt(11)
@@ -214,7 +185,7 @@ def add_docx_title(document: Document) -> None:
     rows = [
         ("Evidence scope", "Reviewed NC row-level validation; 51-jurisdiction readiness package"),
         ("Draft source", "docs/MANUSCRIPT_DRAFT.md"),
-        ("Citation status", "Placeholders included; final journal references still required"),
+        ("Citation status", "Numbered references included; final journal style review required"),
     ]
     for row, (label, value) in zip(metadata.rows, rows, strict=True):
         row.cells[0].text = label
@@ -263,27 +234,6 @@ def add_docx_figures(document: Document) -> None:
         set_run_font(caption_para, size_pt=9.5, italic=True, color=RGBColor(85, 85, 85))
 
 
-def add_docx_citations(document: Document) -> None:
-    document.add_paragraph("Citation Placeholders", style="Heading 1")
-    document.add_paragraph(
-        "Replace these placeholders with journal-formatted references before submission."
-    )
-    table = document.add_table(rows=1, cols=2)
-    table.autofit = False
-    table.columns[0].width = Inches(2.25)
-    table.columns[1].width = Inches(4.25)
-    table.rows[0].cells[0].text = "Placeholder"
-    table.rows[0].cells[1].text = "Use"
-    for placeholder, use in CITATION_PLACEHOLDERS:
-        cells = table.add_row().cells
-        cells[0].text = placeholder
-        cells[1].text = use
-    for row_index, row in enumerate(table.rows):
-        for cell in row.cells:
-            for paragraph in cell.paragraphs:
-                set_run_font(paragraph, size_pt=9.5, bold=row_index == 0)
-
-
 def build_docx(blocks: list[MarkdownBlock], output_path: Path) -> None:
     document = Document()
     configure_docx_styles(document)
@@ -291,7 +241,6 @@ def build_docx(blocks: list[MarkdownBlock], output_path: Path) -> None:
     add_docx_title(document)
     add_docx_markdown(document, blocks)
     add_docx_figures(document)
-    add_docx_citations(document)
     document.sections[-1].start_type = WD_SECTION_START.NEW_PAGE
     output_path.parent.mkdir(parents=True, exist_ok=True)
     document.save(output_path)
@@ -325,27 +274,6 @@ def pdf_styles() -> dict[str, ParagraphStyle]:
             borderPadding=7,
             spaceBefore=6,
             spaceAfter=10,
-        )
-    )
-    styles.add(
-        ParagraphStyle(
-            name="CitationCell",
-            parent=styles["BodyText"],
-            fontName="Helvetica",
-            fontSize=7.8,
-            leading=9.2,
-            spaceAfter=0,
-        )
-    )
-    styles.add(
-        ParagraphStyle(
-            name="CitationHeader",
-            parent=styles["BodyText"],
-            fontName="Helvetica-Bold",
-            fontSize=8.2,
-            leading=9.5,
-            textColor=colors.HexColor("#0B2545"),
-            spaceAfter=0,
         )
     )
     styles["BodyText"].fontName = "Helvetica"
@@ -391,8 +319,7 @@ def build_pdf(blocks: list[MarkdownBlock], output_path: Path) -> None:
             styles["ManuscriptTitle"],
         ),
         Paragraph(
-            "Submission-ready working draft with bounded claims, citation placeholders, "
-            "and figures",
+            "Submission-ready working draft with bounded claims, source citations, and figures",
             styles["Italic"],
         ),
         Spacer(1, 0.12 * inch),
@@ -416,37 +343,6 @@ def build_pdf(blocks: list[MarkdownBlock], output_path: Path) -> None:
     story.append(Paragraph("Figures", styles["Heading1"]))
     for image_path, caption in FIGURES:
         add_pdf_image(story, image_path, caption, styles)
-
-    story.append(Paragraph("Citation Placeholders", styles["Heading1"]))
-    citation_rows = [
-        [
-            Paragraph("Placeholder", styles["CitationHeader"]),
-            Paragraph("Use", styles["CitationHeader"]),
-        ],
-        *[
-            [
-                Paragraph(placeholder, styles["CitationCell"]),
-                Paragraph(use, styles["CitationCell"]),
-            ]
-            for placeholder, use in CITATION_PLACEHOLDERS
-        ],
-    ]
-    citation_table = Table(citation_rows, colWidths=[2.7 * inch, 3.6 * inch])
-    citation_table.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#F2F4F7")),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#0B2545")),
-                ("GRID", (0, 0), (-1, -1), 0.3, colors.HexColor("#D7DBE2")),
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("LEFTPADDING", (0, 0), (-1, -1), 5),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 5),
-                ("TOPPADDING", (0, 0), (-1, -1), 5),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
-            ]
-        )
-    )
-    story.append(citation_table)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     pdf = SimpleDocTemplate(

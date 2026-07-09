@@ -57,9 +57,9 @@ The generated files are written to `dist/manuscript/`:
 - `radiology-access-shock-tracker-manuscript.docx`
 - `radiology-access-shock-tracker-manuscript.pdf`
 
-The builder adds the current publication boundary, three dashboard figures, and a citation
-placeholder table for FDA MQSA, Census, CDC, HRSA, OSRM/OpenStreetMap, and the software release.
-Replace placeholders with journal-formatted references before submission.
+The builder adds the current publication boundary, three dashboard figures, and numbered references
+for FDA MQSA, Census, CDC, HRSA, OSRM/OpenStreetMap, the USPSTF screening recommendation, and the
+software release. Review reference style against the target journal before submission.
 
 The PDF artifact should be rendered and visually checked before sharing. The DOCX artifact should
 also be rendered through LibreOffice/Word before submission; if `soffice` is not available locally,
