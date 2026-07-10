@@ -22,11 +22,12 @@
 4. Add multiple pre/post CMS periods and causal-study export tables.
 5. Complete state-specific routing/readiness packages before publishing row-level findings outside
    North Carolina.
-6. Expand sensitivity-analysis reports beyond CSV outputs for reviewer signoff.
+6. Use the sensitivity-review Markdown report during reviewer sign-off for any published ranking
+   claims.
 7. Complete independent expert review through the GitHub issue workflow before marking expert
    review complete.
-8. Replace manuscript citation placeholders with journal-formatted references and submit only
-   bounded software/methods claims until longitudinal and external-validation evidence exists.
+8. Review manuscript references against the target journal style and submit only bounded
+   software/methods claims until longitudinal and external-validation evidence exists.
 9. Add release code signing and macOS notarization after signing certificates and Apple notarization
    credentials are available.
 

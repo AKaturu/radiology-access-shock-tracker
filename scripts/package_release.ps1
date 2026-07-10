@@ -117,6 +117,7 @@ $copies = @(
     @("desktop_payload/analysis/county_shocks.csv", "analysis_outputs/county_shocks.csv"),
     @("desktop_payload/analysis/intervention_rankings.csv", "analysis_outputs/intervention_rankings.csv"),
     @("desktop_payload/analysis/sensitivity_analysis.csv", "analysis_outputs/sensitivity_analysis.csv"),
+    @("desktop_payload/analysis/sensitivity_review.md", "analysis_outputs/sensitivity_review.md"),
     @("docs/assets/github/dashboard-overview.png", "figures/dashboard-overview.png"),
     @("docs/assets/github/county-shocks.png", "figures/county-shocks.png"),
     @("docs/assets/github/interventions.png", "figures/interventions.png"),

@@ -39,7 +39,8 @@
     "interventions": "intervention_rankings.csv",
     "readiness_json": "readiness_audit.json",
     "readiness_md": "readiness_audit.md",
-    "sensitivity": "sensitivity_analysis.csv"
+    "sensitivity": "sensitivity_analysis.csv",
+    "sensitivity_review": "sensitivity_review.md"
   },
   "periods": {
     "after_period": "2026-06-20",

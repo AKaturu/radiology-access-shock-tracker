@@ -50,7 +50,7 @@ coordinates, active flags, and approved review statuses.
 - Detects new listings, possible closures, relocations, status changes, renames, and capacity reductions
 - Calculates population-weighted distance or reviewed travel time to nearest active facility
 - Produces vulnerability-adjusted county shock score and alert level
-- Re-scores under alternative weighting assumptions for sensitivity review
+- Re-scores under alternative weighting assumptions and emits reviewer-facing sensitivity reports
 - Audits analysis packages for publication-readiness blockers and provenance gaps
 - Audits project-level production completion gates for owners, credentials, all-state coverage, ACS context, and readiness reports
 - Emits state-by-state all-state package readiness gates before non-NC publication
@@ -65,10 +65,10 @@ coordinates, active flags, and approved review statuses.
 - Structured GitHub issue forms capture expert review, MQSA refresh review, all-state snapshot
   intake, release trust, and external-validation evidence
 - Manuscript package builder emits Word and PDF drafts from the bounded manuscript source with
-  citation placeholders and figures
+  numbered references and figures
 - Dashboard displays the publication boundary between reviewed NC row-level findings and
   all-state readiness-only package evidence
-- Streamlit dashboard and Markdown policy brief exports
+- Streamlit dashboard, Markdown policy brief exports, and sensitivity-review downloads
 
 ## Quick Start
 

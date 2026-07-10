@@ -12,7 +12,7 @@ from radshock.briefs import generate_policy_brief, generate_policy_brief_html
 from radshock.changes import detect_changes
 from radshock.intervention import simulate_candidates
 from radshock.readiness import audit_to_json, render_readiness_markdown, run_readiness_audit
-from radshock.sensitivity import run_sensitivity_analysis
+from radshock.sensitivity import render_sensitivity_markdown, run_sensitivity_analysis
 
 
 def main() -> None:
@@ -45,6 +45,10 @@ def main() -> None:
     shocks.to_csv(output_dir / "county_shocks.csv", index=False)
     interventions.to_csv(output_dir / "intervention_rankings.csv", index=False)
     sensitivity.to_csv(output_dir / "sensitivity_analysis.csv", index=False)
+    (output_dir / "sensitivity_review.md").write_text(
+        render_sensitivity_markdown(sensitivity),
+        encoding="utf-8",
+    )
 
     brief_date = _parse_optional_date(args.after_period)
     brief = generate_policy_brief(
@@ -152,6 +156,7 @@ def _build_manifest(args: argparse.Namespace) -> dict[str, object]:
             "county_shocks": "county_shocks.csv",
             "interventions": "intervention_rankings.csv",
             "sensitivity": "sensitivity_analysis.csv",
+            "sensitivity_review": "sensitivity_review.md",
             "readiness_json": "readiness_audit.json",
             "readiness_md": "readiness_audit.md",
             "brief": "policy_brief.md",
