@@ -26,17 +26,24 @@
 - Desktop release packaging (Windows, macOS, Linux)
 - Release package CI gate for source and journal bundle reproducibility
 - Supply-chain automation with Dependabot, CodeQL, pinned Actions, release checksums, and direct-dependency SBOMs
+- GitHub issue forms for expert review, MQSA refresh review, release trust, all-state snapshot intake, and external validation
+- Quarterly MQSA refresh monitoring that opens GitHub issues for source-hash changes and workflow failures
+- Dashboard publication-boundary notice separating reviewed NC row-level evidence from all-state readiness-only evidence
+- Manuscript DOCX/PDF package generation with numbered references and figures
+- Reviewer-facing sensitivity review Markdown reports with sign-off checklists
 - Policy brief generation (HTML and Markdown)
 
 ## Validation Status
 - **Automated tests**: pytest, ruff, and mypy passing on the active branch
 - **Synthetic end-to-end test**: Complete (demo generates synthetic data, analysis, readiness audit, and dashboard)
 - **Public-data evaluation**: Complete for the all-state package publication gates (51 jurisdictions, ACS county/tract context, 153/153 gates resolved, production audit READY with 0 blockers and 0 warnings). The bundled dashboard findings remain limited to the reviewed NC validation package.
-- **Expert review**: Review packet ready; independent review not completed
+- **Expert review**: Review packet and GitHub issue workflow ready; independent review not completed
 - **Institutional validation**: Not completed
 - **Prospective clinical validation**: Not completed
 
 ## Planned Work
 - Later-date reviewed snapshot for trend analysis
 - Reviewed/geocoded all-state facility snapshot ingestion from completed MQSA review CSVs
-- Journal manuscript drafting from the bounded working draft
+- Review manuscript reference style against target journal requirements
+- Code signing and macOS notarization after certificates and notarization credentials are available
+- Independent expert, institutional, and prospective validation

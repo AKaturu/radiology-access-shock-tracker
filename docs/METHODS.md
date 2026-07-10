@@ -122,7 +122,9 @@ weights:
 
 Each output row keeps the baseline score, alternative score, score delta, baseline rank,
 alternative rank, rank delta, baseline alert level, and alternative alert level. Scenario movement
-is a robustness check for prioritization, not a validation study.
+is a robustness check for prioritization, not a validation study. The CLI can also emit
+`sensitivity_review.md`, a Markdown reviewer packet that summarizes scenario stability, high-impact
+rank shifts, alert-level changes, and sign-off checklist items.
 
 ## 4. Utilization Signal
 

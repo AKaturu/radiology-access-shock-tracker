@@ -8,11 +8,13 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+from radshock.publication import PUBLICATION_BOUNDARY_NOTICE
 from radshock.readiness import find_manifest_path
 
 st.set_page_config(page_title="Radiology Access Shock Tracker", layout="wide")
 st.title("Radiology Access Shock Tracker")
 st.caption("Surveillance for changes in mammography access and potential community impact")
+st.info(PUBLICATION_BOUNDARY_NOTICE)
 
 default_analysis_dir = os.environ.get("RADSHOCK_ANALYSIS_DIR", "outputs/demo/analysis")
 analysis_dir = Path(st.sidebar.text_input("Analysis directory", value=default_analysis_dir))
@@ -32,6 +34,7 @@ required = {
 }
 utilization_path = analysis_dir / "utilization_change.csv"
 sensitivity_path = analysis_dir / "sensitivity_analysis.csv"
+sensitivity_review_path = analysis_dir / "sensitivity_review.md"
 readiness_json_path = analysis_dir / "readiness_audit.json"
 readiness_md_path = analysis_dir / "readiness_audit.md"
 missing = [str(path) for path in required.values() if not path.exists()]
@@ -274,6 +277,13 @@ with sensitivity_tab:
             file_name="sensitivity_analysis.csv",
             mime="text/csv",
         )
+        if sensitivity_review_path.exists():
+            st.download_button(
+                "Download sensitivity review",
+                sensitivity_review_path.read_text(encoding="utf-8"),
+                file_name="sensitivity_review.md",
+                mime="text/markdown",
+            )
 
 with readiness_tab:
     if readiness_error:

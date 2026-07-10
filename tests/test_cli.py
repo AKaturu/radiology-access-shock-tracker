@@ -812,6 +812,7 @@ def test_merge_filled_route_rows_updates_only_subset_with_numeric_minutes() -> N
 def test_sensitivity_analysis_command_writes_scenario_rows(tmp_path: Path) -> None:
     county_shocks = tmp_path / "county_shocks.csv"
     output = tmp_path / "sensitivity.csv"
+    report = tmp_path / "sensitivity_review.md"
     pd.DataFrame(
         [
             {
@@ -835,6 +836,8 @@ def test_sensitivity_analysis_command_writes_scenario_rows(tmp_path: Path) -> No
             str(county_shocks),
             "--output-csv",
             str(output),
+            "--output-md",
+            str(report),
         ],
     )
     assert result.exit_code == 0
@@ -842,6 +845,7 @@ def test_sensitivity_analysis_command_writes_scenario_rows(tmp_path: Path) -> No
     assert "baseline" in set(sensitivity["scenario_id"])
     assert "threshold_heavy" in set(sensitivity["scenario_id"])
     assert sensitivity.loc[0, "county_fips"] == 37001
+    assert "Reviewer Sign-Off Checklist" in report.read_text(encoding="utf-8")
 
 
 def test_analyze_command_writes_manifest_and_readiness_reports(tmp_path: Path) -> None:

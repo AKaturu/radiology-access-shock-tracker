@@ -12,13 +12,14 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   prepare-mqsa-review-artifact:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.11"
           cache: pip
@@ -49,11 +50,151 @@ jobs:
             --output-csv "work/source-refresh/review/fda_mqsa_${RUN_DATE}_${state_upper}_review.csv" \
             --state "${state_upper}" \
             --force
+      - name: Summarize MQSA source metadata
+        shell: bash
+        run: |
+          metadata_path="$(find work/source-refresh/raw/fda-mqsa-public -name public.zip.metadata.json -type f | sort | tail -n 1)"
+          if [ -z "${metadata_path}" ]; then
+            echo "FDA MQSA metadata was not created."
+            exit 1
+          fi
+          metadata_path="${metadata_path}" python - <<'PY'
+          import glob
+          import json
+          import os
+          from pathlib import Path
+
+          current_path = Path(os.environ["metadata_path"])
+          current = json.loads(current_path.read_text(encoding="utf-8"))
+          baseline_paths = sorted(glob.glob("data/source_metadata/fda-mqsa-public-*.metadata.json"))
+          baseline_path = Path(baseline_paths[-1]) if baseline_paths else None
+          baseline = (
+              json.loads(baseline_path.read_text(encoding="utf-8")) if baseline_path else {}
+          )
+
+          current_sha = str(current.get("sha256", ""))
+          baseline_sha = str(baseline.get("sha256", ""))
+          source_changed = bool(current_sha and current_sha != baseline_sha)
+          run_url = (
+              f"{os.environ['GITHUB_SERVER_URL']}/{os.environ['GITHUB_REPOSITORY']}"
+              f"/actions/runs/{os.environ['GITHUB_RUN_ID']}"
+          )
+
+          env_lines = {
+              "MQSA_METADATA_PATH": str(current_path),
+              "MQSA_CURRENT_SHA": current_sha,
+              "MQSA_CURRENT_SHA_SHORT": current_sha[:12],
+              "MQSA_BASELINE_SHA": baseline_sha,
+              "MQSA_BASELINE_SHA_SHORT": baseline_sha[:12],
+              "MQSA_BASELINE_METADATA": str(baseline_path) if baseline_path else "none",
+              "MQSA_SOURCE_CHANGED": str(source_changed).lower(),
+              "MQSA_REVIEW_RUN_URL": run_url,
+          }
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env_file:
+              for key, value in env_lines.items():
+                  env_file.write(f"{key}={value}\n")
+
+          summary = [
+              "## MQSA source refresh",
+              "",
+              f"- Current metadata: `{current_path}`",
+              f"- Current SHA-256: `{current_sha or 'unknown'}`",
+              f"- Baseline metadata: `{baseline_path or 'none'}`",
+              f"- Baseline SHA-256: `{baseline_sha or 'unknown'}`",
+              f"- Source changed: `{str(source_changed).lower()}`",
+          ]
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as step_summary:
+              step_summary.write("\n".join(summary) + "\n")
+          PY
       - name: Upload review artifacts
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: mqsa-review-artifacts
           path: |
             work/source-refresh/raw/fda-mqsa-public/*/public.zip.metadata.json
             work/source-refresh/review/*.csv
           if-no-files-found: error
+      - name: Open MQSA source-change review issue
+        if: ${{ success() }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${MQSA_SOURCE_CHANGED:-false}" != "true" ]; then
+            echo "MQSA source hash matches the tracked baseline; no source-change issue opened."
+            exit 0
+          fi
+
+          title="MQSA source change review: ${MQSA_CURRENT_SHA_SHORT:-unknown} (${STATE_FILTER:-NC})"
+          existing_issue="$(gh issue list \
+            --state open \
+            --search "${title} in:title" \
+            --json number \
+            --jq '.[0].number' || true)"
+          if [ -n "${existing_issue}" ] && [ "${existing_issue}" != "null" ]; then
+            echo "Issue #${existing_issue} already tracks this source hash."
+            exit 0
+          fi
+
+          body="$(mktemp)"
+          cat > "${body}" <<EOF
+          The quarterly MQSA refresh found a source hash that differs from the tracked baseline.
+
+          - Workflow run: ${MQSA_REVIEW_RUN_URL}
+          - State scope: ${STATE_FILTER:-NC}
+          - Current metadata artifact path: ${MQSA_METADATA_PATH:-unknown}
+          - Current SHA-256: ${MQSA_CURRENT_SHA:-unknown}
+          - Baseline metadata: ${MQSA_BASELINE_METADATA:-unknown}
+          - Baseline SHA-256: ${MQSA_BASELINE_SHA:-unknown}
+
+          Required follow-up:
+          - Download the mqsa-review-artifacts artifact from the workflow run.
+          - Compare source structure and required columns with the previous reviewed run.
+          - Complete the generated review CSV before snapshot finalization.
+          - Keep row-level publication blocked until review statuses, coordinates, active flags, and provenance are complete.
+          EOF
+
+          label_args=()
+          for label in data-refresh mqsa evidence-gate; do
+            if gh label list --json name --jq '.[].name' | grep -Fxq "${label}"; then
+              label_args+=(--label "${label}")
+            fi
+          done
+
+          gh issue create \
+            --title "${title}" \
+            "${label_args[@]}" \
+            --body-file "${body}"
+      - name: Open MQSA refresh failure issue
+        if: ${{ failure() }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="MQSA refresh failed: run ${GITHUB_RUN_ID}"
+          body="$(mktemp)"
+          cat > "${body}" <<EOF
+          The quarterly MQSA refresh workflow failed and needs review.
+
+          - Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+          - State scope: ${STATE_FILTER:-NC}
+          - Run attempt: ${GITHUB_RUN_ATTEMPT}
+
+          Required follow-up:
+          - Inspect the failing step logs.
+          - Check whether the FDA MQSA source URL, archive structure, or expected review columns changed.
+          - Re-run the workflow after source or parser issues are resolved.
+          - Keep new snapshot publication blocked until the refresh artifacts and review CSV are complete.
+          EOF
+
+          label_args=()
+          for label in data-refresh mqsa workflow-failure evidence-gate; do
+            if gh label list --json name --jq '.[].name' | grep -Fxq "${label}"; then
+              label_args+=(--label "${label}")
+            fi
+          done
+
+          gh issue create \
+            --title "${title}" \
+            "${label_args[@]}" \
+            --body-file "${body}"

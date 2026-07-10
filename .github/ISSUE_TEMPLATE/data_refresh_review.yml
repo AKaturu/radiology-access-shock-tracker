@@ -1,0 +1,54 @@
+name: MQSA refresh review
+description: Track quarterly FDA MQSA source refreshes and reviewer disposition.
+title: "MQSA refresh review: <run date>"
+labels: ["data-refresh", "mqsa", "evidence-gate"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for scheduled or manual FDA MQSA refresh runs. The refresh workflow may open this issue automatically after creating review artifacts or after a failure.
+  - type: input
+    id: workflow_run
+    attributes:
+      label: Workflow run
+      description: Link the GitHub Actions run that fetched the source and prepared the review worklist.
+      placeholder: https://github.com/AKaturu/radiology-access-shock-tracker/actions/runs/...
+    validations:
+      required: true
+  - type: input
+    id: source_metadata
+    attributes:
+      label: Source metadata or archive
+      description: Link the uploaded metadata JSON, artifact, source archive, or checksum record.
+      placeholder: mqsa-review-artifacts / public.zip.metadata.json
+    validations:
+      required: true
+  - type: input
+    id: state_scope
+    attributes:
+      label: State scope
+      placeholder: NC, ALL, or two-letter/FIPS state filter
+    validations:
+      required: true
+  - type: checkboxes
+    id: refresh_checks
+    attributes:
+      label: Refresh checks
+      options:
+        - label: Source ZIP was fetched and archived with checksum metadata.
+          required: true
+        - label: Review CSV was generated for the intended state scope.
+          required: true
+        - label: Source structure and required columns were compared with the previous reviewed run.
+          required: true
+        - label: Any source failures, 404s, schema changes, or unexpectedly empty state rows are documented.
+          required: true
+        - label: Snapshot finalization is blocked until review statuses, coordinates, active flags, and provenance are complete.
+          required: true
+  - type: textarea
+    id: disposition
+    attributes:
+      label: Reviewer disposition
+      placeholder: New data available; no source change; source failure; schema change; follow-up required.
+    validations:
+      required: true

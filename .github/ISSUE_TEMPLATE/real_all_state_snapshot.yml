@@ -1,0 +1,60 @@
+name: Real all-state MQSA snapshot intake
+description: Gate a real reviewed/geocoded 51-jurisdiction MQSA snapshot before row-level all-state findings.
+title: "All-state MQSA snapshot intake: <snapshot date>"
+labels: ["all-state", "mqsa", "evidence-gate"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this only for a real reviewed/geocoded MQSA CSV. Placeholder rows, unreviewed rows, and 0/0 coordinates must not be published as a production all-state facility snapshot.
+  - type: input
+    id: snapshot_date
+    attributes:
+      label: Snapshot date
+      placeholder: "2026-10-01"
+    validations:
+      required: true
+  - type: input
+    id: source_csv
+    attributes:
+      label: Reviewed MQSA CSV
+      description: Link the reviewed CSV or artifact. It must include real identifiers, coordinates, active flags, and approved review statuses.
+      placeholder: artifact URL or repository path
+    validations:
+      required: true
+  - type: checkboxes
+    id: intake_checks
+    attributes:
+      label: Required intake checks
+      options:
+        - label: CSV covers all 51 jurisdictions or documents approved exclusions.
+          required: true
+        - label: Rows include non-placeholder facility identifiers.
+          required: true
+        - label: Rows include reviewed coordinates and no placeholder 0/0 geocodes.
+          required: true
+        - label: Rows include reviewed active-service flags.
+          required: true
+        - label: Rows include approved/reviewed/verified review statuses.
+          required: true
+        - label: Data-quality, geocoder-confidence, identifier-crosswalk, and readiness audits were run.
+          required: true
+        - label: State-specific routing matrices exist before publishing travel-time findings outside NC.
+          required: true
+  - type: textarea
+    id: readiness_evidence
+    attributes:
+      label: Readiness evidence
+      description: Link audit outputs, route matrices, source metadata, and reviewer sign-off.
+    validations:
+      required: true
+  - type: dropdown
+    id: publication_decision
+    attributes:
+      label: Publication decision
+      options:
+        - Approved for readiness-only package use
+        - Approved for row-level state findings after listed constraints
+        - Blocked pending required evidence
+    validations:
+      required: true

@@ -1,0 +1,43 @@
+name: Release trust checklist
+description: Track checksum, SBOM, code-signing, and notarization evidence for a desktop release.
+title: "Release trust: <version>"
+labels: ["release", "security", "evidence-gate"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Release version
+      placeholder: v0.2.1
+    validations:
+      required: true
+  - type: input
+    id: release_url
+    attributes:
+      label: GitHub release URL
+      placeholder: https://github.com/AKaturu/radiology-access-shock-tracker/releases/tag/v0.2.1
+    validations:
+      required: true
+  - type: checkboxes
+    id: release_checks
+    attributes:
+      label: Release trust checks
+      options:
+        - label: Windows ZIP, macOS DMG, and Linux tarball were uploaded.
+          required: true
+        - label: SHA-256 checksum companion files were uploaded for every desktop artifact.
+          required: true
+        - label: CycloneDX SBOM was uploaded.
+          required: true
+        - label: Checksums were verified against downloaded release artifacts.
+          required: true
+        - label: Windows code-signing status is documented.
+          required: true
+        - label: macOS code-signing and notarization status is documented.
+          required: true
+  - type: textarea
+    id: signer_notes
+    attributes:
+      label: Signing and notarization notes
+      description: Document certificate identities, Apple team ID, notarization ticket, or why signing is not yet available.
+    validations:
+      required: true

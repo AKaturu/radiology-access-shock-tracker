@@ -16,6 +16,11 @@ MQSA, Census ACS/Gazetteer, CDC PLACES, CDC/ATSDR SVI, and HRSA candidate source
 package is production-audit ready with DC included; row-level facility findings still require
 reviewed/geocoded MQSA snapshots before publication.
 
+The dashboard now displays the publication boundary directly: reviewed row-level findings are
+limited to the North Carolina validation package, while the 51-jurisdiction package remains
+readiness-level evidence until real reviewed/geocoded all-state MQSA snapshots, routing matrices,
+and state readiness audits exist.
+
 Synthetic demo signals:
 
 - 4 synthetic facility event signals.
@@ -53,13 +58,15 @@ Key references:
 - [Expert review packet](EXPERT_REVIEW_PACKET.md)
 - [Journal report package guide](JOURNAL_REPORT_PACKAGE.md)
 - [Manuscript working draft](MANUSCRIPT_DRAFT.md)
+- GitHub issue forms for expert review, MQSA refresh review, release trust, all-state snapshot
+  intake, and external validation
 
 Core validation:
 
 ```text
-python -m pytest: 131 passed
+python -m pytest: passing
 ruff check: passed
-mypy src/radshock: passed with no issues in 31 source files
+mypy src/radshock: passed with no issues in 32 source files
 synthetic demo readiness audit: BLOCKED as expected
 reviewed real-data readiness audit: READY, 0 blockers, 0 warnings
 all-state production audit: READY, 0 blockers, 0 warnings

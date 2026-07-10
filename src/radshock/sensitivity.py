@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
+from typing import Any, Literal, cast
 
 import pandas as pd
 
@@ -14,6 +14,22 @@ VULNERABILITY_COMPONENT_COLUMNS = {
     "vulnerability_poverty_component",
     "vulnerability_rurality_component",
     "vulnerability_risk_component",
+}
+SENSITIVITY_REPORT_COLUMNS = {
+    "scenario_id",
+    "scenario_name",
+    "scenario_description",
+    "access_metric",
+    "county_fips",
+    "county_name",
+    "baseline_shock_score",
+    "sensitivity_shock_score",
+    "score_delta_from_baseline",
+    "baseline_alert_level",
+    "sensitivity_alert_level",
+    "baseline_rank",
+    "sensitivity_rank",
+    "rank_delta_from_baseline",
 }
 
 
@@ -185,6 +201,92 @@ def run_sensitivity_analysis(
     )
 
 
+def render_sensitivity_markdown(
+    sensitivity: pd.DataFrame,
+    *,
+    title: str = "Sensitivity Analysis Review",
+    top_n: int = 10,
+) -> str:
+    """Render a reviewer-facing Markdown summary of sensitivity-analysis outputs."""
+    require_columns(sensitivity, SENSITIVITY_REPORT_COLUMNS, "sensitivity analysis")
+    if top_n < 1:
+        raise ValueError("top_n must be at least 1")
+    frame = sensitivity.copy()
+    frame["county_fips"] = frame["county_fips"].astype(str).str.zfill(5)
+    for column in [
+        "baseline_shock_score",
+        "sensitivity_shock_score",
+        "score_delta_from_baseline",
+        "baseline_rank",
+        "sensitivity_rank",
+        "rank_delta_from_baseline",
+    ]:
+        frame[column] = pd.to_numeric(frame[column], errors="raise")
+
+    if frame.empty:
+        return "\n".join(
+            [
+                f"# {title}",
+                "",
+                "No sensitivity-analysis rows were available for review.",
+                "",
+            ]
+        )
+
+    frame["alert_changed"] = (
+        frame["baseline_alert_level"].astype(str)
+        != frame["sensitivity_alert_level"].astype(str)
+    )
+    scenario_count = int(frame["scenario_id"].nunique())
+    county_count = int(frame["county_fips"].nunique())
+    access_metrics = ", ".join(sorted(frame["access_metric"].astype(str).unique()))
+    max_score_delta = float(frame["score_delta_from_baseline"].abs().max())
+    max_rank_delta = int(frame["rank_delta_from_baseline"].abs().max())
+    alert_change_count = int(frame["alert_changed"].sum())
+
+    lines = [
+        f"# {title}",
+        "",
+        "## Summary",
+        "",
+        f"- Scenarios evaluated: {scenario_count}",
+        f"- Counties evaluated: {county_count}",
+        f"- Access metric: {access_metrics}",
+        f"- Largest absolute score change: {_format_float(max_score_delta)}",
+        f"- Largest absolute rank shift: {max_rank_delta}",
+        f"- Scenario-county alert-level changes: {alert_change_count}",
+        "",
+        "## Review Boundary",
+        "",
+        "- This report checks whether county shock rankings are stable under alternate weights.",
+        "- It supports reviewer sign-off; it does not establish causal or clinical validation.",
+        (
+            "- Treat large rank or alert-level shifts as prompts for methods review before "
+            "publication."
+        ),
+        "",
+        "## Scenario Summary",
+        "",
+        _format_markdown_table(_scenario_summary_rows(frame)),
+        "",
+        "## Highest Impact Rows",
+        "",
+        _format_markdown_table(_highest_impact_rows(frame, top_n=top_n)),
+        "",
+        "## Reviewer Sign-Off Checklist",
+        "",
+        "- [ ] Scenario definitions match the intended publication question.",
+        "- [ ] Top-ranked counties remain plausible after alternate weighting assumptions.",
+        "- [ ] Alert-level changes have been reviewed against source and routing limitations.",
+        (
+            "- [ ] Any publication text describes sensitivity results as exploratory robustness "
+            "checks."
+        ),
+        "",
+    ]
+    return "\n".join(lines)
+
+
 def _prepare_county_shocks(county_shocks: pd.DataFrame) -> pd.DataFrame:
     require_columns(county_shocks, IDENTIFIER_COLUMNS, "county shocks")
     result = county_shocks.copy()
@@ -301,3 +403,93 @@ def _alert_levels(scores: pd.Series) -> pd.Series:
 def _validate_weight_sum(value: float, label: str) -> None:
     if abs(value - 1.0) > 1e-9:
         raise ValueError(f"{label} must sum to 1.0")
+
+
+def _scenario_summary_rows(frame: pd.DataFrame) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    for _, group in frame.groupby("scenario_id", sort=False):
+        scenario = group.iloc[0]
+        top = group.sort_values(["sensitivity_rank", "county_name"]).iloc[0]
+        rows.append(
+            {
+                "Scenario": str(scenario["scenario_name"]),
+                "Top county": f"{top['county_name']} ({top['county_fips']})",
+                "Max score delta": _format_float(
+                    float(group["score_delta_from_baseline"].abs().max())
+                ),
+                "Max rank shift": str(int(group["rank_delta_from_baseline"].abs().max())),
+                "Alert changes": str(int(group["alert_changed"].sum())),
+                "Description": str(scenario["scenario_description"]),
+            }
+        )
+    return rows
+
+
+def _highest_impact_rows(frame: pd.DataFrame, *, top_n: int) -> list[dict[str, str]]:
+    if (
+        frame["rank_delta_from_baseline"].abs().max() == 0
+        and frame["score_delta_from_baseline"].abs().max() == 0
+        and not bool(frame["alert_changed"].any())
+    ):
+        return [
+            {
+                "Scenario": "All scenarios",
+                "County": "No material score, rank, or alert-level movement",
+                "Baseline score": "-",
+                "Sensitivity score": "-",
+                "Score delta": "0.0",
+                "Rank delta": "0",
+                "Alert change": "No change",
+            }
+        ]
+    ranked = frame.assign(
+        abs_rank_delta=frame["rank_delta_from_baseline"].abs(),
+        abs_score_delta=frame["score_delta_from_baseline"].abs(),
+    ).sort_values(
+        ["abs_rank_delta", "abs_score_delta", "scenario_id", "county_name"],
+        ascending=[False, False, True, True],
+    )
+    rows: list[dict[str, str]] = []
+    for raw_row in ranked.head(top_n).to_dict(orient="records"):
+        row = cast(dict[str, Any], raw_row)
+        rows.append(
+            {
+                "Scenario": str(row["scenario_id"]),
+                "County": f"{row['county_name']} ({row['county_fips']})",
+                "Baseline score": _format_float(float(row["baseline_shock_score"])),
+                "Sensitivity score": _format_float(float(row["sensitivity_shock_score"])),
+                "Score delta": _format_float(float(row["score_delta_from_baseline"])),
+                "Rank delta": str(int(row["rank_delta_from_baseline"])),
+                "Alert change": (
+                    f"{row['baseline_alert_level']} -> {row['sensitivity_alert_level']}"
+                    if bool(row["alert_changed"])
+                    else "No change"
+                ),
+            }
+        )
+    return rows
+
+
+def _format_markdown_table(rows: list[dict[str, str]]) -> str:
+    if not rows:
+        return "_No rows._"
+    headers = list(rows[0])
+    lines = [
+        "| " + " | ".join(headers) + " |",
+        "| " + " | ".join("---" for _ in headers) + " |",
+    ]
+    for row in rows:
+        lines.append(
+            "| "
+            + " | ".join(_markdown_cell(row.get(header, "")) for header in headers)
+            + " |"
+        )
+    return "\n".join(lines)
+
+
+def _markdown_cell(value: str) -> str:
+    return value.replace("\n", " ").replace("|", "\\|")
+
+
+def _format_float(value: float) -> str:
+    return f"{value:.1f}"

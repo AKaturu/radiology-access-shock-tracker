@@ -11,6 +11,21 @@ use a two-letter state/DC abbreviation, a state/DC FIPS code, or `ALL` for a
 This workflow intentionally stops before approval, snapshot finalization, analysis, or publication.
 The FDA refresh step does not require a repository secret.
 
+The workflow now monitors source freshness and failures:
+
+- If the fetched FDA MQSA ZIP SHA-256 differs from the latest tracked
+  `data/source_metadata/fda-mqsa-public-*.metadata.json` baseline, it opens a GitHub issue with the
+  workflow run, current hash, baseline hash, and review-artifact path.
+- If the refresh workflow fails, it opens a GitHub issue with the run URL and required source/parser
+  follow-up.
+- Source-change issue titles include the current source-hash prefix, so repeated runs for the same
+  source hash reuse the existing review thread instead of opening duplicates.
+- New snapshots remain blocked until the generated MQSA review CSV has completed review statuses,
+  coordinates, active flags, and provenance.
+
+Use the GitHub issue template `.github/ISSUE_TEMPLATE/data_refresh_review.yml` when creating manual
+refresh-review issues outside the scheduled workflow.
+
 ## Review Owners
 
 Before publishing real-world findings, configure branch protection or required reviewers in GitHub
@@ -72,6 +87,10 @@ Future desktop releases publish checksum companion files and
 `radiology-access-shock-tracker-sbom.cdx.json`, a CycloneDX direct-dependency SBOM generated from
 `pyproject.toml`. The SBOM records declared runtime, development, and desktop build dependencies;
 it does not enumerate transitive dependencies installed by pip.
+
+Use `.github/ISSUE_TEMPLATE/release_trust.yml` for each public desktop release to record checksum,
+SBOM, code-signing, and macOS notarization status. Current builds publish checksums and SBOMs, but
+remain unsigned until signing certificates and Apple notarization credentials are available.
 
 ## External Credentials
 
@@ -195,6 +214,16 @@ radshock data-quality-report `
 The bundle emits `data_quality.csv`, `geocoder_confidence.csv`, `identifier_crosswalk.csv`, and
 `route_uncertainty.csv` when the corresponding inputs are supplied. Use
 `radshock route-uncertainty-check` for a route-review-only plausibility report.
+
+For sensitivity-review sign-off, generate both the machine-readable CSV and the reviewer-facing
+Markdown packet:
+
+```powershell
+radshock sensitivity-analysis outputs/analysis/county_shocks.csv `
+  --output-csv outputs/analysis/sensitivity_analysis.csv `
+  --output-md outputs/analysis/sensitivity_review.md `
+  --force
+```
 
 The command writes county-centroid population points for testing. Build finer tract-centroid
 population points before publication route review:
