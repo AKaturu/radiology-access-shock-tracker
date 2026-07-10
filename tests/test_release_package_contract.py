@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import json
 import re
+import tomllib
 from pathlib import Path
+
+from radshock import __version__
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -24,6 +27,13 @@ def test_release_package_sources_are_tracked_repo_artifacts() -> None:
 
     missing = sorted(source for source in sources if not (ROOT / source).exists())
     assert missing == []
+
+
+def test_runtime_version_matches_project_metadata() -> None:
+    with (ROOT / "pyproject.toml").open("rb") as source:
+        metadata = tomllib.load(source)
+
+    assert __version__ == metadata["project"]["version"]
 
 
 def test_deleted_placeholder_snapshot_directory_is_not_unignored() -> None:

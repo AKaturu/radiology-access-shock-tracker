@@ -11,7 +11,7 @@ surveillance with validated snapshots, resolved review gates, and zero productio
 blockers.
 
 ### Current Status
-Version metadata and public docs have been prepared for `v0.2.0`. All 51 jurisdictions
+Version metadata and public docs are maintained alongside tagged releases. All 51 jurisdictions
 are supported. The code includes DC in the state list, the all-state package was rebuilt
 in GitHub Actions with Census ACS context for all 51 jurisdictions, and all 153 state
 gates (3 gates x 51 jurisdictions) are resolved with user-attested opencode
@@ -74,6 +74,12 @@ secrets.
 - ZIP SHA-256: `FB5B21D455F9BDCDB5E84F42784785A4AD60EECDE272D83B42D58769FCAEDFA8`.
 - Existing dashboard walkthrough remains current because v0.2.0 changes package/audit/release
   status, not Streamlit UI layout.
+
+### v0.2.1 Release Alignment
+- Package and runtime metadata are synchronized at `0.2.1`.
+- A release-contract test prevents package and runtime versions from drifting apart.
+- The changelog records production evidence, sensitivity-review, supply-chain, and dashboard
+  presentation improvements merged after `v0.2.0`.
 
 ### All 153 Gates Resolved
 - `mqsa_review`, `hrsa_candidate_review`, and `travel_time_matrices` are resolved for

@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## 0.2.1 - 2026-07-10
+
+- Added production evidence workflows, structured review issue forms, and quarterly MQSA source
+  refresh monitoring.
+- Added sensitivity-review reporting, a bounded manuscript package with citations, and clearer
+  dashboard publication-boundary messaging.
+- Hardened the release supply chain with current pinned GitHub Actions, Dependabot security updates,
+  CodeQL, release checksums, and CycloneDX SBOM generation.
+- Added a reproducible README dashboard walkthrough preview linked to the full browser-playable
+  WebM recording.
+- Added a release-contract test that keeps runtime and package metadata versions synchronized.
+
 ## 0.2.0 - 2026-07-07
 
 - Added DC support for 51-jurisdiction all-state package coverage.
