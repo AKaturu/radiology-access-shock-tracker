@@ -25,9 +25,12 @@ The `radshock demo` command creates **synthetic North Carolina-like data** and m
 
 ## Dashboard Preview
 
-![Dashboard overview](docs/assets/github/dashboard-overview.png)
+[![Dashboard walkthrough](docs/assets/github/dashboard-walkthrough.gif)](https://cdn.jsdelivr.net/gh/AKaturu/radiology-access-shock-tracker@main/docs/assets/github/dashboard-walkthrough.webm)
 
-Walkthrough footage and more screenshots are in [docs/GITHUB_PAGE_ASSETS.md](docs/GITHUB_PAGE_ASSETS.md).
+[Play the full dashboard walkthrough](https://cdn.jsdelivr.net/gh/AKaturu/radiology-access-shock-tracker@main/docs/assets/github/dashboard-walkthrough.webm)
+
+The inline preview is built from the reviewed North Carolina validation package. Walkthrough footage
+and the full screenshot set are in [docs/GITHUB_PAGE_ASSETS.md](docs/GITHUB_PAGE_ASSETS.md).
 
 ## Current Production Status
 
