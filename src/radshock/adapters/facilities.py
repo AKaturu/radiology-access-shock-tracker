@@ -70,8 +70,7 @@ def normalize_manual_facility_export(frame: pd.DataFrame) -> pd.DataFrame:
     missing = sorted(FACILITY_REQUIRED_COLUMNS - set(result.columns))
     if missing:
         raise ValueError(
-            "manual facility export is missing required normalized columns: "
-            + ", ".join(missing)
+            "manual facility export is missing required normalized columns: " + ", ".join(missing)
         )
     return validate_facilities(result)
 
@@ -226,10 +225,7 @@ def _mqsa_carry_forward_columns(
     optional_columns = [
         column
         for column in previous_review.columns
-        if (
-            column.startswith("geocode_")
-            or column in MQSA_REVIEW_OPTIONAL_CARRY_FORWARD_COLUMNS
-        )
+        if (column.startswith("geocode_") or column in MQSA_REVIEW_OPTIONAL_CARRY_FORWARD_COLUMNS)
     ]
     for column in optional_columns:
         if column not in columns:

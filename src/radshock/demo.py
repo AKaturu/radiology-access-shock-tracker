@@ -68,9 +68,7 @@ def build_demo(output_dir: Path) -> dict[str, Path]:
         synthetic_data=True,
     )
     (briefs / "policy_brief.md").write_text(brief, encoding="utf-8")
-    (briefs / "policy_brief.html").write_text(
-        generate_policy_brief_html(brief), encoding="utf-8"
-    )
+    (briefs / "policy_brief.html").write_text(generate_policy_brief_html(brief), encoding="utf-8")
     manifest = {
         "synthetic_data": True,
         "before_snapshot": "2026-01-01",
@@ -94,12 +92,8 @@ def build_demo(output_dir: Path) -> dict[str, Path]:
         before_snapshot_dir=snapshots / "2026-01-01",
         after_snapshot_dir=snapshots / "2026-04-01",
     )
-    (analysis / "readiness_audit.json").write_text(
-        audit_to_json(audit), encoding="utf-8"
-    )
-    (analysis / "readiness_audit.md").write_text(
-        render_readiness_markdown(audit), encoding="utf-8"
-    )
+    (analysis / "readiness_audit.json").write_text(audit_to_json(audit), encoding="utf-8")
+    (analysis / "readiness_audit.md").write_text(render_readiness_markdown(audit), encoding="utf-8")
     return {
         "events": analysis / "facility_events.csv",
         "shocks": analysis / "county_shocks.csv",

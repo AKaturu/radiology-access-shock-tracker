@@ -47,9 +47,7 @@ def read_svi_county_context(path: str | Path, *, state: str = "ALL") -> pd.DataF
     result["county_fips"] = result["county_fips"].astype(str).str.zfill(5)
 
     label_columns = {"state", "county_fips", "county_name", "location"}
-    numeric_columns = [
-        column for column in result.columns if column not in label_columns
-    ]
+    numeric_columns = [column for column in result.columns if column not in label_columns]
     for column in numeric_columns:
         result[column] = _clean_svi_numeric(result[column])
 

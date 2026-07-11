@@ -362,14 +362,18 @@ def _audit_interventions(path: Path, checks: list[AuditCheck]) -> None:
     rows = len(interventions)
     placeholder_mask = pd.Series(False, index=interventions.index)
     if "candidate_id" in interventions.columns:
-        placeholder_mask |= interventions["candidate_id"].astype(str).str.startswith(
-            "COUNTY-CENTROID-"
+        placeholder_mask |= (
+            interventions["candidate_id"].astype(str).str.startswith("COUNTY-CENTROID-")
         )
     if "candidate_name" in interventions.columns:
-        placeholder_mask |= interventions["candidate_name"].astype(str).str.contains(
-            "County Centroid",
-            case=False,
-            na=False,
+        placeholder_mask |= (
+            interventions["candidate_name"]
+            .astype(str)
+            .str.contains(
+                "County Centroid",
+                case=False,
+                na=False,
+            )
         )
     placeholder_count = int(placeholder_mask.sum())
     if placeholder_count:
@@ -485,7 +489,8 @@ def _audit_travel_time(
         )
         return
     coverage_columns = [
-        column for column in ["travel_time_coverage_before", "travel_time_coverage_after"]
+        column
+        for column in ["travel_time_coverage_before", "travel_time_coverage_after"]
         if column in shocks.columns
     ]
     if not coverage_columns:
@@ -500,8 +505,7 @@ def _audit_travel_time(
         )
         return
     minimum_coverage = min(
-        float(pd.to_numeric(shocks[column], errors="coerce").min())
-        for column in coverage_columns
+        float(pd.to_numeric(shocks[column], errors="coerce").min()) for column in coverage_columns
     )
     checks.append(
         AuditCheck(
@@ -718,9 +722,10 @@ def _audit_snapshot(label: str, snapshot_dir: Path | None, checks: list[AuditChe
             )
         )
         return
-    if bool(metadata.get("synthetic_data")) or "synthetic" in str(
-        metadata.get("source_name", "")
-    ).lower():
+    if (
+        bool(metadata.get("synthetic_data"))
+        or "synthetic" in str(metadata.get("source_name", "")).lower()
+    ):
         checks.append(
             AuditCheck(
                 check_id,
@@ -732,8 +737,7 @@ def _audit_snapshot(label: str, snapshot_dir: Path | None, checks: list[AuditChe
         )
         return
     missing_provenance = [
-        key for key in ["source_name", "source_url", "raw_source_sha256"]
-        if not metadata.get(key)
+        key for key in ["source_name", "source_url", "raw_source_sha256"] if not metadata.get(key)
     ]
     if missing_provenance:
         checks.append(
@@ -795,7 +799,8 @@ def _audit_raw_source_metadata(path: Path | None, checks: list[AuditCheck]) -> N
         )
         return
     missing = [
-        key for key in ["source_name", "retrieval_date", "retrieval_method", "sha256"]
+        key
+        for key in ["source_name", "retrieval_date", "retrieval_method", "sha256"]
         if not metadata.get(key)
     ]
     if missing:

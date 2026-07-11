@@ -13,9 +13,7 @@ SNAPSHOT_SCRIPT = (
 
 
 def _load_snapshot_script() -> ModuleType:
-    spec = importlib.util.spec_from_file_location(
-        "generate_all_state_snapshots", SNAPSHOT_SCRIPT
-    )
+    spec = importlib.util.spec_from_file_location("generate_all_state_snapshots", SNAPSHOT_SCRIPT)
     assert spec is not None
     assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)
@@ -28,9 +26,7 @@ SNAPSHOT_MODULE = _load_snapshot_script()
 
 def test_snapshot_generation_rejects_unapproved_review_rows(tmp_path: Path) -> None:
     review_path = tmp_path / "review.csv"
-    pd.DataFrame([_mqsa_review_row(review_status="needs_review")]).to_csv(
-        review_path, index=False
-    )
+    pd.DataFrame([_mqsa_review_row(review_status="needs_review")]).to_csv(review_path, index=False)
 
     with pytest.raises(ValueError, match="not approved"):
         SNAPSHOT_MODULE.generate_snapshot_data(review_path, tmp_path / "raw.zip")

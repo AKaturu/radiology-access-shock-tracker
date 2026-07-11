@@ -111,9 +111,11 @@ def build_travel_time_review_template(
     pairs["route_retrieved_at_utc"] = ""
     pairs["route_error"] = ""
     pairs["review_status"] = "needs_review"
-    return pairs[TRAVEL_TIME_REVIEW_COLUMNS].sort_values(
-        ["point_id", "straight_line_miles", "facility_id"]
-    ).reset_index(drop=True)
+    return (
+        pairs[TRAVEL_TIME_REVIEW_COLUMNS]
+        .sort_values(["point_id", "straight_line_miles", "facility_id"])
+        .reset_index(drop=True)
+    )
 
 
 def finalize_travel_time_review(frame: pd.DataFrame) -> pd.DataFrame:
@@ -129,9 +131,7 @@ def finalize_travel_time_review(frame: pd.DataFrame) -> pd.DataFrame:
     review_status = result["review_status"].str.lower()
     invalid_review = ~review_status.isin(TRAVEL_TIME_REVIEW_APPROVED_STATUSES)
     if invalid_review.any():
-        examples = result.loc[invalid_review, ["point_id", "facility_id", "review_status"]].head(
-            5
-        )
+        examples = result.loc[invalid_review, ["point_id", "facility_id", "review_status"]].head(5)
         raise ValueError(
             "travel time review contains rows that are not approved: "
             + examples.to_dict(orient="records").__repr__()
@@ -149,9 +149,7 @@ def finalize_travel_time_review(frame: pd.DataFrame) -> pd.DataFrame:
     routed = result[route_status == "routed"].copy()
     if routed.empty:
         return pd.DataFrame(columns=sorted(TRAVEL_TIME_MATRIX_COLUMNS))
-    routed["travel_time_minutes"] = pd.to_numeric(
-        routed["travel_time_minutes"], errors="raise"
-    )
+    routed["travel_time_minutes"] = pd.to_numeric(routed["travel_time_minutes"], errors="raise")
     blank_minutes = routed["travel_time_minutes"].isna()
     if blank_minutes.any():
         examples = routed.loc[blank_minutes, ["point_id", "facility_id"]].head(5)
@@ -229,9 +227,7 @@ def fill_travel_time_review_from_osrm(
     for _, group in result.groupby("point_id", sort=False):
         index = group.index
         origin = group.iloc[0]
-        coordinates = [
-            _format_osrm_coordinate(origin["point_longitude"], origin["point_latitude"])
-        ]
+        coordinates = [_format_osrm_coordinate(origin["point_longitude"], origin["point_latitude"])]
         coordinates.extend(
             _format_osrm_coordinate(row.facility_longitude, row.facility_latitude)
             for row in group.itertuples(index=False)
@@ -342,9 +338,7 @@ def fill_travel_time_review_from_openrouteservice(
     for _, group in result.groupby("point_id", sort=False):
         index = group.index
         origin = group.iloc[0]
-        coordinates = [
-            _format_ors_coordinate(origin["point_longitude"], origin["point_latitude"])
-        ]
+        coordinates = [_format_ors_coordinate(origin["point_longitude"], origin["point_latitude"])]
         coordinates.extend(
             _format_ors_coordinate(row.facility_longitude, row.facility_latitude)
             for row in group.itertuples(index=False)

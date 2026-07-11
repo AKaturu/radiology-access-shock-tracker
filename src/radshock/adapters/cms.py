@@ -29,9 +29,7 @@ def summarize_mammography_claims(
     result = result[mask]
     result[county_fips_column] = result[county_fips_column].astype(str).str.zfill(5)
     result[services_column] = pd.to_numeric(result[services_column], errors="coerce").fillna(0)
-    summary = result.groupby(county_fips_column, as_index=False).agg(
-        {services_column: "sum"}
-    )
+    summary = result.groupby(county_fips_column, as_index=False).agg({services_column: "sum"})
     summary = summary.rename(
         columns={
             county_fips_column: "county_fips",

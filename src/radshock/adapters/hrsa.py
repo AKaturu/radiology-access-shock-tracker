@@ -45,9 +45,7 @@ def build_hrsa_candidate_review_template(
     for column in HRSA_HEALTH_CENTER_REQUIRED_COLUMNS:
         result[column] = result[column].astype(str).str.strip()
 
-    result = result[
-        result["Site State Abbreviation"].str.upper().isin(scope.states)
-    ].copy()
+    result = result[result["Site State Abbreviation"].str.upper().isin(scope.states)].copy()
     if active_only:
         result = result[result["Site Status Description"].str.lower() == "active"].copy()
     if service_delivery_only:

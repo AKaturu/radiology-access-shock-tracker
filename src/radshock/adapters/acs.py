@@ -305,9 +305,7 @@ def build_county_analysis_context(
     result = gazetteer.merge(acs, on="county_fips", how="left")
     _fill_missing_acs_values(result)
     result["state"] = result["county_fips"].str.slice(0, 2).apply(state_abbr_from_fips)
-    result["population_density_per_sqmi"] = (
-        result["total_population"] / result["land_area_sqmi"]
-    )
+    result["population_density_per_sqmi"] = result["total_population"] / result["land_area_sqmi"]
     result["rurality_index"] = _inverse_min_max(result["population_density_per_sqmi"])
     result["high_risk_index"] = _min_max(result["no_vehicle_pct"])
     return result.sort_values("county_fips").reset_index(drop=True)
@@ -327,9 +325,7 @@ def build_tract_analysis_context(
     result = gazetteer.merge(acs, on=["tract_geoid", "county_fips"], how="left")
     _fill_missing_acs_values(result)
     result["state"] = result["county_fips"].str.slice(0, 2).apply(state_abbr_from_fips)
-    result["population_density_per_sqmi"] = (
-        result["total_population"] / result["land_area_sqmi"]
-    )
+    result["population_density_per_sqmi"] = result["total_population"] / result["land_area_sqmi"]
     return result.sort_values("tract_geoid").reset_index(drop=True)
 
 

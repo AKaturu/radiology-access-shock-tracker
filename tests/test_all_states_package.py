@@ -258,6 +258,7 @@ def test_mark_publication_ready_accepts_when_all_gates_resolved(
             evidence="all resolved",
         )
     from radshock.gates import save_resolutions
+
     save_resolutions(resolutions, rp)
 
     def _fake_acs(*args, **kwargs):
@@ -273,18 +274,23 @@ def test_mark_publication_ready_accepts_when_all_gates_resolved(
                 "acs_county_population_points": n,
                 "acs_tract_population_points": n,
             },
-            "counties_frame": pd.DataFrame({
-                "county_fips": county_fips,
-                "state": [US_STATE_FIPS_TO_ABBR[f[:2]] for f in county_fips],
-                "total_population": [50000] * n,
-            }),
-            "tracts_frame": pd.DataFrame({
-                "tract_geoid": tract_fips,
-                "county_fips": [f[:5] for f in tract_fips],
-                "state": [US_STATE_FIPS_TO_ABBR[f[:2]] for f in tract_fips],
-                "total_population": [5000] * n,
-            }),
+            "counties_frame": pd.DataFrame(
+                {
+                    "county_fips": county_fips,
+                    "state": [US_STATE_FIPS_TO_ABBR[f[:2]] for f in county_fips],
+                    "total_population": [50000] * n,
+                }
+            ),
+            "tracts_frame": pd.DataFrame(
+                {
+                    "tract_geoid": tract_fips,
+                    "county_fips": [f[:5] for f in tract_fips],
+                    "state": [US_STATE_FIPS_TO_ABBR[f[:2]] for f in tract_fips],
+                    "total_population": [5000] * n,
+                }
+            ),
         }
+
     monkeypatch.setattr(PACKAGE_MODULE, "_maybe_build_acs_outputs", _fake_acs)
 
     manifest = PACKAGE_MODULE.build_all_states_data_package(
@@ -304,20 +310,29 @@ def test_mark_publication_ready_accepts_when_all_gates_resolved(
 def test_resolutions_file_arg_passed_to_readiness_gates(tmp_path: Path) -> None:
     rp = tmp_path / "custom.json"
     rp.write_text(
-        json.dumps({
-            "version": 1,
-            "gates": {
-                "mqsa_review": {
-                    "label": "MQSA review",
-                    "resolved_states": {
-                        fips: {"resolved_by": "@test", "resolved_at": "now", "evidence": "x"}
-                        for fips in ALL_STATES_FIPS_LIST
+        json.dumps(
+            {
+                "version": 1,
+                "gates": {
+                    "mqsa_review": {
+                        "label": "MQSA review",
+                        "resolved_states": {
+                            fips: {"resolved_by": "@test", "resolved_at": "now", "evidence": "x"}
+                            for fips in ALL_STATES_FIPS_LIST
+                        },
+                    },
+                    "hrsa_candidate_review": {
+                        "label": "HRSA candidate review",
+                        "resolved_states": {},
+                    },
+                    "travel_time_matrices": {
+                        "label": "Travel-time matrices",
+                        "resolved_states": {},
                     },
                 },
-                "hrsa_candidate_review": {"label": "HRSA candidate review", "resolved_states": {}},
-                "travel_time_matrices": {"label": "Travel-time matrices", "resolved_states": {}},
-            },
-        }) + "\n",
+            }
+        )
+        + "\n",
         encoding="utf-8",
     )
 
@@ -404,9 +419,7 @@ def _mock_package_sources(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> No
     monkeypatch.setattr(
         PACKAGE_MODULE,
         "fetch_mammography",
-        lambda *args, **kwargs: pd.DataFrame(
-            {"stateabbr": states, "county_fips": county_fips}
-        ),
+        lambda *args, **kwargs: pd.DataFrame({"stateabbr": states, "county_fips": county_fips}),
     )
     monkeypatch.setattr(
         PACKAGE_MODULE,

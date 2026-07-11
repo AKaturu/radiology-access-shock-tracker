@@ -60,8 +60,16 @@ US_STATE_ABBRS = tuple(US_STATE_ABBR_TO_FIPS)
 US_STATE_FIPS = tuple(US_STATE_ABBR_TO_FIPS.values())
 
 ALL_50_STATE_ALIASES = {
-    "ALL", "ALL50", "ALL_50", "ALL_50_STATES", "ALL_STATES",
-    "ALL_51", "ALL51", "US", "USA", "50",
+    "ALL",
+    "ALL50",
+    "ALL_50",
+    "ALL_50_STATES",
+    "ALL_STATES",
+    "ALL_51",
+    "ALL51",
+    "US",
+    "USA",
+    "50",
 }
 
 
@@ -112,9 +120,7 @@ def resolve_state_scope(value: str | None) -> StateScope:
             states=(requested,),
             state_fips=(US_STATE_ABBR_TO_FIPS[requested],),
         )
-    raise ValueError(
-        "state must be a two-letter USPS abbreviation, a state FIPS code, or ALL"
-    )
+    raise ValueError("state must be a two-letter USPS abbreviation, a state FIPS code, or ALL")
 
 
 def state_abbr_from_fips(state_fips: str) -> str:

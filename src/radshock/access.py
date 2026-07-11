@@ -105,9 +105,7 @@ def summarize_county_access(
         elif finite.any() and weights[finite].sum() > 0:
             mean_distance = float(np.average(distances[finite], weights=weights[finite]))
             p90_distance = weighted_quantile(distances[finite], weights[finite], 0.90)
-            over = float(
-                weights[(distances > threshold_miles) | ~finite].sum() / total_weight
-            )
+            over = float(weights[(distances > threshold_miles) | ~finite].sum() / total_weight)
         else:
             mean_distance = float("inf")
             p90_distance = float("inf")
@@ -303,9 +301,7 @@ def summarize_access_change(
             after_over = (after_distance > threshold) | ~np.isfinite(after_distance)
             newly_over = (~before_over) & after_over
             threshold_label = int(threshold)
-            row[f"population_newly_over_{threshold_label}_miles"] = float(
-                weights[newly_over].sum()
-            )
+            row[f"population_newly_over_{threshold_label}_miles"] = float(weights[newly_over].sum())
         rows.append(row)
     return pd.DataFrame(rows)
 
@@ -409,9 +405,7 @@ def _add_vulnerability_adjusted_score(
         + 0.25 * result["shock_threshold_component"]
     )
 
-    result["vulnerability_poverty_component"] = result["poverty_pct"].div(30).clip(
-        lower=0, upper=1
-    )
+    result["vulnerability_poverty_component"] = result["poverty_pct"].div(30).clip(lower=0, upper=1)
     result["vulnerability_rurality_component"] = result["rurality_index"].clip(lower=0, upper=1)
     result["vulnerability_risk_component"] = result["high_risk_index"].clip(lower=0, upper=1)
     result["vulnerability_component"] = (
@@ -419,8 +413,8 @@ def _add_vulnerability_adjusted_score(
         + 0.3 * result["vulnerability_rurality_component"]
         + 0.3 * result["vulnerability_risk_component"]
     )
-    score = 100 * result["deterioration_component"] * (
-        0.70 + 0.30 * result["vulnerability_component"]
+    score = (
+        100 * result["deterioration_component"] * (0.70 + 0.30 * result["vulnerability_component"])
     )
     result["shock_score"] = score.clip(lower=0, upper=100).round(1)
     return result

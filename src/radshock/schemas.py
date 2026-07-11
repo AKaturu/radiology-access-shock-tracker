@@ -154,9 +154,7 @@ def validate_travel_time_matrix(frame: pd.DataFrame) -> pd.DataFrame:
     result = frame.copy()
     result["point_id"] = result["point_id"].astype(str)
     result["facility_id"] = result["facility_id"].astype(str)
-    result["travel_time_minutes"] = pd.to_numeric(
-        result["travel_time_minutes"], errors="raise"
-    )
+    result["travel_time_minutes"] = pd.to_numeric(result["travel_time_minutes"], errors="raise")
     if (result["travel_time_minutes"] < 0).any():
         raise ValueError("travel_time_minutes must be nonnegative")
     duplicate_mask = result.duplicated(["point_id", "facility_id"])
@@ -168,8 +166,7 @@ def validate_travel_time_matrix(frame: pd.DataFrame) -> pd.DataFrame:
             .tolist()
         )
         raise ValueError(
-            "travel time matrix contains duplicate point/facility pairs: "
-            f"{duplicates}"
+            f"travel time matrix contains duplicate point/facility pairs: {duplicates}"
         )
     return result.sort_values(["point_id", "facility_id"]).reset_index(drop=True)
 

@@ -26,9 +26,7 @@ GATE_METADATA: dict[str, dict[str, str]] = {
     },
     "travel_time_matrices": {
         "label": "Travel-time matrices",
-        "description": (
-            "Travel-time and routing evidence require review before publication."
-        ),
+        "description": ("Travel-time and routing evidence require review before publication."),
     },
 }
 
@@ -170,9 +168,7 @@ def get_active_gate_strings(resolutions: dict[str, Any]) -> list[str]:
             if resolved:
                 remaining = len(ALL_STATES_FIPS_LIST) - len(resolved)
                 total = len(ALL_STATES_FIPS_LIST)
-                active.append(
-                    f"{desc} ({remaining} of {total} states remain unresolved.)"
-                )
+                active.append(f"{desc} ({remaining} of {total} states remain unresolved.)")
             else:
                 active.append(desc)
     return active

@@ -284,9 +284,7 @@ def audit_readiness_json(path: Path) -> pd.DataFrame:
     if not isinstance(checks, list):
         checks = []
     overall = str(payload.get("overall_status", "UNKNOWN"))
-    blockers = sum(
-        isinstance(check, dict) and check.get("status") == "BLOCKER" for check in checks
-    )
+    blockers = sum(isinstance(check, dict) and check.get("status") == "BLOCKER" for check in checks)
     warnings = sum(isinstance(check, dict) and check.get("status") == "WARN" for check in checks)
     status: ProductionStatus = "PASS" if overall == "READY" else "BLOCKER"
     if overall == "WARN":
@@ -374,9 +372,7 @@ def _load_json_object(path: Path, *, domain: str) -> dict[str, Any] | pd.DataFra
         )
     if not isinstance(payload, dict):
         return pd.DataFrame(
-            [
-                _row(domain, "json_file", str(path), "BLOCKER", "JSON payload must be an object.")
-            ],
+            [_row(domain, "json_file", str(path), "BLOCKER", "JSON payload must be an object.")],
             columns=PRODUCTION_CHECK_COLUMNS,
         )
     return payload
