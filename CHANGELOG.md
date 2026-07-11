@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Made intentional subprocess return-code handling explicit in all-state orchestration scripts.
 - Refreshed the compiled validation report with the current 160-test and 33-module type-check results
   while preserving the date of the historical desktop artifacts.
 - Added bounded transient HTTP retries and process-local request pacing for Census workflows.

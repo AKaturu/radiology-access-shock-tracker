@@ -43,7 +43,7 @@ def main() -> None:
     def _run(label: str, cmd: list[str], *, required: bool = True) -> None:
         print(f"\n=== {label} ===")
         print(f"Running: {' '.join(str(c) for c in cmd)}")
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
         if result.returncode != 0:
             print(f"STDERR: {result.stderr}")
             if required:

@@ -153,7 +153,7 @@ def _run_single(
     if resolve_reviewed_gates:
         single_cmd += ["--resolve-reviewed-gates"]
     print(f"Running: {' '.join(str(c) for c in single_cmd)}")
-    result = subprocess.run(single_cmd, capture_output=True, text=True)
+    result = subprocess.run(single_cmd, capture_output=True, text=True, check=False)
     if result.returncode != 0:
         print(f"STDERR: {result.stderr[:3000]}")
     elif result.stdout:
