@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added bounded transient HTTP retries and process-local request pacing for Census workflows.
+- Marked zero-baseline utilization changes and zero-weight access statistics as undefined instead
+  of emitting infinite or misleading percentages.
+- Synchronized citation metadata and corrected the author credit to Abinav Katuru.
+
 ## 0.2.1 - 2026-07-10
 
 - Added production evidence workflows, structured review issue forms, and quarterly MQSA source
