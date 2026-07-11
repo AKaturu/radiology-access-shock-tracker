@@ -42,9 +42,7 @@ def test_evidence_gate_issue_templates_exist() -> None:
 
 
 def test_quarterly_mqsa_workflow_opens_refresh_issues() -> None:
-    text = (ROOT / ".github" / "workflows" / "quarterly-snapshot.yml").read_text(
-        encoding="utf-8"
-    )
+    text = (ROOT / ".github" / "workflows" / "quarterly-snapshot.yml").read_text(encoding="utf-8")
 
     assert "issues: write" in text
     assert "MQSA_SOURCE_CHANGED" in text

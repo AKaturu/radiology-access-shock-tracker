@@ -9,6 +9,7 @@ from urllib.parse import unquote, urlparse
 
 import requests
 
+from radshock.http import get_with_retry
 from radshock.snapshots import file_sha256
 
 SOURCE_DOWNLOAD_USER_AGENT = (
@@ -56,8 +57,9 @@ def fetch_url_source(
     filename = _filename_from_url(url)
     destination = _source_destination(destination_dir, source_name, retrieval_date, filename)
     _ensure_destination(destination, force)
-    response = requests.get(
+    response = get_with_retry(
         url,
+        request_get=requests.get,
         timeout=timeout,
         stream=True,
         headers={
@@ -65,7 +67,6 @@ def fetch_url_source(
             "User-Agent": SOURCE_DOWNLOAD_USER_AGENT,
         },
     )
-    response.raise_for_status()
     with destination.open("wb") as handle:
         for chunk in response.iter_content(chunk_size=1024 * 1024):
             if chunk:

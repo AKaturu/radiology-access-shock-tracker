@@ -59,6 +59,12 @@ def test_desktop_release_publishes_checksums_and_sbom() -> None:
     assert "scripts/generate_sbom.py" in text
 
 
+def test_docker_context_excludes_local_data_and_review_artifacts() -> None:
+    entries = set((ROOT / ".dockerignore").read_text(encoding="utf-8").splitlines())
+
+    assert {".git", ".venv", "data", "outputs", "tests", "work"} <= entries
+
+
 def test_direct_dependency_sbom_contains_project_dependencies(tmp_path: Path) -> None:
     module = _load_generate_sbom()
     output = tmp_path / "sbom.cdx.json"

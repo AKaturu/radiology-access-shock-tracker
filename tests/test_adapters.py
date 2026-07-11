@@ -138,9 +138,7 @@ def test_svi_county_context_filters_to_all_50_states(tmp_path: Path) -> None:
     assert set(result["state"]) == {"NC", "SC"}
     assert list(result["county_fips"]) == ["37001", "45001"]
     assert result.loc[result["county_fips"] == "37001", "svi_overall_percentile"].item() == 0.25
-    assert pd.isna(
-        result.loc[result["county_fips"] == "45001", "svi_overall_percentile"].item()
-    )
+    assert pd.isna(result.loc[result["county_fips"] == "45001", "svi_overall_percentile"].item())
 
 
 def _svi_county_row(
@@ -609,9 +607,7 @@ def test_hrsa_sites_can_include_all_50_states() -> None:
 
 def test_fda_mqsa_pipe_delimited_source_is_supported(tmp_path: Path) -> None:
     source = tmp_path / "public.txt"
-    source.write_text(
-        "Demo Facility|100 Main St|||Raleigh|NC|27601|9195550100|9195550101\n"
-    )
+    source.write_text("Demo Facility|100 Main St|||Raleigh|NC|27601|9195550100|9195550101\n")
     raw = read_fda_mqsa_fixed_width(source, state="NC")
     assert raw.loc[0, "source_facility_name"] == "Demo Facility"
     assert raw.loc[0, "source_state"] == "NC"

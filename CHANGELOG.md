@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- Added pandas type stubs to development installs and made mypy follow each CI matrix interpreter.
+- Made intentional subprocess return-code handling explicit in all-state orchestration scripts.
+- Refreshed the compiled validation report with the current 160-test and 33-module type-check results
+  while preserving the date of the historical desktop artifacts.
+- Added bounded transient HTTP retries and process-local request pacing for Census workflows.
+- Marked zero-baseline utilization changes and zero-weight access statistics as undefined instead
+  of emitting infinite or misleading percentages.
+- Synchronized citation metadata and corrected the author credit to Abinav Katuru.
+- Added AppTest coverage for generated and missing analysis packages.
+- Restricted Docker builds to installable source and excluded local data/review artifacts.
+- Made text artifacts consistently UTF-8 and published PEP 561 typing metadata.
+- Added Python 3.13 CI coverage and narrowed mypy suppression to optional UI libraries.
+
 ## 0.2.1 - 2026-07-10
 
 - Added production evidence workflows, structured review issue forms, and quarterly MQSA source

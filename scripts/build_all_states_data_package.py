@@ -449,9 +449,7 @@ def _build_state_readiness_audit(
     return pd.DataFrame(rows).sort_values("state").reset_index(drop=True)
 
 
-def _gate_resolved_fips(
-    resolutions: dict[str, Any], fips: str
-) -> set[str]:
+def _gate_resolved_fips(resolutions: dict[str, Any], fips: str) -> set[str]:
     result: set[str] = set()
     gates_map = resolutions.get("gates", {})
     if not isinstance(gates_map, dict):
@@ -604,21 +602,15 @@ def _state_coverage_summary(state_summary: pd.DataFrame) -> dict[str, int]:
     return {
         "states": int(len(state_summary)),
         "states_with_mqsa_rows": int((state_summary["mqsa_source_rows"] > 0).sum()),
-        "states_with_hrsa_candidates": int(
-            (state_summary["hrsa_candidate_review_rows"] > 0).sum()
-        ),
+        "states_with_hrsa_candidates": int((state_summary["hrsa_candidate_review_rows"] > 0).sum()),
         "states_with_places_rows": int((state_summary["places_mammography_rows"] > 0).sum()),
         "states_with_census_counties": int((state_summary["census_counties"] > 0).sum()),
         "states_with_census_tracts": int((state_summary["census_tracts"] > 0).sum()),
         "states_with_cdc_atsdr_svi_counties": int(
             (state_summary["cdc_atsdr_svi_counties"] > 0).sum()
         ),
-        "states_with_acs_county_context": int(
-            (state_summary["acs_county_context_rows"] > 0).sum()
-        ),
-        "states_with_acs_tract_context": int(
-            (state_summary["acs_tract_context_rows"] > 0).sum()
-        ),
+        "states_with_acs_county_context": int((state_summary["acs_county_context_rows"] > 0).sum()),
+        "states_with_acs_tract_context": int((state_summary["acs_tract_context_rows"] > 0).sum()),
         "states_with_all_public_no_secret_sources": int(
             (state_summary["sources_present"] == 6).sum()
         ),
@@ -640,9 +632,7 @@ def _state_coverage_gaps(state_summary: pd.DataFrame) -> dict[str, list[str]]:
         "missing_acs_county_context": _states_without_rows(
             state_summary, "acs_county_context_rows"
         ),
-        "missing_acs_tract_context": _states_without_rows(
-            state_summary, "acs_tract_context_rows"
-        ),
+        "missing_acs_tract_context": _states_without_rows(state_summary, "acs_tract_context_rows"),
         "missing_any_public_no_secret_source": state_summary.loc[
             state_summary["sources_present"] < 6, "state"
         ]
@@ -835,10 +825,7 @@ def _parse_args() -> argparse.Namespace:
         "--resolutions-file",
         type=Path,
         default=None,
-        help=(
-            "Path to gate resolutions tracking file. "
-            f"Defaults to {DEFAULT_RESOLUTIONS_PATH}."
-        ),
+        help=(f"Path to gate resolutions tracking file. Defaults to {DEFAULT_RESOLUTIONS_PATH}."),
     )
     return parser.parse_args()
 

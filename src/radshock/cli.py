@@ -262,14 +262,19 @@ def carry_forward_mqsa_review_command(
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     result.to_csv(output_csv, index=False)
     matched_count = int(
-        current["source_record_hash"].astype(str).str.strip().isin(
-            set(previous["source_record_hash"].astype(str).str.strip())
-        ).sum()
+        current["source_record_hash"]
+        .astype(str)
+        .str.strip()
+        .isin(set(previous["source_record_hash"].astype(str).str.strip()))
+        .sum()
     )
     approved_count = int(
-        result["review_status"].astype(str).str.strip().str.lower().isin(
-            {"reviewed", "verified", "approved"}
-        ).sum()
+        result["review_status"]
+        .astype(str)
+        .str.strip()
+        .str.lower()
+        .isin({"reviewed", "verified", "approved"})
+        .sum()
     )
     typer.echo(f"MQSA carry-forward review written: {output_csv.resolve()}")
     typer.echo(
@@ -401,8 +406,7 @@ def data_quality_report_command(
             output_md.write_text(render_quality_markdown(audit), encoding="utf-8")
             typer.echo(f"Data-quality Markdown written: {output_md.resolve()}")
         typer.echo(
-            f"Data quality: {audit['status']} ({audit['dataset_type']}, "
-            f"{audit['row_count']} rows)"
+            f"Data quality: {audit['status']} ({audit['dataset_type']}, {audit['row_count']} rows)"
         )
         wrote_report = True
 
@@ -707,9 +711,7 @@ def prepare_travel_time_review_command(
     max_facilities_per_point: Annotated[
         int | None,
         typer.Option(
-            help=(
-                "Optional nearest-facility cap per population point after distance filtering."
-            )
+            help=("Optional nearest-facility cap per population point after distance filtering.")
         ),
     ] = None,
     include_inactive: Annotated[
@@ -1168,9 +1170,7 @@ def production_audit_command(
 def resolve_gate_command(
     gate_name: Annotated[str, typer.Argument(help="Gate to resolve")],
     state: Annotated[str, typer.Argument(help="2-letter state abbreviation or FIPS code")],
-    evidence: Annotated[
-        str, typer.Option(help="Reference for the resolution evidence")
-    ],
+    evidence: Annotated[str, typer.Option(help="Reference for the resolution evidence")],
     resolved_by: Annotated[
         str,
         typer.Option(
@@ -1789,8 +1789,10 @@ def analyze(
         utilization_change,
         synthetic_data=synthetic_data,
     )
-    (output_dir / "policy_brief.md").write_text(brief)
-    (output_dir / "policy_brief.html").write_text(generate_policy_brief_html(brief))
+    (output_dir / "policy_brief.md").write_text(brief, encoding="utf-8")
+    (output_dir / "policy_brief.html").write_text(
+        generate_policy_brief_html(brief), encoding="utf-8"
+    )
     _write_analysis_manifest(
         output_dir,
         before_csv=before_csv,

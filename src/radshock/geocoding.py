@@ -9,9 +9,11 @@ from typing import Any, Protocol, cast
 import pandas as pd
 import requests
 
+from radshock.http import RequestRateLimiter, get_with_retry
 from radshock.schemas import require_columns
 
 CENSUS_GEOCODER_URL = "https://geocoding.geo.census.gov/geocoder/locations/address"
+CENSUS_GEOCODER_MINIMUM_REQUEST_INTERVAL_SECONDS = 0.1
 
 MQSA_GEOCODE_COLUMNS = {
     "source_record_hash",
@@ -91,7 +93,10 @@ class GeocodeCache:
         self.path = path
         self._items: dict[str, dict[str, Any]] = {}
         if path.exists():
-            self._items = cast(dict[str, dict[str, Any]], json.loads(path.read_text()))
+            self._items = cast(
+                dict[str, dict[str, Any]],
+                json.loads(path.read_text(encoding="utf-8")),
+            )
 
     def get(self, query: GeocodeQuery, provider_name: str) -> GeocodeResult | None:
         item = self._items.get(query.cache_key(provider_name))
@@ -102,7 +107,10 @@ class GeocodeCache:
     def set(self, query: GeocodeQuery, result: GeocodeResult) -> None:
         self._items[query.cache_key(result.provider)] = asdict(result)
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(self._items, indent=2, sort_keys=True) + "\n")
+        self.path.write_text(
+            json.dumps(self._items, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
 
 
 class CensusGeocoder:
@@ -115,10 +123,12 @@ class CensusGeocoder:
         benchmark: str = "Public_AR_Current",
         timeout: int = 30,
         endpoint: str = CENSUS_GEOCODER_URL,
+        minimum_interval_seconds: float = CENSUS_GEOCODER_MINIMUM_REQUEST_INTERVAL_SECONDS,
     ) -> None:
         self.benchmark = benchmark
         self.timeout = timeout
         self.endpoint = endpoint
+        self._rate_limiter = RequestRateLimiter(minimum_interval_seconds)
 
     def geocode(self, query: GeocodeQuery) -> GeocodeResult:
         retrieved_at = datetime.now(UTC).isoformat()
@@ -131,8 +141,13 @@ class CensusGeocoder:
             "format": "json",
         }
         try:
-            response = requests.get(self.endpoint, params=params, timeout=self.timeout)
-            response.raise_for_status()
+            response = get_with_retry(
+                self.endpoint,
+                request_get=requests.get,
+                params=params,
+                timeout=self.timeout,
+                rate_limiter=self._rate_limiter,
+            )
             payload = cast(dict[str, Any], response.json())
             matches = cast(
                 list[dict[str, Any]],
@@ -232,9 +247,9 @@ def geocode_mqsa_review(
 
     attempted = 0
     for index, row in result.iterrows():
-        has_coordinates = str(row.get("latitude", "")).strip() and str(
-            row.get("longitude", "")
-        ).strip()
+        has_coordinates = (
+            str(row.get("latitude", "")).strip() and str(row.get("longitude", "")).strip()
+        )
         if has_coordinates and not overwrite_coordinates:
             continue
         if limit is not None and attempted >= limit:

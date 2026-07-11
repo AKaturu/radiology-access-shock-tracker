@@ -5,6 +5,7 @@ from radshock.access import (
     compare_county_travel_time_access,
     nearest_travel_time_access,
     summarize_county_access,
+    summarize_county_travel_time_access,
 )
 from radshock.schemas import validate_travel_time_matrix
 
@@ -80,6 +81,42 @@ def test_no_active_facilities_marks_population_over_threshold() -> None:
     )
     result = summarize_county_access(points, facilities)
     assert result.loc[0, "pct_over_30_miles"] == 1.0
+
+
+def test_zero_weight_county_has_undefined_distance_statistics() -> None:
+    points = pd.DataFrame(
+        [["P1", "37001", 35.0, -78.0, 0]],
+        columns=["point_id", "county_fips", "latitude", "longitude", "weight"],
+    )
+
+    result = summarize_county_access(points, _facilities(-78.0))
+
+    assert result.loc[0, "population_weight"] == 0
+    assert pd.isna(result.loc[0, "mean_distance_miles"])
+    assert pd.isna(result.loc[0, "p90_distance_miles"])
+    assert pd.isna(result.loc[0, "pct_over_30_miles"])
+
+
+def test_zero_weight_county_has_undefined_travel_time_statistics() -> None:
+    points = pd.DataFrame(
+        [["P1", "37001", 35.0, -78.0, 0]],
+        columns=["point_id", "county_fips", "latitude", "longitude", "weight"],
+    )
+    travel_times = pd.DataFrame(
+        [["P1", "F1", 20]],
+        columns=["point_id", "facility_id", "travel_time_minutes"],
+    )
+
+    result = summarize_county_travel_time_access(
+        points,
+        _facilities(-78.0),
+        travel_times,
+    )
+
+    assert pd.isna(result.loc[0, "mean_travel_time_minutes"])
+    assert pd.isna(result.loc[0, "p90_travel_time_minutes"])
+    assert pd.isna(result.loc[0, "pct_over_45_minutes"])
+    assert pd.isna(result.loc[0, "travel_time_coverage"])
 
 
 def test_nearest_travel_time_access_uses_fastest_active_facility() -> None:

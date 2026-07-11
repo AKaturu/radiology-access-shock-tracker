@@ -1039,9 +1039,7 @@ matrix_metadata_json = "matrix.metadata.json"
     assert "Production Completion Audit" in md_output.read_text()
 
 
-def test_production_audit_with_allow_missing_acs_reports_warn(
-    tmp_path: Path, monkeypatch
-) -> None:
+def test_production_audit_with_allow_missing_acs_reports_warn(tmp_path: Path, monkeypatch) -> None:
     config = tmp_path / "config.toml"
     config.write_text(
         """
