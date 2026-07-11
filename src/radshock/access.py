@@ -96,11 +96,18 @@ def summarize_county_access(
     for county_fips, group in access.groupby("county_fips", sort=True):
         distances = group["distance_miles"].to_numpy(dtype=float)
         weights = group["weight"].to_numpy(dtype=float)
+        total_weight = float(weights.sum())
         finite = np.isfinite(distances)
-        if finite.any() and weights[finite].sum() > 0:
+        if total_weight <= 0:
+            mean_distance = float("nan")
+            p90_distance = float("nan")
+            over = float("nan")
+        elif finite.any() and weights[finite].sum() > 0:
             mean_distance = float(np.average(distances[finite], weights=weights[finite]))
             p90_distance = weighted_quantile(distances[finite], weights[finite], 0.90)
-            over = float(weights[(distances > threshold_miles) | ~finite].sum() / weights.sum())
+            over = float(
+                weights[(distances > threshold_miles) | ~finite].sum() / total_weight
+            )
         else:
             mean_distance = float("inf")
             p90_distance = float("inf")
@@ -108,7 +115,7 @@ def summarize_county_access(
         rows.append(
             {
                 "county_fips": str(county_fips),
-                "population_weight": float(weights.sum()),
+                "population_weight": total_weight,
                 "mean_distance_miles": mean_distance,
                 "p90_distance_miles": p90_distance,
                 f"pct_over_{int(threshold_miles)}_miles": over,
@@ -130,7 +137,12 @@ def summarize_county_travel_time_access(
         weights = group["weight"].to_numpy(dtype=float)
         total_weight = float(weights.sum())
         finite = np.isfinite(times)
-        if finite.any() and weights[finite].sum() > 0:
+        if total_weight <= 0:
+            mean_time = float("nan")
+            p90_time = float("nan")
+            over = float("nan")
+            coverage = float("nan")
+        elif finite.any() and weights[finite].sum() > 0:
             mean_time = float(np.average(times[finite], weights=weights[finite]))
             p90_time = weighted_quantile(times[finite], weights[finite], 0.90)
             over = float(weights[(times > threshold_minutes) | ~finite].sum() / total_weight)

@@ -35,7 +35,10 @@ def summarize_utilization_change(
     merged["utilization_delta_per_1000"] = (
         merged["rate_per_1000_after"] - merged["rate_per_1000_before"]
     )
+    baseline = merged["rate_per_1000_before"].where(
+        merged["rate_per_1000_before"].ne(0)
+    )
     merged["utilization_pct_change"] = (
-        merged["utilization_delta_per_1000"] / merged["rate_per_1000_before"]
+        merged["utilization_delta_per_1000"] / baseline
     )
     return merged.sort_values("utilization_delta_per_1000").reset_index(drop=True)
