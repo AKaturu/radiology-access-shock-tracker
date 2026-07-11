@@ -350,7 +350,7 @@ causal estimate.
     brief_path = next((path for path in brief_candidates if path.exists()), None)
     html_brief_path = next((path for path in html_brief_candidates if path.exists()), None)
     if brief_path is not None:
-        brief = brief_path.read_text()
+        brief = brief_path.read_text(encoding="utf-8")
         st.download_button(
             "Download policy brief",
             brief,
@@ -358,7 +358,7 @@ causal estimate.
             mime="text/markdown",
         )
     if html_brief_path is not None:
-        html_brief = html_brief_path.read_text()
+        html_brief = html_brief_path.read_text(encoding="utf-8")
         st.download_button(
             "Download HTML policy brief",
             html_brief,

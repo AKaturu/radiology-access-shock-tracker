@@ -93,7 +93,10 @@ class GeocodeCache:
         self.path = path
         self._items: dict[str, dict[str, Any]] = {}
         if path.exists():
-            self._items = cast(dict[str, dict[str, Any]], json.loads(path.read_text()))
+            self._items = cast(
+                dict[str, dict[str, Any]],
+                json.loads(path.read_text(encoding="utf-8")),
+            )
 
     def get(self, query: GeocodeQuery, provider_name: str) -> GeocodeResult | None:
         item = self._items.get(query.cache_key(provider_name))
@@ -104,7 +107,10 @@ class GeocodeCache:
     def set(self, query: GeocodeQuery, result: GeocodeResult) -> None:
         self._items[query.cache_key(result.provider)] = asdict(result)
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(self._items, indent=2, sort_keys=True) + "\n")
+        self.path.write_text(
+            json.dumps(self._items, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
 
 
 class CensusGeocoder:

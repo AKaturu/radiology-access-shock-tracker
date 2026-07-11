@@ -6,6 +6,10 @@
 - Marked zero-baseline utilization changes and zero-weight access statistics as undefined instead
   of emitting infinite or misleading percentages.
 - Synchronized citation metadata and corrected the author credit to Abinav Katuru.
+- Added AppTest coverage for generated and missing analysis packages.
+- Restricted Docker builds to installable source and excluded local data/review artifacts.
+- Made text artifacts consistently UTF-8 and published PEP 561 typing metadata.
+- Added Python 3.13 CI coverage and narrowed mypy suppression to optional UI libraries.
 
 ## 0.2.1 - 2026-07-10
 

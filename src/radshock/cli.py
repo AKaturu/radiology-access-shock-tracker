@@ -1789,8 +1789,10 @@ def analyze(
         utilization_change,
         synthetic_data=synthetic_data,
     )
-    (output_dir / "policy_brief.md").write_text(brief)
-    (output_dir / "policy_brief.html").write_text(generate_policy_brief_html(brief))
+    (output_dir / "policy_brief.md").write_text(brief, encoding="utf-8")
+    (output_dir / "policy_brief.html").write_text(
+        generate_policy_brief_html(brief), encoding="utf-8"
+    )
     _write_analysis_manifest(
         output_dir,
         before_csv=before_csv,

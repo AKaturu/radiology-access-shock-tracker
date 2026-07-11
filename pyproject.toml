@@ -27,6 +27,7 @@ dev = [
   "pre-commit>=3.7",
   "pytest>=8.2",
   "ruff>=0.5",
+  "types-requests>=2.32",
 ]
 desktop = [
   "pyinstaller>=6.0",
@@ -64,4 +65,7 @@ python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["plotly.*", "streamlit.*"]
 ignore_missing_imports = true

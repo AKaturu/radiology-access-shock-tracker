@@ -48,7 +48,9 @@ def store_snapshot(
     if raw_source_path is not None:
         metadata["raw_source_filename"] = raw_source_path.name
         metadata["raw_source_sha256"] = file_sha256(raw_source_path)
-    (destination / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
+    (destination / "metadata.json").write_text(
+        json.dumps(metadata, indent=2) + "\n", encoding="utf-8"
+    )
     return destination
 
 
