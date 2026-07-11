@@ -3,6 +3,7 @@ from __future__ import annotations
 import pandas as pd
 import requests
 
+from radshock.http import get_with_retry
 from radshock.states import resolve_state_scope
 
 PLACES_COUNTY_ENDPOINT = "https://data.cdc.gov/resource/swc5-untb.json"
@@ -29,8 +30,12 @@ def fetch_mammography(state: str = "NC", timeout: int = 30) -> pd.DataFrame:
         "$where": where,
         "$limit": 100000,
     }
-    response = requests.get(PLACES_COUNTY_ENDPOINT, params=params, timeout=timeout)
-    response.raise_for_status()
+    response = get_with_retry(
+        PLACES_COUNTY_ENDPOINT,
+        request_get=requests.get,
+        params=params,
+        timeout=timeout,
+    )
     frame = pd.DataFrame(response.json())
     if frame.empty:
         return pd.DataFrame(columns=PLACES_MAMMOGRAPHY_COLUMNS + ["county_fips"])

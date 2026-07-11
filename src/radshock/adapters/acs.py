@@ -6,7 +6,10 @@ import zipfile
 import pandas as pd
 import requests
 
+from radshock.http import RequestRateLimiter, get_with_retry
 from radshock.states import StateScope, resolve_state_scope, state_abbr_from_fips
+
+CENSUS_MINIMUM_REQUEST_INTERVAL_SECONDS = 0.1
 
 ACS_VARIABLES = {
     "NAME": "name",
@@ -134,6 +137,7 @@ def _fetch_acs_for_scope(
     timeout: int,
 ) -> pd.DataFrame:
     frames: list[pd.DataFrame] = []
+    rate_limiter = RequestRateLimiter(CENSUS_MINIMUM_REQUEST_INTERVAL_SECONDS)
     for state_fips in scope.state_fips:
         in_clause = f"state:{state_fips}"
         if county_wildcard:
@@ -145,6 +149,7 @@ def _fetch_acs_for_scope(
                 in_clause=in_clause,
                 api_key=api_key,
                 timeout=timeout,
+                rate_limiter=rate_limiter,
             )
         )
     return pd.concat(frames, ignore_index=True)
@@ -157,18 +162,20 @@ def _fetch_acs_context(
     in_clause: str,
     api_key: str | None,
     timeout: int,
+    rate_limiter: RequestRateLimiter | None = None,
 ) -> pd.DataFrame:
     variables = ",".join(ACS_VARIABLES)
     url = f"https://api.census.gov/data/{year}/acs/acs5"
     params = {"get": variables, "for": geography, "in": in_clause}
     if api_key is not None and api_key.strip():
         params["key"] = api_key.strip()
-    response = requests.get(
+    response = get_with_retry(
         url,
+        request_get=requests.get,
         params=params,
         timeout=timeout,
+        rate_limiter=rate_limiter,
     )
-    response.raise_for_status()
     try:
         payload = response.json()
     except ValueError as exc:
@@ -368,8 +375,7 @@ def census_gazetteer_urls(
 
 
 def _fetch_gazetteer_frame(url: str, *, timeout: int) -> pd.DataFrame:
-    response = requests.get(url, timeout=timeout)
-    response.raise_for_status()
+    response = get_with_retry(url, request_get=requests.get, timeout=timeout)
     if url.lower().endswith(".zip"):
         with zipfile.ZipFile(io.BytesIO(response.content)) as archive:
             candidates = [

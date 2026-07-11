@@ -9,9 +9,11 @@ from typing import Any, Protocol, cast
 import pandas as pd
 import requests
 
+from radshock.http import RequestRateLimiter, get_with_retry
 from radshock.schemas import require_columns
 
 CENSUS_GEOCODER_URL = "https://geocoding.geo.census.gov/geocoder/locations/address"
+CENSUS_GEOCODER_MINIMUM_REQUEST_INTERVAL_SECONDS = 0.1
 
 MQSA_GEOCODE_COLUMNS = {
     "source_record_hash",
@@ -115,10 +117,12 @@ class CensusGeocoder:
         benchmark: str = "Public_AR_Current",
         timeout: int = 30,
         endpoint: str = CENSUS_GEOCODER_URL,
+        minimum_interval_seconds: float = CENSUS_GEOCODER_MINIMUM_REQUEST_INTERVAL_SECONDS,
     ) -> None:
         self.benchmark = benchmark
         self.timeout = timeout
         self.endpoint = endpoint
+        self._rate_limiter = RequestRateLimiter(minimum_interval_seconds)
 
     def geocode(self, query: GeocodeQuery) -> GeocodeResult:
         retrieved_at = datetime.now(UTC).isoformat()
@@ -131,8 +135,13 @@ class CensusGeocoder:
             "format": "json",
         }
         try:
-            response = requests.get(self.endpoint, params=params, timeout=self.timeout)
-            response.raise_for_status()
+            response = get_with_retry(
+                self.endpoint,
+                request_get=requests.get,
+                params=params,
+                timeout=self.timeout,
+                rate_limiter=self._rate_limiter,
+            )
             payload = cast(dict[str, Any], response.json())
             matches = cast(
                 list[dict[str, Any]],
