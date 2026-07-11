@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Refreshed the compiled validation report with the current 160-test and 33-module type-check results
+  while preserving the date of the historical desktop artifacts.
 - Added bounded transient HTTP retries and process-local request pacing for Census workflows.
 - Marked zero-baseline utilization changes and zero-weight access statistics as undefined instead
   of emitting infinite or misleading percentages.

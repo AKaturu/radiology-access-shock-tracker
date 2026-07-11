@@ -1,6 +1,7 @@
 # Compiled Test Report
 
-Generated from the local v0.2.0 validation run on 2026-07-07.
+Software checks refreshed on 2026-07-11. Desktop and wheel artifact evidence below is retained from
+the local v0.2.0 validation run on 2026-07-07.
 
 ## Result
 
@@ -8,9 +9,10 @@ Status: PASS
 
 ## Checks
 
-- `python -m pytest -q`: 131 tests passed.
+- `python -m pytest -q`: 160 tests passed.
 - `python -m ruff check .`: passed.
-- `python -m mypy src`: passed with no issues in 31 source files.
+- `python -m ruff format --check .`: passed.
+- `python -m mypy src/radshock`: passed with no issues in 33 source files.
 - `python -m pip wheel . -w dist/wheelhouse`: built the v0.2.0 project wheel.
 - `python -m radshock.desktop --check`: validated the bundled reviewed desktop payload.
 - `python -m radshock.desktop --version`: reported `Radiology Access Shock Tracker 0.2.0`.
@@ -20,6 +22,8 @@ Status: PASS
   `RadiologyAccessShockTracker/RadiologyAccessShockTracker.exe` is present.
 
 ## Built Wheel
+
+Historical artifact from the 2026-07-07 v0.2.0 validation run:
 
 - File: `dist/wheelhouse/radiology_access_shock_tracker-0.2.0-py3-none-any.whl`
 - Size: 81,475 bytes
