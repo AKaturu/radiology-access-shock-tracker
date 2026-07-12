@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Upgraded CI and release workflows to Node 24-compatible immutable action revisions.
 - Added pandas type stubs to development installs and made mypy follow each CI matrix interpreter.
 - Made intentional subprocess return-code handling explicit in all-state orchestration scripts.
 - Refreshed the compiled validation report with the current 160-test and 33-module type-check results
